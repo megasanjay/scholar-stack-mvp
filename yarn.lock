@@ -1642,10 +1642,10 @@
     hookable "^5.5.3"
     unhead "1.1.27"
 
-"@vavt/util@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@vavt/util/-/util-1.1.0.tgz#ea58d3d789e8a294b2094ed316f990cd1b74d691"
-  integrity sha512-W5944bw0sCtYmwfYc8y0NnQXrdvlbs6qbTn4HNixGKbyhTubIrPU2dG93O8j89q4t8xiAcyqktjpGCUJtZBpZg==
+"@vavt/util@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@vavt/util/-/util-1.1.1.tgz#4a5571bcfb6122ced51d260deaf1f6feb5ede5d6"
+  integrity sha512-0x+Acegd8k6lFJc7SN4kVhO669fBiMtBjq/WqX2C8Uz5mSgS+nRvfXs0BK2aiV67T0rauBoAmEkQfURQjI2+4Q==
 
 "@vercel/nft@^0.22.6":
   version "0.22.6"
@@ -4908,15 +4908,15 @@ markdown-it@^13.0.1:
     mdurl "^1.0.1"
     uc.micro "^1.0.5"
 
-md-editor-v3@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/md-editor-v3/-/md-editor-v3-4.0.4.tgz#6ac2a869f3099fab57136695ca8964608c552273"
-  integrity sha512-48+FmkeL4M831qX2iBNarhJwPNjhBfF+BCT0xGuhAgnKkpF9ZgsxrNU9c1OWgO7P3cZZatSgSX2URT7OG9ZN0g==
+md-editor-v3@^4.1.0:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/md-editor-v3/-/md-editor-v3-4.2.1.tgz#042f04c8b56c1d9adb6ee457c832dbcf9d42652b"
+  integrity sha512-S8thn9XFD/gztASEn4VxyKflvtpNMqHk0AujE1cxpAhxlAHrCsQSmPoPHFNAwb8WG0PfYw+tH8TLt4T6ZYSYDQ==
   dependencies:
     "@codemirror/lang-markdown" "^6.1.1"
     "@codemirror/language-data" "^6.3.0"
     "@types/markdown-it" "^12.2.3"
-    "@vavt/util" "^1.0.0"
+    "@vavt/util" "^1.1.1"
     codemirror "^6.0.1"
     copy-to-clipboard "^3.3.3"
     lru-cache "^8.0.4"
