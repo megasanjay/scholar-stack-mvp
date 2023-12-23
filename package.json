@@ -58,7 +58,7 @@
   "dependencies": {
     "@codemirror/view": "6.22.0",
     "@headlessui/vue": "^1.7.16",
-    "@pinia/nuxt": "^0.4.11",
+    "@pinia/nuxt": "^0.5.0",
     "@prisma/client": "latest",
     "@vueuse/core": "^10.4.1",
     "calver": "^22.9.1",
