@@ -141,8 +141,7 @@ model Version {
   published    Boolean   @default(false)
   published_on DateTime?
 
-  Resources        Resource[]
-  StagingResources StagingResource[]
+  Resources Resource[]
 
   InternalRelations InternalRelation[]
   ExternalRelations ExternalRelation[]
@@ -168,6 +167,9 @@ model Resource {
   back_link_id  String?
   version_label String?
 
+  action    String? // oldVersion | delete
+  filled_in Boolean @default(false) // all details are not filled in
+
   created DateTime @default(now())
   updated DateTime @updatedAt
 
@@ -180,11 +182,13 @@ model Resource {
   InternalRelationSource InternalRelation[] @relation("SourceRelation")
   InternalRelationTarget InternalRelation[] @relation("TargetRelation")
 
-  StagingResource StagingResource[]
-
+  StagingInternalRelationSource         StagingInternalRelation[] @relation("SourceRelation")
   StagingInternalRelationOriginalSource StagingInternalRelation[] @relation("OriginalSourceRelation")
+  StagingInternalRelationTarget         StagingInternalRelation[] @relation("TargetRelation")
   StagingInternalRelationOriginalTarget StagingInternalRelation[] @relation("OriginalTargetRelation")
+
   StagingExternalRelationSource         StagingExternalRelation[]
+  StagingExternalRelationOriginalSource StagingExternalRelation[] @relation("OriginalSourceRelation")
 }
 
 model InternalRelation {
@@ -228,52 +232,19 @@ model ExternalRelation {
   Version Version[]
 }
 
-model StagingResource {
-  id String @id @default(cuid())
-
-  type   String // doi, url, ror, orcid, etc (prefix from identifiers.org)
-  target String // the actual identifier (10.1234/abc)
-
-  title       String @default("")
-  description String @default("")
-
-  icon String @default("mdi:resource-description-framework")
-
-  back_link     StagingResource? @relation("NewVersionRelation", fields: [back_link_id], references: [id])
-  back_link_id  String?
-  version_label String?
-
-  original_resource    Resource? @relation(fields: [original_resource_id], references: [id])
-  original_resource_id String?
-
-  action    String? // oldVersion | delete
-  filled_in Boolean @default(false) // all details are not filled in
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  Version Version[]
-
-  StagingResource StagingResource[] @relation("NewVersionRelation")
-
-  StagingInternalRelationSource StagingInternalRelation[] @relation("SourceRelation")
-  StagingInternalRelationTarget StagingInternalRelation[] @relation("TargetRelation")
-  StagingExternalRelationSource StagingExternalRelation[]
-}
-
 model StagingInternalRelation {
   id String @id @default(cuid())
 
   original    InternalRelation? @relation(fields: [original_id], references: [id])
   original_id String?
 
-  source    StagingResource @relation("SourceRelation", fields: [source_id], references: [id], onDelete: Cascade)
+  source    Resource @relation("SourceRelation", fields: [source_id], references: [id], onDelete: Cascade)
   source_id String
 
   original_source    Resource? @relation("OriginalSourceRelation", fields: [original_source_id], references: [id])
   original_source_id String?
 
-  target    StagingResource @relation("TargetRelation", fields: [target_id], references: [id], onDelete: Cascade)
+  target    Resource @relation("TargetRelation", fields: [target_id], references: [id], onDelete: Cascade)
   target_id String
 
   original_target    Resource? @relation("OriginalTargetRelation", fields: [original_target_id], references: [id])
@@ -298,10 +269,10 @@ model StagingExternalRelation {
   original    ExternalRelation? @relation(fields: [original_id], references: [id])
   original_id String?
 
-  source    StagingResource @relation(fields: [source_id], references: [id], onDelete: Cascade)
+  source    Resource @relation(fields: [source_id], references: [id], onDelete: Cascade)
   source_id String
 
-  original_source    Resource? @relation(fields: [original_source_id], references: [id])
+  original_source    Resource? @relation("OriginalSourceRelation", fields: [original_source_id], references: [id])
   original_source_id String?
 
   target      String // the actual identifier (10.1234/abc)
