@@ -9,11 +9,23 @@ definePageMeta({
 const push = usePush();
 const route = useRoute();
 
+const collectionStore = useCollectionStore();
+
 const { collectionid, resourceid, workspaceid } = route.params as {
   collectionid: string;
   resourceid: string;
   workspaceid: string;
 };
+
+const currentCollection = computed(() => {
+  return (
+    collectionStore.collection || {
+      version: {
+        published: false,
+      },
+    }
+  );
+});
 
 const { data: resource, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
@@ -80,6 +92,7 @@ const { data: relations, pending: relationsPending } = useLazyFetch(
 
         <div class="flex items-center space-x-2">
           <NuxtLink
+            v-if="!currentCollection?.version?.published"
             :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/edit`"
           >
             <n-button size="large" color="black">

@@ -33,6 +33,10 @@ export default defineEventHandler(async (event) => {
   const allResourceIds = [];
 
   // get the resources for each version
+
+  /**
+   * todo: fix this since the staging resource table doesn't exist anymore
+   */
   for (const version of versions) {
     if (version.published === false) {
       const resources = await prisma.resource.findMany({
@@ -113,12 +117,16 @@ export default defineEventHandler(async (event) => {
   }
 
   for (const resource of resources) {
+    console.log(resource.action);
+
     const item = {
-      disabled: !!(
-        currentResource &&
-        "original_resource_id" in currentResource &&
-        currentResource.original_resource_id === resource.id
-      ),
+      disabled:
+        !!(
+          currentResource &&
+          "original_resource_id" in currentResource &&
+          currentResource.original_resource_id === resource.id
+        ) ||
+        (resource.action && resource.action === "delete"),
       label: resource.title,
       latestCollectionVersionName: resource.versionName,
       orignalResourceId:
