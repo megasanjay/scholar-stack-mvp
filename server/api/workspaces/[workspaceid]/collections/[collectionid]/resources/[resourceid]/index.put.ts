@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the resource exists
-  const resource = await prisma.stagingResource.findUnique({
+  const resource = await prisma.resource.findUnique({
     where: { id: resourceid },
   });
 
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
   const { title, description, icon, target, type, versionLabel } =
     parsedBody.data;
 
-  const updatedResource = await prisma.stagingResource.update({
+  const updatedResource = await prisma.resource.update({
     data: {
       title,
       action: resource.action || "update",

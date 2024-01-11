@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
   const draftVersion = await prisma.version.findFirst({
     include: {
-      StagingResources: true,
+      Resources: true,
     },
     where: {
       collection_id: collectionid,
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const stagingResources = draftVersion.StagingResources;
+  const stagingResources = draftVersion.Resources;
 
   // Adda a new_resource_id field to catch created resources
   const resources = stagingResources.map((resource) => {
@@ -135,6 +135,7 @@ export default defineEventHandler(async (event) => {
             title: resource.title,
             back_link_id: resource.original_resource_id,
             description: resource.description,
+            filled_in: true,
             icon: resource.icon,
             target: resource.target,
             type: resource.type,
@@ -178,6 +179,7 @@ export default defineEventHandler(async (event) => {
           data: {
             title: resource.title,
             description: resource.description,
+            filled_in: true,
             icon: resource.icon,
             target: resource.target,
             type: resource.type,
@@ -390,7 +392,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    await prisma.stagingResource.delete({
+    await prisma.resource.delete({
       where: {
         id: resource.id,
       },

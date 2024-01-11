@@ -167,6 +167,9 @@ model Resource {
   back_link_id  String?
   version_label String?
 
+  original_resource    Resource? @relation("OriginalResourceRelation", fields: [original_resource_id], references: [id])
+  original_resource_id String?
+
   action    String? // oldVersion | delete
   filled_in Boolean @default(false) // all details are not filled in
 
@@ -175,7 +178,8 @@ model Resource {
 
   Version Version[]
 
-  Resource Resource[] @relation("NewVersionRelation")
+  Resource         Resource[] @relation("NewVersionRelation")
+  OriginalResource Resource[] @relation("OriginalResourceRelation")
 
   ExternalRelationSource ExternalRelation[]
 

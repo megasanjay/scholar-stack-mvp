@@ -25,19 +25,13 @@ export default defineEventHandler(async (event) => {
   const version = await prisma.version.findMany({
     include: {
       Resources: true,
-      StagingResources: true,
     },
     orderBy: { created: "desc" },
     take: 1,
     where: { collection_id: collectionid },
   });
 
-  const resources =
-    version.length > 0
-      ? version[0].published
-        ? version[0].Resources
-        : version[0].StagingResources
-      : [];
+  const resources = version.length > 0 ? version[0].Resources : [];
 
   return {
     id: collection.id,

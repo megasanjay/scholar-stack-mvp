@@ -380,6 +380,10 @@ const addResource = async () => {
           <p>
             {{ resource.description || "No description provided" }}
           </p>
+
+          <pre>
+            {{ resource }}
+          </pre>
         </NuxtLink>
       </n-space>
     </div>

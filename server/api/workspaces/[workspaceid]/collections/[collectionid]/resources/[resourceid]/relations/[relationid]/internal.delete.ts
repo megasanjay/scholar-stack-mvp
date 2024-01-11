@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the resource exists
-  const resource = await prisma.stagingResource.findUnique({
+  const resource = await prisma.resource.findUnique({
     where: { id: resourceid },
   });
 
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the resource is part of the draft version
-  const draftResource = await prisma.stagingResource.findFirst({
+  const draftResource = await prisma.resource.findFirst({
     where: {
       id: resourceid,
       Version: {

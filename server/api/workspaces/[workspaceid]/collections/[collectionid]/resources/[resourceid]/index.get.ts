@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     });
   } else {
     // Check if the resource is part of the collection version
-    resource = await prisma.stagingResource.findUnique({
+    resource = await prisma.resource.findUnique({
       where: {
         id: resourceid,
         Version: {

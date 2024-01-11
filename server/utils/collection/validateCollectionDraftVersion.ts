@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   // get the latest version of the collection
   const versions = await prisma.version.findMany({
     include: {
-      StagingResources: true,
+      Resources: true,
     },
     orderBy: { created: "desc" },
     where: { collection_id: collectionid },
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   const version = versions[0];
 
-  const resources = version.StagingResources;
+  const resources = version.Resources;
 
   const resourceSchema = z.object({
     title: z.string().min(1),

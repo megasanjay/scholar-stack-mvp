@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the resource exists
-  const resource = await prisma.stagingResource.findUnique({
+  const resource = await prisma.resource.findUnique({
     where: { id: resourceid },
   });
 
@@ -50,17 +50,16 @@ export default defineEventHandler(async (event) => {
    * and delete the newVersion
    */
   if (resource.action === "newVersion" && resource.back_link_id) {
-    const oldVersionOfResourceInCurrentDraft =
-      await prisma.stagingResource.findFirst({
-        where: {
-          id: resource.back_link_id,
-          Version: {
-            some: {
-              id: draftVersion.id,
-            },
+    const oldVersionOfResourceInCurrentDraft = await prisma.resource.findFirst({
+      where: {
+        id: resource.back_link_id,
+        Version: {
+          some: {
+            id: draftVersion.id,
           },
         },
-      });
+      },
+    });
 
     if (!oldVersionOfResourceInCurrentDraft) {
       throw createError({
@@ -104,7 +103,7 @@ export default defineEventHandler(async (event) => {
           oldVersionOfResourceInCurrentDraft.version_label
       ) {
         // restore the old version
-        await prisma.stagingResource.update({
+        await prisma.resource.update({
           data: {
             action: "update",
           },
@@ -112,7 +111,7 @@ export default defineEventHandler(async (event) => {
         });
       } else {
         // mark the old version as cloned
-        await prisma.stagingResource.update({
+        await prisma.resource.update({
           data: {
             action: "clone",
           },
@@ -122,7 +121,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // delete the new version
-    await prisma.stagingResource.delete({
+    await prisma.resource.delete({
       where: { id: resourceid },
     });
 
@@ -166,7 +165,7 @@ export default defineEventHandler(async (event) => {
       }
 
       // mark the resource as deleted
-      await prisma.stagingResource.update({
+      await prisma.resource.update({
         data: {
           action: "delete",
         },
@@ -174,7 +173,7 @@ export default defineEventHandler(async (event) => {
       });
     } else {
       // Delete the resource
-      await prisma.stagingResource.delete({
+      await prisma.resource.delete({
         where: { id: resourceid },
       });
     }
@@ -182,7 +181,7 @@ export default defineEventHandler(async (event) => {
     // todo: this shouldn't be possible i think. Anything with an original_resource_id should be part of a published version
     // will need to check this later
     // Delete the resource
-    await prisma.stagingResource.delete({
+    await prisma.resource.delete({
       where: { id: resourceid },
     });
   }

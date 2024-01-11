@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
   const draftVersion = await prisma.version.findFirst({
     include: {
-      StagingResources: true,
+      Resources: true,
     },
     where: {
       collection_id: collectionid,
@@ -36,11 +36,11 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const resources = draftVersion.StagingResources;
+  const resources = draftVersion.Resources;
 
   // remove all resources from the draft version
   for (const resource of resources) {
-    await prisma.stagingResource.delete({
+    await prisma.resource.delete({
       where: { id: resource.id },
     });
   }

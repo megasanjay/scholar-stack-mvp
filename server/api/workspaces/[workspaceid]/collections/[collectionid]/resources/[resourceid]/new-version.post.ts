@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the resource
-  const resource = await prisma.stagingResource.findUnique({
+  const resource = await prisma.resource.findUnique({
     where: { id: resourceid },
   });
 
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
 
   // Add a new resource to the collection
   // Also add the resource to the version
-  const newResourceVersion = await prisma.stagingResource.create({
+  const newResourceVersion = await prisma.resource.create({
     data: {
       title: resource.title,
       action: "newVersion",
@@ -111,7 +111,7 @@ export default defineEventHandler(async (event) => {
   });
 
   // Add the 'oldVersion' action to the old version
-  await prisma.stagingResource.update({
+  await prisma.resource.update({
     data: {
       action: "oldVersion",
     },
@@ -122,7 +122,7 @@ export default defineEventHandler(async (event) => {
 
   await prisma.version.update({
     data: {
-      StagingResources: {
+      Resources: {
         connect: { id: newResourceVersion.id },
       },
     },

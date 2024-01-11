@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
     // clone each resource into the staging table
     for (const originalResource of originalResources) {
       // clone the resource itself
-      const newStagingResource = await prisma.stagingResource.create({
+      const newStagingResource = await prisma.resource.create({
         data: {
           title: originalResource.title,
           action: "clone",

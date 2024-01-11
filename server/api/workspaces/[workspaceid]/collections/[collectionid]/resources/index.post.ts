@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
   // Add a new resource to the collection
   // Also add the resource to the version
-  const resource = await prisma.stagingResource.create({
+  const resource = await prisma.resource.create({
     data: {
       action: "create",
       filled_in: false,
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const addedToVersion = await prisma.version.update({
     data: {
-      StagingResources: {
+      Resources: {
         connect: { id: resource.id },
       },
     },

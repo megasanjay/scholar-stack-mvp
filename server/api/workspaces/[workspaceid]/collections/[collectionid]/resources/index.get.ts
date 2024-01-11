@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   // get the resources for each version
   for (const version of versions) {
     if (version.published === false) {
-      const resources = await prisma.stagingResource.findMany({
+      const resources = await prisma.resource.findMany({
         where: {
           Version: {
             some: {
@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
   let currentResource = null;
 
   if (resourceid) {
-    currentResource = await prisma.stagingResource.findUnique({
+    currentResource = await prisma.resource.findUnique({
       where: {
         id: resourceid as string,
       },
