@@ -175,17 +175,31 @@ export default defineEventHandler(async (event) => {
   for (const relation of internal) {
     if (relation.id) {
       // todo: check diff and add update action
-
-      await prisma.stagingInternalRelation.update({
-        data: {
-          mirror: false,
-          resource_type: relation.resource_type,
-          type: relation.type,
-        },
-        where: {
-          id: relation.id,
-        },
-      });
+      if (relation.original_id) {
+        // don't update the target for relations that are part of the published resource
+        await prisma.stagingInternalRelation.update({
+          data: {
+            action: "update",
+            resource_type: relation.resource_type,
+            type: relation.type,
+          },
+          where: {
+            id: relation.id,
+          },
+        });
+      } else {
+        await prisma.stagingInternalRelation.update({
+          data: {
+            mirror: false,
+            resource_type: relation.resource_type,
+            target_id: relation.target_id,
+            type: relation.type,
+          },
+          where: {
+            id: relation.id,
+          },
+        });
+      }
     } else {
       await prisma.stagingInternalRelation.create({
         data: {

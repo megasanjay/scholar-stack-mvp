@@ -34,9 +34,6 @@ export default defineEventHandler(async (event) => {
 
   // get the resources for each version
 
-  /**
-   * todo: fix this since the staging resource table doesn't exist anymore
-   */
   for (const version of versions) {
     if (version.published === false) {
       const resources = await prisma.resource.findMany({
