@@ -174,7 +174,7 @@ const addResource = async () => {
         <n-button
           size="large"
           color="black"
-          :disabled="!collection?.version"
+          :disabled="!collection?.version || collection?.version?.published"
           :loading="newResourceLoading"
           @click="addResource"
         >

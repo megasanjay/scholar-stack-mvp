@@ -6,16 +6,16 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
-  // get the latest version of the collection
+  // get the draft versions of the collection
   const versions = await prisma.version.findMany({
     include: {
       Resources: true,
     },
     orderBy: { created: "desc" },
-    where: { collection_id: collectionid },
+    where: { collection_id: collectionid, published: false },
   });
 
-  if (versions.length === 0 || versions[0].published) {
+  if (versions.length === 0) {
     throw createError({
       message: "There are no unpublished versions of this collection",
       statusCode: 404,
