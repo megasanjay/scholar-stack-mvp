@@ -1,6 +1,3 @@
-import { nanoid } from "nanoid";
-import calver from "calver";
-
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await workspaceMinAdminPermission(event);
@@ -71,28 +68,20 @@ export default defineEventHandler(async (event) => {
    */
 
   // create a new version
-  const newVersion = await prisma.version.create({
-    data: {
-      name: `v${calver.inc(
-        "yyyy.ww.minor",
-        lastPublishedVersion?.name || "",
-        "calendar.minor"
-      )}`,
-      changelog: draftVersion.changelog,
-      collection_id: collectionid,
-      identifier: nanoid(),
-    },
-  });
+  // const newVersion = await prisma.version.create({
+  //   data: {
+  //     name: `v${calver.inc(
+  //       "yyyy.ww.minor",
+  //       lastPublishedVersion?.name || "",
+  //       "calendar.minor"
+  //     )}`,
+  //     changelog: draftVersion.changelog,
+  //     collection_id: collectionid,
+  //     identifier: nanoid(),
+  //   },
+  // });
 
-  const stagingResources = draftVersion.Resources;
-
-  // Adda a new_resource_id field to catch created resources
-  const resources = stagingResources.map((resource) => {
-    return {
-      ...resource,
-      new_resource_id: "",
-    };
-  });
+  const resources = draftVersion.Resources;
 
   /**
    * ! Start the resource mapping process
@@ -107,6 +96,137 @@ export default defineEventHandler(async (event) => {
    * * If the resource does not have the original_resource_id field, it means it is a new resource
    * * * If the action is create, create a new resource with the new data and connect it to the new version
    */
+
+  const clonedResources = resources.filter(
+    (resource) => resource.action === "clone"
+  );
+
+  for (const clonedResource of clonedResources) {
+    if (clonedResource.original_resource_id) {
+      await prisma.version.update({
+        data: {
+          Resources: {
+            connect: {
+              id: clonedResource.original_resource_id,
+            },
+          },
+        },
+        where: {
+          id: draftVersion.id,
+        },
+      });
+    }
+
+    // delete the cloned staging resource
+    await prisma.resource.delete({
+      where: {
+        id: clonedResource.id,
+      },
+    });
+  }
+
+  const updatedResources = resources.filter(
+    (resource) => resource.action === "update"
+  );
+
+  for (const updatedResource of updatedResources) {
+    if (updatedResource.original_resource_id) {
+      await prisma.resource.update({
+        data: {
+          title: updatedResource.title,
+          description: updatedResource.description,
+          icon: updatedResource.icon,
+          Version: {
+            connect: {
+              id: draftVersion.id,
+            },
+          },
+          version_label: updatedResource.version_label,
+        },
+        where: {
+          id: updatedResource.original_resource_id,
+        },
+      });
+    }
+
+    // delete the updated staging resource
+    await prisma.resource.delete({
+      where: {
+        id: updatedResource.id,
+      },
+    });
+  }
+
+  const deletedResources = resources.filter(
+    (resource) => resource.action === "delete"
+  );
+
+  for (const deletedResource of deletedResources) {
+    // remove the deleted staging resource
+    await prisma.resource.delete({
+      where: {
+        id: deletedResource.id,
+      },
+    });
+  }
+
+  const newVersionResources = resources.filter(
+    (resource) => resource.action === "newVersion"
+  );
+
+  for (const newVersionResource of newVersionResources) {
+    if (newVersionResource.back_link_id) {
+      const oldResource = await prisma.resource.findUnique({
+        where: {
+          id: newVersionResource.back_link_id,
+        },
+      });
+
+      await prisma.resource.update({
+        data: {
+          action: null,
+          back_link_id: oldResource?.original_resource_id,
+          filled_in: true,
+          original_resource_id: null,
+        },
+        where: {
+          id: newVersionResource.id,
+        },
+      });
+    }
+  }
+
+  const oldVersionResources = resources.filter(
+    (resource) => resource.action === "oldVersion"
+  );
+
+  for (const oldVersionResource of oldVersionResources) {
+    // remove the old version staging resource
+    await prisma.resource.delete({
+      where: {
+        id: oldVersionResource.id,
+      },
+    });
+  }
+
+  const newResources = resources.filter(
+    (resource) => resource.action === "create"
+  );
+
+  for (const newResource of newResources) {
+    await prisma.resource.update({
+      data: {
+        action: null,
+        filled_in: true,
+        original_resource_id: null,
+      },
+      where: {
+        id: newResource.id,
+      },
+    });
+  }
+
+  // todo: resources done for the version. 01/15/24
 
   for (const resource of resources) {
     if (resource.original_resource_id) {
