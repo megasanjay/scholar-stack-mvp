@@ -147,7 +147,6 @@ model Version {
   ExternalRelations ExternalRelation[]
 
   StagingInternalRelations StagingInternalRelation[]
-  StagingExternalRelations StagingExternalRelation[]
 
   @@index([identifier, collection_id])
 }
@@ -190,9 +189,6 @@ model Resource {
   StagingInternalRelationOriginalSource StagingInternalRelation[] @relation("OriginalSourceRelation")
   StagingInternalRelationTarget         StagingInternalRelation[] @relation("TargetRelation")
   StagingInternalRelationOriginalTarget StagingInternalRelation[] @relation("OriginalTargetRelation")
-
-  StagingExternalRelationSource         StagingExternalRelation[]
-  StagingExternalRelationOriginalSource StagingExternalRelation[] @relation("OriginalSourceRelation")
 }
 
 model InternalRelation {
@@ -222,18 +218,22 @@ model ExternalRelation {
   source    Resource @relation(fields: [source_id], references: [id])
   source_id String
 
+  original_relation    ExternalRelation? @relation("OriginalExternalRelation", fields: [original_relation_id], references: [id])
+  original_relation_id String?
+
   target      String // the actual identifier (10.1234/abc)
   target_type String // doi, url, ror, orcid, etc (prefix from identifiers.org)
 
   type          String // isCitedBy, etc 
   resource_type String? // Book, Article, etc
 
+  action String? // deleted
+
   created DateTime @default(now())
   updated DateTime @updatedAt
 
-  StagingExternalRelation StagingExternalRelation[]
-
-  Version Version[]
+  Version          Version[]
+  ExternalRelation ExternalRelation[] @relation("OriginalExternalRelation")
 }
 
 model StagingInternalRelation {
@@ -260,32 +260,6 @@ model StagingInternalRelation {
   action String? // delete
 
   mirror Boolean @default(false)
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  Version Version[]
-}
-
-model StagingExternalRelation {
-  id String @id @default(cuid())
-
-  original    ExternalRelation? @relation(fields: [original_id], references: [id])
-  original_id String?
-
-  source    Resource @relation(fields: [source_id], references: [id], onDelete: Cascade)
-  source_id String
-
-  original_source    Resource? @relation("OriginalSourceRelation", fields: [original_source_id], references: [id])
-  original_source_id String?
-
-  target      String // the actual identifier (10.1234/abc)
-  target_type String // doi, url, ror, orcid, etc (prefix from identifiers.org)
-
-  type          String // isCitedBy, etc
-  resource_type String? // Book, Article, etc
-
-  action String? // deleted
 
   created DateTime @default(now())
   updated DateTime @updatedAt
