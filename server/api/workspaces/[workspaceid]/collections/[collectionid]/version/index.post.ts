@@ -116,11 +116,10 @@ export default defineEventHandler(async (event) => {
       });
 
       for (const originalExternalRelation of originalExternalRelations) {
-        await prisma.stagingExternalRelation.create({
+        await prisma.externalRelation.create({
           data: {
             action: "clone",
-            original_id: originalExternalRelation.id,
-            original_source_id: originalResource.id,
+            original_relation_id: originalExternalRelation.id,
             resource_type: originalExternalRelation.resource_type || null,
             source_id: newStagingResource.id,
             target: originalExternalRelation.target,

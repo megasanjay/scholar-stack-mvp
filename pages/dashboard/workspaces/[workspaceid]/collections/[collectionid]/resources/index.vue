@@ -218,32 +218,32 @@ const addResource = async () => {
               ? ''
               : `/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}`
           "
-          class="flex w-full flex-grow flex-col space-y-5 rounded-md border p-6 shadow-sm transition-all hover:shadow-md"
+          class="flex w-full flex-grow flex-col rounded-md border px-6 pt-6 shadow-sm transition-all hover:shadow-md"
           :class="{
             'cursor-not-allowed border-red-300 bg-red-50 !shadow-none':
               resource.action === 'delete' || resource.action === 'oldVersion',
             'border-slate-300 bg-white':
               !resource.action || resource.action === 'clone',
-            'border-blue-300 bg-cyan-50/70': resource.action === 'create',
-            'border-emerald-400 bg-emerald-50/90': resource.action === 'update',
-            'border-cyan-400 bg-cyan-50/70': resource.action === 'newVersion',
+            'border-blue-300 bg-cyan-50/20': resource.action === 'create',
+            'border-emerald-400 bg-emerald-50/20': resource.action === 'update',
+            'border-cyan-400 bg-cyan-50/20': resource.action === 'newVersion',
             'border-red-600 bg-white': resource.filled_in === false,
           }"
         >
-          <div class="flex w-full items-center justify-start">
+          <div class="flex w-full items-center justify-start pb-2">
             <div>
               <Icon :name="resource.icon" size="35" />
             </div>
 
             <n-divider vertical />
 
-            <div class="flex w-full flex-col space-y-0">
-              <n-space justify="space-between" align="center">
-                <span class="text-lg font-medium">
+            <div class="flex w-full flex-col space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-medium leading-5">
                   {{ resource.title || "No title provided" }}
                 </span>
 
-                <n-space align="center">
+                <div class="flex items-center justify-end space-x-2">
                   <n-tag
                     v-if="resource.filled_in === false"
                     type="error"
@@ -360,48 +360,50 @@ const addResource = async () => {
                       Edit
                     </n-button>
                   </NuxtLink>
-                </n-space>
-              </n-space>
-
-              <div class="group flex w-max items-center space-x-1">
-                <n-tag
-                  :type="resource.type ? 'info' : 'error'"
-                  size="small"
-                  class=""
-                >
-                  {{ resource.type || "No identifier provided" }}
-                </n-tag>
-
-                <div>
-                  <n-divider vertical />
                 </div>
-
-                <NuxtLink
-                  :to="
-                    resource.type !== 'url'
-                      ? `https://identifiers.org/${resource.type}/${resource.target}`
-                      : resource.target
-                  "
-                  class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                  target="_blank"
-                  @click.stop=""
-                >
-                  {{ resource.target }}
-
-                  <Icon
-                    v-if="resource.type"
-                    name="mdi:external-link"
-                    size="16"
-                    class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                  />
-                </NuxtLink>
               </div>
             </div>
           </div>
 
-          <p>
+          <p class="border-t border-dashed py-3">
             {{ resource.description || "No description provided" }}
           </p>
+
+          <div
+            class="group flex w-full items-center space-x-1 border-t pb-4 pt-3"
+          >
+            <n-tag
+              :type="resource.type ? 'info' : 'error'"
+              size="small"
+              class=""
+            >
+              {{ resource.type || "No identifier provided" }}
+            </n-tag>
+
+            <div>
+              <n-divider vertical />
+            </div>
+
+            <NuxtLink
+              :to="
+                resource.type !== 'url'
+                  ? `https://identifiers.org/${resource.type}/${resource.target}`
+                  : resource.target
+              "
+              class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+              target="_blank"
+              @click.stop=""
+            >
+              {{ resource.target }}
+
+              <Icon
+                v-if="resource.type"
+                name="mdi:external-link"
+                size="16"
+                class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+              />
+            </NuxtLink>
+          </div>
         </NuxtLink>
       </n-space>
     </div>

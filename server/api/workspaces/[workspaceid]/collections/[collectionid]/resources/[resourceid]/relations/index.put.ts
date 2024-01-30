@@ -95,13 +95,12 @@ export default defineEventHandler(async (event) => {
   for (const relation of external) {
     if (relation.id) {
       // Check if the relation exists for the ones with an id and that the relation is part of the resource
-      const existingStagingRelation =
-        await prisma.stagingExternalRelation.findUnique({
-          where: {
-            id: relation.id,
-            source_id: resourceid,
-          },
-        });
+      const existingStagingRelation = await prisma.externalRelation.findUnique({
+        where: {
+          id: relation.id,
+          source_id: resourceid,
+        },
+      });
 
       if (!existingStagingRelation) {
         throw createError({
@@ -111,10 +110,10 @@ export default defineEventHandler(async (event) => {
       }
 
       // Get the original relation information
-      if (existingStagingRelation.original_id) {
+      if (existingStagingRelation.original_relation_id) {
         const existingRelation = await prisma.externalRelation.findUnique({
           where: {
-            id: existingStagingRelation.original_id,
+            id: existingStagingRelation.original_relation_id,
           },
         });
 
@@ -134,7 +133,7 @@ export default defineEventHandler(async (event) => {
           existingRelation.resource_type !== relation.resource_type ||
           existingRelation.type !== relation.type
         ) {
-          await prisma.stagingExternalRelation.update({
+          await prisma.externalRelation.update({
             data: {
               action: "update",
               resource_type: relation.resource_type,
@@ -145,7 +144,7 @@ export default defineEventHandler(async (event) => {
             },
           });
         } else {
-          await prisma.stagingExternalRelation.update({
+          await prisma.externalRelation.update({
             data: {
               action: "clone",
               resource_type: relation.resource_type,
@@ -158,7 +157,7 @@ export default defineEventHandler(async (event) => {
         }
       }
     } else {
-      await prisma.stagingExternalRelation.create({
+      await prisma.externalRelation.create({
         data: {
           action: "create",
           resource_type: relation.resource_type,

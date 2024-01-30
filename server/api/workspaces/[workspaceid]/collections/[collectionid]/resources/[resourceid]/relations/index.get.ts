@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const externalRelations = await prisma.stagingExternalRelation.findMany({
+  const externalRelations = await prisma.externalRelation.findMany({
     orderBy: {
       created: "asc",
     },
