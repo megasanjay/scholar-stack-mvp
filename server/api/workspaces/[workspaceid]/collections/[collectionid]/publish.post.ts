@@ -231,6 +231,21 @@ export default defineEventHandler(async (event) => {
 
   // todo: resources done for the version. 01/15/24
 
+  const updatedDraftVersion = await prisma.version.findFirst({
+    include: {
+      Resources: true,
+    },
+    where: {
+      id: draftVersion.id,
+    },
+  });
+
+  const stagingResources = updatedDraftVersion?.Resources || [];
+
+  // do the same thing as above but for external relations
+
+  // external relations
+
   // for (const resource of resources) {
   //   const stagingExternalRelations =
   //     await prisma.stagingExternalRelation.findMany({
