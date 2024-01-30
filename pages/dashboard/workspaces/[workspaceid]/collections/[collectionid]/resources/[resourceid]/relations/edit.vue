@@ -226,7 +226,7 @@ const addNewExternalRelation = () => {
     action: "create",
     created: new Date().toISOString(),
     origin: "local",
-    original_id: null,
+    original_relation_id: null,
     resource_type: "poster",
     target: faker.internet.url(),
     target_type: "URL",
@@ -407,7 +407,7 @@ const saveRelations = async () => {
         size="large"
         label-placement="left"
       >
-        <div class="flex items-center justify-between py-10">
+        <div flex class="hidden items-center justify-between py-10">
           <h2>Internal Relations</h2>
 
           <n-button color="black" @click="addNewInternalRelation">
@@ -419,7 +419,7 @@ const saveRelations = async () => {
           </n-button>
         </div>
 
-        <n-space vertical size="large">
+        <n-space vertical size="large" class="!hidden">
           <div
             v-for="(relation, index) of moduleData.internal"
             :key="index"
@@ -549,9 +549,9 @@ const saveRelations = async () => {
           </div>
         </n-space>
 
-        <pre>{{ moduleData.internal }}</pre>
+        <pre class="hidden">{{ moduleData.internal }}</pre>
 
-        <n-divider />
+        <n-divider class="hidden" />
 
         <div class="flex items-center justify-between py-10">
           <h2>External Relations</h2>
@@ -565,11 +565,11 @@ const saveRelations = async () => {
           </n-button>
         </div>
 
-        <n-space vertical size="large">
+        <div class="flex flex-col space-y-8">
           <div
             v-for="(relation, index) of moduleData.external"
             :key="index"
-            class="flex items-center justify-between space-x-8 rounded-xl border bg-white px-3 py-5"
+            class="flex items-center justify-between space-x-8 rounded-xl border bg-white px-6 py-6 shadow-md transition-all hover:shadow-lg"
           >
             <div class="flex w-full flex-col">
               <div class="flex w-full items-center">
@@ -629,7 +629,7 @@ const saveRelations = async () => {
 
                   <n-select
                     v-model:value="relation.target_type"
-                    :disabled="!!relation.original_id"
+                    :disabled="!!relation.original_relation_id"
                     filterable
                     :options="typeOptions"
                   />
@@ -649,7 +649,7 @@ const saveRelations = async () => {
 
                   <n-input
                     v-model:value="relation.target"
-                    :disabled="!!relation.original_id"
+                    :disabled="!!relation.original_relation_id"
                     placeholder="https://example.com"
                   />
                 </n-form-item>
@@ -718,19 +718,34 @@ const saveRelations = async () => {
                       Updated
                     </n-tag>
 
-                    <Icon
+                    <n-tooltip
                       v-if="relation.origin === 'remote'"
-                      size="28"
-                      class="text-emerald-500"
-                      name="material-symbols:cloud-done"
-                    />
+                      trigger="hover"
+                    >
+                      <template #trigger>
+                        <Icon
+                          size="28"
+                          class="text-emerald-500"
+                          name="material-symbols:cloud-done"
+                        />
+                      </template>
+                      This relation has been saved. Publishing this collection
+                      will push your relations to the public portal.
+                    </n-tooltip>
 
-                    <Icon
+                    <n-tooltip
                       v-if="relation.origin === 'local'"
-                      size="28"
-                      class="text-orange-400"
-                      name="mdi:cloud-upload"
-                    />
+                      trigger="hover"
+                    >
+                      <template #trigger>
+                        <Icon
+                          size="28"
+                          class="text-orange-400"
+                          name="mdi:cloud-upload"
+                        />
+                      </template>
+                      This relation has not been saved yet
+                    </n-tooltip>
                   </n-space>
 
                   <n-divider vertical />
@@ -750,11 +765,13 @@ const saveRelations = async () => {
               </div>
             </div>
           </div>
-        </n-space>
+        </div>
 
-        <n-divider />
+        <n-divider v-if="moduleData.external.length > 0" />
 
-        <pre>{{ moduleData.external }}</pre>
+        <pre v-if="moduleData.external.length > 0">{{
+          moduleData.external
+        }}</pre>
       </n-form>
     </div>
 
