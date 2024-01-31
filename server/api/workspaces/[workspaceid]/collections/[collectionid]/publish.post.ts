@@ -242,9 +242,35 @@ export default defineEventHandler(async (event) => {
 
   const stagingResources = updatedDraftVersion?.Resources || [];
 
-  // do the same thing as above but for external relations
+  for (const resource of stagingResources) {
+    const externalRelation = await prisma.externalRelation.findMany({
+      where: {
+        source_id: resource.id,
+      },
+    });
 
-  // external relations
+    const clonedExternalRelations = externalRelation.filter(
+      (externalRelation) => externalRelation.action === "clone",
+    );
+
+    // I think we do not need to do anything here because the external relation is already connected to the resources
+
+    const updatedExternalRelations = externalRelation.filter(
+      (externalRelation) => externalRelation.action === "update",
+    );
+
+    for (const updatedExternalRelation of updatedExternalRelations) {
+      await prisma.externalRelation.update({
+        data: {
+          resource_type: updatedExternalRelation.resource_type,
+          type: updatedExternalRelation.type,
+        },
+        where: {
+          id: updatedExternalRelation.original_relation_id,
+        },
+      });
+    }
+  }
 
   // for (const resource of resources) {
   //   const stagingExternalRelations =

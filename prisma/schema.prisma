@@ -215,7 +215,7 @@ model InternalRelation {
 model ExternalRelation {
   id String @id @default(cuid())
 
-  source    Resource @relation(fields: [source_id], references: [id])
+  source    Resource @relation(fields: [source_id], references: [id], onDelete: Cascade)
   source_id String
 
   original_relation    ExternalRelation? @relation("OriginalExternalRelation", fields: [original_relation_id], references: [id])

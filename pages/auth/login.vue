@@ -65,7 +65,7 @@ const signIn = (e: MouseEvent) => {
           // refresh the page
           window.location.reload();
         }
-      }, 3000);
+      }, 6000);
 
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: loginForm.emailAddress,

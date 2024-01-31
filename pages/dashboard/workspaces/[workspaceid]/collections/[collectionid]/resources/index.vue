@@ -369,9 +369,7 @@ const addResource = async () => {
             {{ resource.description || "No description provided" }}
           </p>
 
-          <div
-            class="group flex w-full items-center space-x-1 border-t pb-4 pt-3"
-          >
+          <div class="flex w-full items-center space-x-1 border-t pb-4 pt-3">
             <n-tag
               :type="resource.type ? 'info' : 'error'"
               size="small"
@@ -384,25 +382,27 @@ const addResource = async () => {
               <n-divider vertical />
             </div>
 
-            <NuxtLink
-              :to="
-                resource.type !== 'url'
-                  ? `https://identifiers.org/${resource.type}/${resource.target}`
-                  : resource.target
-              "
-              class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              target="_blank"
-              @click.stop=""
-            >
-              {{ resource.target }}
+            <div class="group w-max">
+              <NuxtLink
+                :to="
+                  resource.type !== 'url'
+                    ? `https://identifiers.org/${resource.type}/${resource.target}`
+                    : resource.target
+                "
+                class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                target="_blank"
+                @click.stop=""
+              >
+                {{ resource.target }}
 
-              <Icon
-                v-if="resource.type"
-                name="mdi:external-link"
-                size="16"
-                class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              />
-            </NuxtLink>
+                <Icon
+                  v-if="resource.type"
+                  name="mdi:external-link"
+                  size="16"
+                  class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                />
+              </NuxtLink>
+            </div>
           </div>
         </NuxtLink>
       </n-space>

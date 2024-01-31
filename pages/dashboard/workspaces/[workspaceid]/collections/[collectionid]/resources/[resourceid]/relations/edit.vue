@@ -569,7 +569,7 @@ const saveRelations = async () => {
           <div
             v-for="(relation, index) of moduleData.external"
             :key="index"
-            class="flex items-center justify-between space-x-8 rounded-xl border bg-white px-6 py-6 shadow-md transition-all hover:shadow-lg"
+            class="flex items-center justify-between space-x-8 rounded-xl border bg-white px-6 py-6 shadow-lg"
           >
             <div class="flex w-full flex-col">
               <div class="flex w-full items-center">
@@ -719,7 +719,10 @@ const saveRelations = async () => {
                     </n-tag>
 
                     <n-tooltip
-                      v-if="relation.origin === 'remote'"
+                      v-if="
+                        relation.origin === 'remote' &&
+                        !currentCollection?.version?.published
+                      "
                       trigger="hover"
                     >
                       <template #trigger>
@@ -734,7 +737,10 @@ const saveRelations = async () => {
                     </n-tooltip>
 
                     <n-tooltip
-                      v-if="relation.origin === 'local'"
+                      v-if="
+                        relation.origin === 'local' &&
+                        !currentCollection?.version?.published
+                      "
                       trigger="hover"
                     >
                       <template #trigger>
