@@ -49,8 +49,8 @@ const generateManageOptions = (memberId: string) => {
   return [
     {
       disabled: members.value?.members.length === 1,
-      key: "makeWorkspaceOwner",
-      label: "Make Workspace Owner",
+      key: "makeWorkspaceAdmin",
+      label: "Assign as Administrator",
     },
     {
       disabled: user.value?.id !== memberId,
@@ -224,9 +224,7 @@ const inviteMember = () => {
               </div>
 
               <div class="relative flex items-center space-x-6">
-                <n-tag type="info">
-                  {{ useCapitalize(member.role) }}
-                </n-tag>
+                <n-tag v-if="member.admin" type="info"> Administrator </n-tag>
 
                 <n-dropdown
                   trigger="click"
@@ -285,10 +283,6 @@ const inviteMember = () => {
               </div>
 
               <div class="relative flex items-center space-x-6">
-                <n-tag type="info">
-                  {{ useCapitalize(member.role) }}
-                </n-tag>
-
                 <n-dropdown
                   trigger="click"
                   placement="bottom-end"

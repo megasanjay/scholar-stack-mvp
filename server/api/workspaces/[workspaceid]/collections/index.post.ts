@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
+import { serverSupabaseUser } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
+
+  const user = await serverSupabaseUser(event);
+  const userid = user?.id as string;
 
   const bodySchema = z
     .object({
@@ -33,8 +37,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await workspaceMinAdminPermission(event);
-
   const { workspaceid } = event.context.params as { workspaceid: string };
 
   const { title, description } = parsedBody.data;
@@ -42,6 +44,12 @@ export default defineEventHandler(async (event) => {
   const collection = await prisma.collection.create({
     data: {
       title,
+      CollectionAccess: {
+        create: {
+          role: "admin",
+          user_id: userid,
+        },
+      },
       description,
       identifier: nanoid(),
       image: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,

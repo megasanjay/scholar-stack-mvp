@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
-  await workspaceMinAdminPermission(event);
+  await collectionMinAdminPermission(event);
 
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;

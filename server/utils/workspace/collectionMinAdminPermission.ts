@@ -5,27 +5,19 @@ export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const userid = user?.id as string;
 
-  // Check if the workspace exists
-  const workspaceid = await workspaceExists(event);
+  // Check if the collection exists in the workspace
+  const collectionid = await collectionExists(event);
 
   // Check access table for the workspace
-  const workspaceMember = await prisma.workspaceMember.findFirst({
+  const collectionAccess = await prisma.collectionAccess.findFirst({
     where: {
+      collection_id: collectionid,
       user_id: userid,
-      workspace_id: workspaceid,
     },
   });
 
-  // Check if the user is a member of the workspace
-  if (!workspaceMember) {
-    throw createError({
-      message: "Unauthorized",
-      statusCode: 401,
-    });
-  }
-
   // Check if the user has at least admin permisison
-  if (workspaceMember.admin === false) {
+  if (collectionAccess?.role !== "admin") {
     throw createError({
       message: "Unauthorized",
       statusCode: 401,

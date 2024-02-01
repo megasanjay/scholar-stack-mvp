@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
-  await workspaceMinViewerPermission(event);
+  await collectionMinViewerPermission(event);
 
   const { collectionid, resourceid, workspaceid } = event.context.params as {
     collectionid: string;

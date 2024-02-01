@@ -6,7 +6,6 @@ export default defineEventHandler(async (event) => {
 
   const bodySchema = z
     .object({
-      role: z.enum(["owner", "admin", "editor", "viewer"]),
       user: z.string().min(1),
     })
     .strict();
@@ -33,7 +32,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await workspaceMinAdminPermission(event);
+  await collectionMinAdminPermission(event);
 
   const { workspaceid } = event.context.params as { workspaceid: string };
 
@@ -55,7 +54,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { role, user } = parsedBody.data;
+  const { user } = parsedBody.data;
 
   // check if the user exists as username or email
   const userExists = await prisma.user.findFirst({
@@ -94,7 +93,6 @@ export default defineEventHandler(async (event) => {
     await prisma.invite.create({
       data: {
         email_address: user,
-        role,
         workspace_id: workspaceid,
       },
     });
@@ -106,7 +104,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // check if the user is already a member
-  const isMember = await prisma.access.findFirst({
+  const isMember = await prisma.workspaceMember.findFirst({
     where: {
       user_id: userExists.id,
       workspace_id: workspaceid,
@@ -121,9 +119,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Create a new member
-  await prisma.access.create({
+  await prisma.workspaceMember.create({
     data: {
-      role,
+      admin: false,
       user_id: userExists.id,
       workspace_id: workspaceid,
     },

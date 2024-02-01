@@ -11,6 +11,9 @@ export default defineEventHandler(async (event) => {
       title: z.string().min(1),
       description: z.string(),
       personal: z.boolean().optional(),
+      type: z
+        .union([z.literal("personal"), z.literal("organization")])
+        .optional(),
     })
     .strict();
 
@@ -37,12 +40,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const user = await serverSupabaseUser(event);
+  const userid = user?.id as string;
 
   // Check if the user already has a personal workspace
   if (parsedBody.data.personal) {
     const personalWorkspace = await prisma.workspace.findFirst({
       where: {
         personal: true,
+        WorkspaceMember: {
+          some: {
+            user_id: userid,
+          },
+        },
       },
     });
 
@@ -54,22 +63,21 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const userid = (user?.id as string) || "16df9f62-71f3-442a-ac47-8142e63ded77";
-
   const workspaceId = nanoid();
 
   const workspace = await prisma.workspace.create({
     data: {
       id: workspaceId,
       title: parsedBody.data.title,
-      Access: {
+      description: parsedBody.data.description,
+      personal: parsedBody.data.personal || false,
+      type: parsedBody.data.type || "organization",
+      WorkspaceMember: {
         create: {
-          role: "owner",
+          admin: true,
           user_id: userid,
         },
       },
-      description: parsedBody.data.description,
-      personal: parsedBody.data.personal || false,
     },
   });
 

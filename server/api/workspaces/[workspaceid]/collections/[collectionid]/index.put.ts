@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
-  await workspaceMinAdminPermission(event);
+  await collectionMinAdminPermission(event);
 
   const bodySchema = z
     .object({

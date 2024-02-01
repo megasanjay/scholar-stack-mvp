@@ -26,7 +26,7 @@ if (error.value) {
 
   push.error({
     title: "Something went wrong",
-    message: "We couldn't load your collectionns",
+    message: "We couldn't load your collections",
   });
 
   navigateTo("/dashboard");

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await serverSupabaseUser(event);
 
-  const workspaces = await prisma.access.findMany({
+  const workspaces = await prisma.workspaceMember.findMany({
     select: {
       workspace: {
         select: {
@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
           created: true,
           description: true,
           personal: true,
+          type: true,
         },
       },
     },

@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await workspaceMinEditorPermission(event);
+  await collectionMinEditorPermission(event);
 
   const { collectionid, resourceid, workspaceid } = event.context.params as {
     collectionid: string;

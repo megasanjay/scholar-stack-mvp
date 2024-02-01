@@ -37,6 +37,7 @@ if (workspaces.value?.length === 0) {
       title: "My workspace",
       description: "This is my personal workspace",
       personal: true,
+      type: "personal",
     }),
     headers: useRequestHeaders(["cookie"]),
     method: "POST",
