@@ -18,7 +18,7 @@ defineProps({
 </script>
 
 <template>
-  <n-card :title="title" class="mb-6 rounded-md" :bordered="bordered">
+  <n-card :title="title" class="mb-6 rounded-md">
     <slot />
 
     <template #header-extra>

@@ -159,6 +159,7 @@ const navigateToResource = (resourceid: string) => {
                   <n-tag
                     v-if="currentWorkspace?.personal"
                     type="info"
+                    round
                     size="small"
                     class="pointer-events-none"
                   >

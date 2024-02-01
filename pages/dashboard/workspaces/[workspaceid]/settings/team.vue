@@ -226,6 +226,8 @@ const inviteMember = () => {
               <div class="relative flex items-center space-x-6">
                 <n-tag v-if="member.admin" type="info"> Administrator </n-tag>
 
+                <n-divider v-if="member.admin" vertical />
+
                 <n-dropdown
                   trigger="click"
                   placement="bottom-end"
