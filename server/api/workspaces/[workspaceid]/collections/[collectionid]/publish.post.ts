@@ -119,13 +119,6 @@ export default defineEventHandler(async (event) => {
         },
       });
     }
-
-    // delete the cloned staging resource
-    await prisma.resource.delete({
-      where: {
-        id: clonedResource.id,
-      },
-    });
   }
 
   const updatedResources = resources.filter(
@@ -151,13 +144,6 @@ export default defineEventHandler(async (event) => {
         },
       });
     }
-
-    // delete the updated staging resource
-    await prisma.resource.delete({
-      where: {
-        id: updatedResource.id,
-      },
-    });
   }
 
   const deletedResources = resources.filter(
@@ -253,22 +239,139 @@ export default defineEventHandler(async (event) => {
       (externalRelation) => externalRelation.action === "clone",
     );
 
-    // I think we do not need to do anything here because the external relation is already connected to the resources
+    for (const clonedExternalRelation of clonedExternalRelations) {
+      if (clonedExternalRelation.original_relation_id) {
+        /**
+         * cloned external relations come from a prexisting resource and relation. We are linking the original relation to the new version. The resource relation is not changed.
+         */
+        await prisma.externalRelation.update({
+          data: {
+            action: null,
+            original_relation_id: null,
+            type: clonedExternalRelation.type,
+            Version: {
+              connect: {
+                id: draftVersion.id,
+              },
+            },
+          },
+          where: {
+            id: clonedExternalRelation.original_relation_id,
+          },
+        });
+
+        // delete the cloned staging external relation
+        await prisma.externalRelation.delete({
+          where: {
+            id: clonedExternalRelation.id,
+          },
+        });
+      }
+    }
 
     const updatedExternalRelations = externalRelation.filter(
       (externalRelation) => externalRelation.action === "update",
     );
 
     for (const updatedExternalRelation of updatedExternalRelations) {
-      await prisma.externalRelation.update({
-        data: {
-          resource_type: updatedExternalRelation.resource_type,
-          type: updatedExternalRelation.type,
-        },
+      if (updatedExternalRelation.original_relation_id) {
+        /**
+         * updated external relations come from a prexisting resource and relation. We are updating the original relation with the new data.
+         */
+        await prisma.externalRelation.update({
+          data: {
+            action: null,
+            original_relation_id: null,
+            resource_type: updatedExternalRelation.resource_type,
+            type: updatedExternalRelation.type,
+            Version: {
+              connect: {
+                id: draftVersion.id,
+              },
+            },
+          },
+          where: {
+            id: updatedExternalRelation.original_relation_id,
+          },
+        });
+
+        // delete the updated staging external relation
+        await prisma.externalRelation.delete({
+          where: {
+            id: updatedExternalRelation.id,
+          },
+        });
+      }
+    }
+
+    const deletedExternalRelations = externalRelation.filter(
+      (externalRelation) => externalRelation.action === "delete",
+    );
+
+    for (const deletedExternalRelation of deletedExternalRelations) {
+      /**
+       * The original relation is linked to the original resource. We are removing the staging relation, which should remove the relation from the new version.
+       */
+      await prisma.externalRelation.delete({
         where: {
-          id: updatedExternalRelation.original_relation_id,
+          id: deletedExternalRelation.id,
         },
       });
+    }
+
+    const newExternalRelations = externalRelation.filter(
+      (externalRelation) => externalRelation.action === "create",
+    );
+
+    for (const newExternalRelation of newExternalRelations) {
+      /**
+       * new external relations can come from a new resource or a pre-existing resource.
+       */
+      if (resource.original_resource_id) {
+        /**
+         * For a pre-existing resource, the new external relations needs to be created and linked to the original resource.
+         */
+        await prisma.externalRelation.create({
+          data: {
+            action: null,
+            resource_type: newExternalRelation.resource_type,
+            source_id: resource.original_resource_id,
+            target: newExternalRelation.target,
+            target_type: newExternalRelation.target_type,
+            type: newExternalRelation.type,
+            Version: {
+              connect: {
+                id: draftVersion.id,
+              },
+            },
+          },
+        });
+
+        // delete the new staging external relation
+        await prisma.externalRelation.delete({
+          where: {
+            id: newExternalRelation.id,
+          },
+        });
+      } else {
+        /**
+         * For a new resource, the new external relation already exists. We just need to remove the action and original_relation_id fields.
+         */
+        await prisma.externalRelation.update({
+          data: {
+            action: null,
+            original_relation_id: null,
+            Version: {
+              connect: {
+                id: draftVersion.id,
+              },
+            },
+          },
+          where: {
+            id: newExternalRelation.id,
+          },
+        });
+      }
     }
   }
 
@@ -437,6 +540,30 @@ export default defineEventHandler(async (event) => {
   //     }
   //   }
   // }
+
+  /**
+   * Delete the cloned resources after the relations have been mapped
+   */
+  for (const clonedResource of clonedResources) {
+    // delete the cloned staging resource
+    await prisma.resource.delete({
+      where: {
+        id: clonedResource.id,
+      },
+    });
+  }
+
+  /**
+   * Delete the updated resources after the relations have been mapped
+   */
+  for (const updatedResource of updatedResources) {
+    // delete the updated staging resource
+    await prisma.resource.delete({
+      where: {
+        id: updatedResource.id,
+      },
+    });
+  }
 
   // publish the the version
   await prisma.version.update({

@@ -112,6 +112,11 @@ export default defineEventHandler(async (event) => {
       const originalExternalRelations = await prisma.externalRelation.findMany({
         where: {
           source_id: originalResource.id,
+          Version: {
+            some: {
+              id: latestVersion.id,
+            },
+          },
         },
       });
 
@@ -138,6 +143,11 @@ export default defineEventHandler(async (event) => {
       const originalInternalRelations = await prisma.internalRelation.findMany({
         where: {
           source_id: originalResource.id,
+          Version: {
+            some: {
+              id: latestVersion.id,
+            },
+          },
         },
       });
 

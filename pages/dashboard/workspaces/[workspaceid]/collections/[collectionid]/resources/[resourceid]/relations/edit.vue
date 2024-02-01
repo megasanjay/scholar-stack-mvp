@@ -235,7 +235,7 @@ const addNewExternalRelation = () => {
   });
 };
 
-const removeExternalRelation = (id: string) => {
+const removeExternalRelation = async (id: string) => {
   const externalRelation = moduleData.external.find(
     (relation) => relation.id === id,
   );
@@ -244,7 +244,7 @@ const removeExternalRelation = (id: string) => {
     const {
       data: deleteExternalRelationData,
       error: deleteExternalRelationError,
-    } = useFetch(
+    } = await useFetch(
       `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${id}/external`,
       {
         headers: useRequestHeaders(["cookie"]),
@@ -273,9 +273,54 @@ const removeExternalRelation = (id: string) => {
     message: "Your relation has been deleted",
   });
 
-  moduleData.external = moduleData.external.filter(
-    (relation) => relation.id !== id,
+  if (!externalRelation?.original_relation_id) {
+    moduleData.external = moduleData.external.filter(
+      (relation) => relation.id !== id,
+    );
+  } else {
+    externalRelation.action = "delete";
+  }
+};
+
+const restoreExternalRelation = async (id: string) => {
+  const externalRelation = moduleData.external.find(
+    (relation) => relation.id === id,
   );
+
+  if (externalRelation?.original_relation_id) {
+    const {
+      data: restoreExternalRelationData,
+      error: restoreExternalRelationError,
+    } = await useFetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${id}/external/restore`,
+      {
+        headers: useRequestHeaders(["cookie"]),
+        method: "PUT",
+      },
+    );
+
+    if (restoreExternalRelationError.value) {
+      console.log(restoreExternalRelationError.value);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't restore your relation",
+      });
+
+      throw new Error("We couldn't restore your relation");
+    }
+
+    if (restoreExternalRelationData.value) {
+      const updatedAction = restoreExternalRelationData.value.updatedAction;
+
+      externalRelation.action = updatedAction;
+    }
+
+    push.success({
+      title: "Success",
+      message: "Your relation has been restored",
+    });
+  }
 };
 
 const saveRelations = async () => {
@@ -589,6 +634,7 @@ const saveRelations = async () => {
                   <n-select
                     v-model:value="relation.resource_type"
                     filterable
+                    :disabled="relation.action === 'delete'"
                     :options="resourceTypeOptions"
                   />
                 </n-form-item>
@@ -608,6 +654,7 @@ const saveRelations = async () => {
 
                   <n-select
                     v-model:value="relation.type"
+                    :disabled="relation.action === 'delete'"
                     filterable
                     :options="relationTypeOptions"
                   />
@@ -718,6 +765,15 @@ const saveRelations = async () => {
                       Updated
                     </n-tag>
 
+                    <n-tag
+                      v-if="
+                        'action' in relation && relation.action === 'delete'
+                      "
+                      type="error"
+                    >
+                      Deleted
+                    </n-tag>
+
                     <n-tooltip
                       v-if="
                         relation.origin === 'remote' &&
@@ -757,6 +813,7 @@ const saveRelations = async () => {
                   <n-divider vertical />
 
                   <n-button
+                    v-if="relation.action !== 'delete'"
                     type="error"
                     secondary
                     @click="removeExternalRelation(relation.id)"
@@ -766,6 +823,19 @@ const saveRelations = async () => {
                     </template>
 
                     Remove relation
+                  </n-button>
+
+                  <n-button
+                    v-if="relation.action === 'delete'"
+                    type="warning"
+                    secondary
+                    @click="restoreExternalRelation(relation.id)"
+                  >
+                    <template #icon>
+                      <Icon name="mdi:restore" />
+                    </template>
+
+                    Restore relation
                   </n-button>
                 </div>
               </div>

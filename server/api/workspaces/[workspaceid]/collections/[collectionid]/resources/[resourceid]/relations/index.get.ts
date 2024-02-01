@@ -38,6 +38,21 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // get the latest version of the collection.
+  // This is either the draft or the latest published version
+  const version = await prisma.version.findFirst({
+    orderBy: { created: "desc" },
+    take: 1,
+    where: { collection_id: collectionid },
+  });
+
+  if (!version) {
+    throw createError({
+      message: "No version found",
+      statusCode: 404,
+    });
+  }
+
   // get all the relations for the resource
   const internalRelations = await prisma.stagingInternalRelation.findMany({
     orderBy: {
@@ -45,6 +60,11 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       source_id: resourceid,
+      Version: {
+        some: {
+          id: version.id,
+        },
+      },
     },
   });
 
@@ -54,6 +74,11 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       source_id: resourceid,
+      Version: {
+        some: {
+          id: version.id,
+        },
+      },
     },
   });
 

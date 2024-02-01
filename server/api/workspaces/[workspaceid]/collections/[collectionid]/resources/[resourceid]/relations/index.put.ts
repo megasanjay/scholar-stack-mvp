@@ -125,6 +125,14 @@ export default defineEventHandler(async (event) => {
         }
 
         /**
+         * Check if the relation has been deleted
+         */
+
+        if (existingRelation.action === "delete") {
+          continue;
+        }
+
+        /**
          * * Check if the relation has changed
          * * If it has, add the update action
          * * If it hasn't, add the clone action
