@@ -29,8 +29,9 @@ model User {
 
   created DateTime @default(now())
 
-  Access       Access[]
-  Notification Notification[]
+  Notification     Notification[]
+  WorkspaceMember  WorkspaceMember[]
+  CollectionAccess CollectionAccess[]
 
   @@index([email_address, username])
 }
@@ -54,33 +55,31 @@ model Notification {
   @@index([user_id])
 }
 
-model Access {
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
-
-  workspace    Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
-  workspace_id String
-
-  role String @default("owner") // owner | admin | editor | viewer
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  @@id([user_id, workspace_id])
-}
-
 model Invite {
   email_address String
 
-  workspace    Workspace @relation(fields: [workspace_id], references: [id])
+  workspace    Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   workspace_id String
-
-  role String @default("viewer") // admin | editor | viewer
 
   created DateTime @default(now())
   updated DateTime @updatedAt
 
   @@id([email_address, workspace_id])
+}
+
+model WorkspaceMember {
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+
+  workspace    Workspace @relation(fields: [workspace_id], references: [id])
+  workspace_id String
+
+  admin Boolean @default(false)
+
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+
+  @@id([user_id, workspace_id])
 }
 
 model Workspace {
@@ -91,12 +90,29 @@ model Workspace {
 
   personal Boolean @default(false)
 
+  type String @default("organization") // organization | personal
+
   created DateTime @default(now())
   updated DateTime @updatedAt
 
-  Collections Collection[]
-  Invites     Invite[]
-  Access      Access[]
+  Collections     Collection[]
+  WorkspaceMember WorkspaceMember[]
+  Invite          Invite[]
+}
+
+model CollectionAccess {
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+
+  Collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  collection_id String
+
+  role String @default("viewer") // admin | editor | viewer
+
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+
+  @@id([user_id, collection_id])
 }
 
 model Collection {
@@ -116,6 +132,8 @@ model Collection {
   random_int Int @default(0) // used to maintain order of collections              
 
   Versions Version[]
+
+  CollectionAccess CollectionAccess[]
 
   Workspace    Workspace? @relation(fields: [workspace_id], references: [id])
   workspace_id String?

@@ -9,7 +9,6 @@ const workspaceStore = useWorkspaceStore();
 const formRef = ref<FormInst>();
 
 const formValue = reactive({
-  role: null,
   user: "",
 });
 
@@ -23,12 +22,6 @@ const rules = {
     required: true,
   },
 };
-
-const options = [
-  { label: "Admin", value: "admin" },
-  { label: "Editor", value: "editor" },
-  { label: "Viewer", value: "viewer" },
-];
 
 const inviteLoading = ref(false);
 
@@ -75,7 +68,6 @@ const inviteMember = () => {
   formRef.value?.validate(async (errors) => {
     if (!errors) {
       const body = {
-        role: formValue.role,
         user: formValue.user,
       };
 
@@ -108,7 +100,6 @@ const inviteMember = () => {
             "We've sent an invitation for this user to join your workspace",
         });
 
-        formValue.role = null;
         formValue.user = "";
 
         window.location.reload();
@@ -147,23 +138,12 @@ const inviteMember = () => {
           size="large"
           class="space-x-8"
         >
-          <div class="w-2/4">
+          <div class="w-full">
             <n-form-item label="Username or Email Address" path="user">
               <n-input
                 v-model:value="formValue.user"
                 :disabled="workspaceStore.workspace?.personal"
                 placeholder="hi@sciconnect.io"
-              />
-            </n-form-item>
-          </div>
-
-          <div class="w-2/4">
-            <n-form-item label="Role" path="role">
-              <n-select
-                v-model:value="formValue.role"
-                :disabled="workspaceStore.workspace?.personal"
-                :options="options"
-                placeholder="Admin"
               />
             </n-form-item>
           </div>
@@ -214,19 +194,6 @@ const inviteMember = () => {
                   />
                 </template>
               </n-input>
-
-              <n-select
-                v-model:value="formValue.role"
-                :options="options"
-                size="large"
-                placeholder="All Team Roles"
-              />
-
-              <n-select
-                :options="options"
-                size="large"
-                placeholder="Default Sort"
-              />
             </div>
 
             <div
@@ -293,19 +260,6 @@ const inviteMember = () => {
                   />
                 </template>
               </n-input>
-
-              <n-select
-                v-model:value="formValue.role"
-                :options="options"
-                size="large"
-                placeholder="All Team Roles"
-              />
-
-              <n-select
-                :options="options"
-                size="large"
-                placeholder="Default Sort"
-              />
             </div>
 
             <div

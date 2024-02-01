@@ -11,7 +11,7 @@ const route = useRoute();
 </script>
 
 <template>
-  <main class="h-full bg-zinc-50">
+  <main class="h-screen overflow-auto bg-zinc-50">
     <div class="flex h-36 items-center border-b border-gray-200 bg-white">
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
