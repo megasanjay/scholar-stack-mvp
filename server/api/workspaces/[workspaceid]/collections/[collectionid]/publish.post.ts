@@ -248,7 +248,6 @@ export default defineEventHandler(async (event) => {
           data: {
             action: null,
             original_relation_id: null,
-            type: clonedExternalRelation.type,
             Version: {
               connect: {
                 id: draftVersion.id,
