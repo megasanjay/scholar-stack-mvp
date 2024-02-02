@@ -25,4 +25,6 @@ export default defineEventHandler(async (event) => {
       statusCode: 401,
     });
   }
+
+  return true;
 });

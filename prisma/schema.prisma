@@ -107,7 +107,7 @@ model CollectionAccess {
   Collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
   collection_id String
 
-  role String @default("viewer") // admin | editor | viewer
+  role String // admin | editor 
 
   created DateTime @default(now())
   updated DateTime @updatedAt
