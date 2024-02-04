@@ -23,3 +23,14 @@ interface Collection {
 }
 
 interface Collections extends Array<Collection> {}
+
+interface CollectionAccessUser {
+  id: string;
+  username: string;
+  name: string;
+  created: string;
+  emailAddress: string;
+  role: string;
+}
+
+interface CollectionAccessTeam extends Array<CollectionAccessUser> {}

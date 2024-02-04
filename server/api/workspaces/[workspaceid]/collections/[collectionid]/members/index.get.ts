@@ -1,33 +1,74 @@
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
 
+  await collectionExists(event);
+
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
 
-  // todo: redo this
+  const collectionAcessTeam = [];
 
-  const members = await prisma.workspaceMember.findMany({
+  const collectionAdmins = await prisma.collectionAccess.findMany({
     include: { user: true },
-    where: { workspace_id: workspaceid },
+    where: { collection_id: collectionid, role: "admin" },
   });
 
-  const invitedMembers = await prisma.invite.findMany({
-    where: { workspace_id: workspaceid },
+  for (const collectionAdmin of collectionAdmins) {
+    collectionAcessTeam.push({
+      id: collectionAdmin.user_id,
+      username: collectionAdmin.user.username,
+      name: collectionAdmin.user.name,
+      created: collectionAdmin.created.toISOString(),
+      emailAddress: collectionAdmin.user.email_address,
+      role: "collection-admin",
+    });
+  }
+
+  const workspaceAdmins = await prisma.workspaceMember.findMany({
+    include: { user: true },
+    where: { admin: true, workspace_id: workspaceid },
   });
 
-  return {
-    invitedMembers: invitedMembers.map((member) => ({
-      id: member.email_address,
-      created: member.created.toISOString(),
-    })),
-    members: members.map((member) => ({
-      id: member.user_id,
-      name: member.user.name,
-      admin: member.admin,
-      created: member.created.toISOString(),
-      emailAddress: member.user.email_address,
-    })),
-  };
+  for (const workspaceAdmin of workspaceAdmins) {
+    if (
+      !collectionAcessTeam.some(
+        (member) => member.id === workspaceAdmin.user_id,
+      )
+    ) {
+      collectionAcessTeam.push({
+        id: workspaceAdmin.user_id,
+        username: workspaceAdmin.user.username,
+        name: workspaceAdmin.user.name,
+        created: workspaceAdmin.created.toISOString(),
+        emailAddress: workspaceAdmin.user.email_address,
+        role: "workspace-admin",
+      });
+    }
+  }
+
+  const collectionEditors = await prisma.collectionAccess.findMany({
+    include: { user: true },
+    where: { collection_id: collectionid, role: "editor" },
+  });
+
+  for (const collectionEditor of collectionEditors) {
+    if (
+      !collectionAcessTeam.some(
+        (member) => member.id === collectionEditor.user_id,
+      )
+    ) {
+      collectionAcessTeam.push({
+        id: collectionEditor.user_id,
+        username: collectionEditor.user.username,
+        name: collectionEditor.user.name,
+        created: collectionEditor.created.toISOString(),
+        emailAddress: collectionEditor.user.email_address,
+        role: "collection-editor",
+      });
+    }
+  }
+
+  return collectionAcessTeam;
 });
