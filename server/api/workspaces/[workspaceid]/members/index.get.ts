@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       admin: member.admin,
       created: member.created.toISOString(),
       emailAddress: member.user.email_address,
+      owner: member.owner,
     })),
   };
 });

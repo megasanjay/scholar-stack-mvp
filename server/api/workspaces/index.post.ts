@@ -74,7 +74,8 @@ export default defineEventHandler(async (event) => {
       type: parsedBody.data.type || "organization",
       WorkspaceMember: {
         create: {
-          admin: true,
+          admin: false,
+          owner: true,
           user_id: userid,
         },
       },

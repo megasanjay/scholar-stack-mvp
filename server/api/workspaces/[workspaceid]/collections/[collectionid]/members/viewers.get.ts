@@ -8,8 +8,19 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  // Get the workspace members who are not admins or owners of the workspace
   const workspaceMembers = await prisma.workspaceMember.findMany({
-    where: { admin: false, workspace_id: workspaceid },
+    select: {
+      user: {
+        select: { username: true, name: true, email_address: true },
+      },
+      user_id: true,
+    },
+    where: {
+      admin: false,
+      owner: false,
+      workspace_id: workspaceid,
+    },
   });
 
   const collectionAcessTeamUserIds = await prisma.collectionAccess.findMany({
@@ -18,13 +29,16 @@ export default defineEventHandler(async (event) => {
   });
 
   // remove workspace members who are already collection admins or editors
-
-  const collectionAcessTeam = workspaceMembers.filter(
+  const viewers = workspaceMembers.filter(
     (member) =>
       !collectionAcessTeamUserIds.some(
         (collectionMember) => collectionMember.user_id === member.user_id,
       ),
   );
 
-  return collectionAcessTeam;
+  return viewers.map((viewer) => ({
+    ...viewer,
+    label: viewer.user.name || viewer.user.username,
+    value: viewer.user_id,
+  }));
 });

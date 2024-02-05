@@ -3,7 +3,7 @@ const route = useRoute();
 
 const navItems = [
   {
-    name: "Overview",
+    name: "Collections",
     href: `/dashboard/workspaces/${route.params.workspaceid}`,
     icon: "material-symbols:home-outline",
   },

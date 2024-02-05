@@ -48,6 +48,24 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const workspaceOwner = await prisma.workspaceMember.findFirst({
+    include: { user: true },
+    where: { owner: true, workspace_id: workspaceid },
+  });
+
+  if (
+    !collectionAcessTeam.some((member) => member.id === workspaceOwner?.user_id)
+  ) {
+    collectionAcessTeam.push({
+      id: workspaceOwner?.user_id,
+      username: workspaceOwner?.user.username,
+      name: workspaceOwner?.user.name,
+      created: workspaceOwner?.created.toISOString(),
+      emailAddress: workspaceOwner?.user.email_address,
+      role: "workspace-owner",
+    });
+  }
+
   const collectionEditors = await prisma.collectionAccess.findMany({
     include: { user: true },
     where: { collection_id: collectionid, role: "editor" },

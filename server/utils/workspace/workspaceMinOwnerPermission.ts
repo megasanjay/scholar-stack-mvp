@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if the user has at least admin permisison
-  if (workspaceMember.admin === false && workspaceMember.owner === false) {
+  // Check if the user has at least owner permisison
+  if (workspaceMember.owner === false) {
     throw createError({
       message: "Unauthorized",
       statusCode: 401,

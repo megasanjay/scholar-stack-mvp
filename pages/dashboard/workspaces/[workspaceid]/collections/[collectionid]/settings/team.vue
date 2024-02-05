@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FormInst } from "naive-ui";
+import type { FormInst, SelectRenderTag, SelectRenderLabel } from "naive-ui";
+import { NAvatar, NText } from "naive-ui";
 
 const push = usePush();
 
@@ -97,6 +98,67 @@ if (viewersError.value) {
   });
 }
 
+const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
+  return h(
+    "div",
+    {
+      style: {
+        alignItems: "center",
+        display: "flex",
+      },
+    },
+    [
+      h(NAvatar, {
+        round: true,
+        size: 24,
+        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
+        style: {
+          marginRight: "12px",
+        },
+      }),
+      option.label as string,
+    ],
+  );
+};
+
+const renderLabel: SelectRenderLabel = (option) => {
+  console.log(option);
+  return h(
+    "div",
+    {
+      style: {
+        alignItems: "center",
+        display: "flex",
+      },
+    },
+    [
+      h(NAvatar, {
+        round: true,
+        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
+      }),
+      h(
+        "div",
+        {
+          style: {
+            marginLeft: "12px",
+            padding: "4px 0",
+          },
+        },
+        [
+          h("div", null, [option.label as string]),
+          h(
+            NText,
+            { depth: 3, tag: "div" },
+            {
+              default: () => option.label,
+            },
+          ),
+        ],
+      ),
+    ],
+  );
+};
+
 const inviteMember = () => {
   formRef.value?.validate(async (errors) => {
     if (!errors) {
@@ -189,6 +251,16 @@ const inviteMember = () => {
             Workspace Administrator
           </n-tag>
 
+          <n-tag v-if="member.role === 'workspace-owner'" type="info">
+            Workspace Owner
+          </n-tag>
+
+          <n-tag v-if="member.role === 'collection-admin'" type="info">
+            Administrator
+          </n-tag>
+
+          <n-divider vertical />
+
           <n-dropdown
             trigger="click"
             placement="bottom-end"
@@ -280,10 +352,16 @@ const inviteMember = () => {
         >
           <div class="w-full">
             <n-form-item label="Users" path="user">
-              <n-input
+              <n-select
+                :options="viewers as any"
+                :render-label="renderLabel"
+                :render-tag="renderSingleSelectTag"
+                filterable
+              />
+              <!-- <n-input
                 v-model:value="formValue.user"
                 placeholder="hi@sciconnect.io"
-              />
+              /> -->
             </n-form-item>
           </div>
         </n-form>
@@ -309,10 +387,6 @@ const inviteMember = () => {
           Invite as editor
         </n-button>
       </div>
-
-      <pre>
-        {{ viewers }}
-      </pre>
     </div>
   </div>
 </template>
