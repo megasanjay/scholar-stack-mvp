@@ -10,6 +10,8 @@ const loggedIn = computed(() => user.value);
 console.log("User", user.value);
 
 const logout = async () => {
+  console.log("Logging out");
+
   const { error } = await supabase.auth.signOut();
   if (error) console.log(error);
 

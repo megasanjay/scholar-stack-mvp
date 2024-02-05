@@ -74,6 +74,7 @@ model WorkspaceMember {
   workspace    Workspace @relation(fields: [workspace_id], references: [id])
   workspace_id String
 
+  owner Boolean @default(false)
   admin Boolean @default(false)
 
   created DateTime @default(now())
