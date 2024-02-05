@@ -1,26 +1,12 @@
 <script setup lang="ts">
-import type { FormInst, SelectRenderTag, SelectRenderLabel } from "naive-ui";
+import type { SelectRenderTag, SelectRenderLabel } from "naive-ui";
 import { NAvatar, NText } from "naive-ui";
 
 const push = usePush();
+const collectionStore = useCollectionStore();
+const user = useSupabaseUser();
 
-const formRef = ref<FormInst>();
-
-const formValue = reactive({
-  role: null,
-  user: "",
-});
-
-const rules = {
-  role: {
-    message: "Please enter a role",
-    required: true,
-  },
-  user: {
-    message: "Please enter a username or email address",
-    required: true,
-  },
-};
+const userToInvite = ref<string | null>(null);
 
 const inviteLoading = ref(false);
 
@@ -76,11 +62,35 @@ const manageOptions = [
   },
 ];
 
+const generateEditorDropdownOptions = (memberid: string) => {
+  return [
+    {
+      key: "makeAdmin",
+      label: "Assign as administrator",
+      show: collectionStore.collectionPermission === "admin",
+    },
+    {
+      key: "removeEditor",
+      label: "Remove editor",
+      show: collectionStore.collectionPermission === "admin",
+    },
+    {
+      key: "leaveCollection",
+      label: "Leave collection",
+      show: memberid === user.value?.id,
+    },
+  ];
+};
+
 const manageMember = (key: string | number) => {
   console.log(key);
 };
 
-const { data: viewers, error: viewersError } = await useFetch(
+const {
+  data: viewers,
+  error: viewersError,
+  pending: viewersLoading,
+} = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/members/viewers`,
   {
     headers: useRequestHeaders(["cookie"]),
@@ -122,7 +132,6 @@ const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
 };
 
 const renderLabel: SelectRenderLabel = (option) => {
-  console.log(option);
   return h(
     "div",
     {
@@ -150,7 +159,7 @@ const renderLabel: SelectRenderLabel = (option) => {
             NText,
             { depth: 3, tag: "div" },
             {
-              default: () => option.label,
+              default: () => option.email_address,
             },
           ),
         ],
@@ -159,52 +168,50 @@ const renderLabel: SelectRenderLabel = (option) => {
   );
 };
 
-const inviteMember = () => {
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      const body = {
-        role: formValue.role,
-        user: formValue.user,
-      };
+const inviteMember = async () => {
+  const body = {
+    userid: userToInvite.value,
+  };
 
-      inviteLoading.value = true;
+  inviteLoading.value = true;
 
-      const { data, error } = await useFetch(
-        `/api/workspaces/${workspaceid}/members`,
-        {
-          body: JSON.stringify(body),
-          headers: useRequestHeaders(["cookie"]),
-          method: "POST",
-        },
-      );
+  const { data, error } = await useFetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/members/editors`,
+    {
+      body: JSON.stringify(body),
+      headers: useRequestHeaders(["cookie"]),
+      method: "POST",
+    },
+  );
 
-      inviteLoading.value = false;
+  inviteLoading.value = false;
 
-      if (error.value) {
-        console.log(error.value);
+  if (error.value) {
+    console.log(error.value);
 
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't invite this user to your workspace",
-        });
-      }
+    push.error({
+      title: "Something went wrong",
+      message: "We couldn't invite this user to your workspace",
+    });
+  }
 
-      if (data.value) {
-        push.success({
-          title: "Member Invited",
-          message:
-            "We've sent an invitation for this user to join your workspace",
-        });
+  if (data.value) {
+    push.success({
+      title: "Success",
+      message: "This user has been added as an editor to your workspace",
+    });
 
-        formValue.role = null;
-        formValue.user = "";
+    editAccess.value.push({
+      id: data.value.editor.user_id,
+      username: data.value.editor.username || "",
+      name: data.value.editor.name || "",
+      created: data.value.editor.created,
+      emailAddress: data.value.editor.email_address || "",
+      role: "collection-editor",
+    });
 
-        window.location.reload();
-      }
-    } else {
-      console.log(errors);
-    }
-  });
+    userToInvite.value = null;
+  }
 };
 </script>
 
@@ -287,7 +294,7 @@ const inviteMember = () => {
 
     <n-divider />
 
-    <div class="flex flex-col">
+    <div v-if="editAccess.length > 0" class="flex flex-col">
       <div
         v-for="member in editAccess"
         :key="member.id"
@@ -318,10 +325,13 @@ const inviteMember = () => {
           <n-dropdown
             trigger="click"
             placement="bottom-end"
-            :options="manageOptions"
+            :options="generateEditorDropdownOptions(member.id)"
             @select="manageMember"
           >
-            <n-button secondary>
+            <n-button
+              secondary
+              :loading="collectionStore.collectionPermissionGetLoading"
+            >
               <template #icon>
                 <Icon name="iconamoon:menu-kebab-vertical-bold" />
               </template>
@@ -331,7 +341,15 @@ const inviteMember = () => {
       </div>
     </div>
 
-    <n-divider />
+    <div v-else class="flex flex-col">
+      <div
+        class="flex items-center justify-center border border-slate-200 bg-white p-5"
+      >
+        <p class="text-center font-bold text-slate-600">
+          No additional members have edit access to this collection
+        </p>
+      </div>
+    </div>
 
     <div class="mt-8 flex flex-col rounded-lg border border-zinc-300">
       <div class="rounded-lg bg-white p-6">
@@ -341,30 +359,19 @@ const inviteMember = () => {
 
         <n-divider />
 
-        <n-form
-          ref="formRef"
-          inline
-          :label-width="80"
-          :model="formValue"
-          :rules="rules"
-          size="large"
-          class="space-x-8"
-        >
-          <div class="w-full">
-            <n-form-item label="Users" path="user">
-              <n-select
-                :options="viewers as any"
-                :render-label="renderLabel"
-                :render-tag="renderSingleSelectTag"
-                filterable
-              />
-              <!-- <n-input
-                v-model:value="formValue.user"
-                placeholder="hi@sciconnect.io"
-              /> -->
-            </n-form-item>
-          </div>
-        </n-form>
+        <n-form-item label="Users" size="large">
+          <n-select
+            v-model:value="userToInvite"
+            :options="viewers || []"
+            :render-label="renderLabel"
+            :render-tag="renderSingleSelectTag"
+            filterable
+            :loading="viewersLoading"
+            clearable
+            :disabled="collectionStore.collectionPermission !== 'admin'"
+            placeholder="Search for a user to invite"
+          />
+        </n-form-item>
       </div>
 
       <div
@@ -378,6 +385,7 @@ const inviteMember = () => {
           color="black"
           size="large"
           :loading="inviteLoading"
+          :disabled="!userToInvite"
           @click="inviteMember"
         >
           <template #icon>

@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
   );
 
   return viewers.map((viewer) => ({
-    ...viewer,
+    email_address: viewer.user.email_address,
     label: viewer.user.name || viewer.user.username,
     value: viewer.user_id,
   }));

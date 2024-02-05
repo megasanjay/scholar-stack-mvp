@@ -8,6 +8,9 @@ export const useCollectionStore = defineStore("Collection", () => {
   const collections = ref<Collections>([]);
   const collection = ref<Collection>();
 
+  const collectionPermissionGetLoading = ref(false);
+  const collectionPermission = ref("viewer");
+
   const showNewCollectionModal = () => {
     newCollectionModalIsOpen.value = true;
   };
@@ -55,10 +58,38 @@ export const useCollectionStore = defineStore("Collection", () => {
     collection.value = collections.value.find(
       (c: Collection) => c.id === collectionid,
     );
+
+    getCollectionPermission(workspaceid, collectionid);
+  };
+
+  const getCollectionPermission = async (
+    workspaceid: string,
+    collectionid: string,
+  ) => {
+    collectionPermissionGetLoading.value = true;
+
+    const { data, error } = await useFetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/permissions`,
+      {
+        headers: useRequestHeaders(["cookie"]),
+      },
+    );
+
+    collectionPermissionGetLoading.value = false;
+
+    if (error.value) {
+      console.error(error);
+    }
+
+    if (data.value) {
+      collectionPermission.value = data.value.permission;
+    }
   };
 
   return {
     collection,
+    collectionPermission,
+    collectionPermissionGetLoading,
     collections,
     fetchCollections,
     getCollection,
