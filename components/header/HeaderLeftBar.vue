@@ -483,10 +483,20 @@ const navigateToResource = (resourceid: string) => {
                     />
 
                     <span
+                      v-if="currentResource?.title"
                       class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
                     >
                       {{ currentResource?.title }}
                     </span>
+
+                    <n-tag
+                      v-else
+                      type="success"
+                      size="small"
+                      class="pointer-events-none"
+                    >
+                      New
+                    </n-tag>
                   </div>
                 </TransitionFade>
               </NuxtLink>
