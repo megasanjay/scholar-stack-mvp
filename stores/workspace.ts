@@ -8,6 +8,12 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const workspaces = ref<Workspaces>([]);
   const workspace = ref<Workspace>();
 
+  const workspacePermissionGetLoading = ref(false);
+
+  const workspaceAdmin = ref(false);
+  const workspaceOwner = ref(false);
+  const workspaceViewer = ref(false);
+
   const showNewWorkspaceModal = () => {
     newWorkspaceModalIsOpen.value = true;
   };
@@ -71,10 +77,49 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     workspace.value = workspaces.value.find(
       (workspace) => workspace.id === workspaceId,
     );
+
+    getWorkspacePermission(workspaceId);
   };
 
   const setWorkspaces = (data: Workspaces) => {
     workspaces.value = data;
+  };
+
+  const getWorkspacePermission = async (workspaceid: string) => {
+    workspacePermissionGetLoading.value = true;
+
+    const { data, error } = await useFetch(
+      `/api/workspaces/${workspaceid}/permissions`,
+      {
+        headers: useRequestHeaders(["cookie"]),
+      },
+    );
+
+    workspacePermissionGetLoading.value = false;
+
+    if (error.value) {
+      console.error(error);
+    }
+
+    if (data.value) {
+      if (data.value.permission === "admin") {
+        workspaceAdmin.value = true;
+        workspaceOwner.value = false;
+        workspaceViewer.value = true;
+      }
+
+      if (data.value.permission === "owner") {
+        workspaceAdmin.value = true;
+        workspaceOwner.value = true;
+        workspaceViewer.value = true;
+      }
+
+      if (data.value.permission === "viewer") {
+        workspaceAdmin.value = false;
+        workspaceOwner.value = false;
+        workspaceViewer.value = true;
+      }
+    }
   };
 
   return {
@@ -87,6 +132,10 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     showNewWorkspaceModal,
     sortWorkspaces,
     workspace,
+    workspaceAdmin,
+    workspaceOwner,
+    workspacePermissionGetLoading,
     workspaces,
+    workspaceViewer,
   };
 });
