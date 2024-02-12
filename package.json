@@ -35,7 +35,7 @@
     "@types/node": "^20.0.0",
     "@types/sanitize-html": "^2.9.0",
     "@types/validator": "^13.7.17",
-    "@typescript-eslint/parser": "^5.59.6",
+    "@typescript-eslint/parser": "^7.0.0",
     "axios": "^1.4.0",
     "dayjs-nuxt": "^2.0.2",
     "eslint": "8.56.0",
