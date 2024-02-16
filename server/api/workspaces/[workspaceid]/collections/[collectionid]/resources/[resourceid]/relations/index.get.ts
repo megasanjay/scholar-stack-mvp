@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get all the relations for the resource
-  const internalRelations = await prisma.stagingInternalRelation.findMany({
+  const internalRelations = await prisma.internalRelation.findMany({
     orderBy: {
       created: "asc",
     },

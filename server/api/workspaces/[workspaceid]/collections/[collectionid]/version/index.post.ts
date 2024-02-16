@@ -152,13 +152,11 @@ export default defineEventHandler(async (event) => {
       });
 
       for (const originalInternalRelation of originalInternalRelations) {
-        await prisma.stagingInternalRelation.create({
+        await prisma.internalRelation.create({
           data: {
             action: "clone",
             mirror: originalInternalRelation.mirror,
-            original_id: originalInternalRelation.id,
-            original_source_id: originalResource.id,
-            original_target_id: originalInternalRelation.target_id,
+            original_relation_id: originalInternalRelation.id,
             resource_type: originalInternalRelation.resource_type,
             source_id: newStagingResource.id,
             target_id: originalInternalRelation.target_id,

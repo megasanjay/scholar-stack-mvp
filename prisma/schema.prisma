@@ -165,8 +165,6 @@ model Version {
   InternalRelations InternalRelation[]
   ExternalRelations ExternalRelation[]
 
-  StagingInternalRelations StagingInternalRelation[]
-
   @@index([identifier, collection_id])
 }
 
@@ -203,15 +201,13 @@ model Resource {
 
   InternalRelationSource InternalRelation[] @relation("SourceRelation")
   InternalRelationTarget InternalRelation[] @relation("TargetRelation")
-
-  StagingInternalRelationSource         StagingInternalRelation[] @relation("SourceRelation")
-  StagingInternalRelationOriginalSource StagingInternalRelation[] @relation("OriginalSourceRelation")
-  StagingInternalRelationTarget         StagingInternalRelation[] @relation("TargetRelation")
-  StagingInternalRelationOriginalTarget StagingInternalRelation[] @relation("OriginalTargetRelation")
 }
 
 model InternalRelation {
   id String @id @default(cuid())
+
+  original_relation    InternalRelation? @relation("OriginalInternalRelation", fields: [original_relation_id], references: [id])
+  original_relation_id String?
 
   source    Resource @relation("SourceRelation", fields: [source_id], references: [id])
   source_id String
@@ -222,13 +218,15 @@ model InternalRelation {
   type          String // isCitedBy, etc 
   resource_type String? // Book, Article, etc
 
+  action String? // delete
+
   mirror Boolean @default(false)
 
-  created                 DateTime                  @default(now())
-  updated                 DateTime                  @updatedAt
-  StagingInternalRelation StagingInternalRelation[]
+  created DateTime @default(now())
+  updated DateTime @updatedAt
 
-  Version Version[]
+  Version          Version[]
+  InternalRelation InternalRelation[] @relation("OriginalInternalRelation")
 }
 
 model ExternalRelation {
@@ -253,37 +251,6 @@ model ExternalRelation {
 
   Version          Version[]
   ExternalRelation ExternalRelation[] @relation("OriginalExternalRelation")
-}
-
-model StagingInternalRelation {
-  id String @id @default(cuid())
-
-  original    InternalRelation? @relation(fields: [original_id], references: [id])
-  original_id String?
-
-  source    Resource @relation("SourceRelation", fields: [source_id], references: [id], onDelete: Cascade)
-  source_id String
-
-  original_source    Resource? @relation("OriginalSourceRelation", fields: [original_source_id], references: [id])
-  original_source_id String?
-
-  target    Resource @relation("TargetRelation", fields: [target_id], references: [id], onDelete: Cascade)
-  target_id String
-
-  original_target    Resource? @relation("OriginalTargetRelation", fields: [original_target_id], references: [id])
-  original_target_id String?
-
-  type          String // isCitedBy, etc
-  resource_type String? // Book, Article, etc
-
-  action String? // delete
-
-  mirror Boolean @default(false)
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  Version Version[]
 }
 
 model Analytics {

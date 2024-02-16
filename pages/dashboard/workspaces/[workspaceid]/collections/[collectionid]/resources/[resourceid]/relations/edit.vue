@@ -169,7 +169,7 @@ const addNewInternalRelation = () => {
     action: "create",
     created: new Date().toISOString(),
     origin: "local",
-    original_id: null,
+    original_relation_id: null,
     resource_type: null,
     target_id: null,
     type: null,
@@ -452,7 +452,7 @@ const saveRelations = async () => {
         size="large"
         label-placement="left"
       >
-        <div flex class="hidden items-center justify-between py-10">
+        <div flex class="flex items-center justify-between py-10">
           <h2>Internal Relations</h2>
 
           <n-button color="black" @click="addNewInternalRelation">
@@ -464,7 +464,7 @@ const saveRelations = async () => {
           </n-button>
         </div>
 
-        <n-space vertical size="large" class="!hidden">
+        <n-space vertical size="large">
           <div
             v-for="(relation, index) of moduleData.internal"
             :key="index"
@@ -531,7 +531,7 @@ const saveRelations = async () => {
                     v-model:value="relation.target_id"
                     filterable
                     :render-label="renderLabel"
-                    :disabled="!!relation.original_id"
+                    :disabled="!!relation.original_relation_id"
                     :loading="resourceListLoadingIndicator"
                     :options="resourceList || []"
                   />

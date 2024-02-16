@@ -453,8 +453,8 @@ export default defineEventHandler(async (event) => {
    */
 
   // for (const resource of resources) {
-  //   const stagingInternalRelations =
-  //     await prisma.stagingInternalRelation.findMany({
+  //   const internalRelations =
+  //     await prisma.internalRelation.findMany({
   //       where: {
   //         source_id: resource.id,
   //       },
@@ -464,7 +464,7 @@ export default defineEventHandler(async (event) => {
   //    * * Keep the internal relations that have a create or update action
   //    * * If the action is delete, keep it only if it has an original_id field
   //    */
-  //   const internalRelations = stagingInternalRelations.filter(
+  //   const internalRelations = internalRelations.filter(
   //     (internalRelation) =>
   //       internalRelation.action !== "delete" ||
   //       (internalRelation.action === "delete" && internalRelation.original_id)
@@ -591,13 +591,13 @@ export default defineEventHandler(async (event) => {
   //     },
   //   });
 
-  //   await prisma.stagingInternalRelation.deleteMany({
+  //   await prisma.internalRelation.deleteMany({
   //     where: {
   //       source_id: resource.id,
   //     },
   //   });
 
-  //   await prisma.stagingInternalRelation.deleteMany({
+  //   await prisma.internalRelation.deleteMany({
   //     where: {
   //       target_id: resource.id,
   //     },
