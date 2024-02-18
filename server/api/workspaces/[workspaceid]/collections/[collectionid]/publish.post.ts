@@ -303,7 +303,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const deletedExternalRelations = clonedExternalRelations.filter(
+    const deletedExternalRelations = externalRelations.filter(
       (externalRelation) => externalRelation.action === "delete",
     );
 
