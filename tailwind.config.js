@@ -29,10 +29,10 @@ module.exports = {
     extend: {
       animation: {
         appear: "appear 300ms ease-out 150ms both",
+        blob: "blob 7s infinite",
         flicker: "flicker 3s linear infinite",
         shimmer: "shimmer 1.3s linear infinite",
         zoomIn: "appear 300ms ease-out 150ms both",
-        blob: "blob 7s infinite",
       },
 
       colors: {
@@ -78,14 +78,14 @@ module.exports = {
           "0%": {
             transform: "translate(0px, 0px) scale(1)",
           },
+          "100%": {
+            transform: "tranlate(0px, 0px) scale(1)",
+          },
           "33%": {
             transform: "translate(30px, -50px) scale(1.1)",
           },
           "66%": {
             transform: "translate(-20px, 20px) scale(0.9)",
-          },
-          "100%": {
-            transform: "tranlate(0px, 0px) scale(1)",
           },
         },
 

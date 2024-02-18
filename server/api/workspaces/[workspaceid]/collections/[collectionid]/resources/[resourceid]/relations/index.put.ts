@@ -181,32 +181,107 @@ export default defineEventHandler(async (event) => {
   // Update the internal relations
   for (const relation of internal) {
     if (relation.id) {
-      // todo: check diff and add update action
-      // if (relation.original_id) {
-      //   // don't update the target for relations that are part of the published resource
-      //   await prisma.internalRelation.update({
-      //     data: {
-      //       action: "update",
-      //       resource_type: relation.resource_type,
-      //       type: relation.type,
-      //     },
-      //     where: {
-      //       id: relation.id,
-      //     },
-      //   });
-      // } else {
-      await prisma.internalRelation.update({
-        data: {
-          mirror: false,
-          resource_type: relation.resource_type,
-          target_id: relation.target_id,
-          type: relation.type,
-        },
+      // Check if the relation exists for the ones with an id and that the relation is part of the resource
+      const existingStagingRelation = await prisma.internalRelation.findUnique({
         where: {
           id: relation.id,
+          source_id: resourceid,
         },
       });
-      // }
+
+      if (!existingStagingRelation) {
+        throw createError({
+          message: "Relation not found",
+          statusCode: 404,
+        });
+      }
+
+      // Get the original relation information
+      if (existingStagingRelation.original_relation_id) {
+        const existingRelation = await prisma.internalRelation.findUnique({
+          where: {
+            id: existingStagingRelation.original_relation_id,
+          },
+        });
+
+        if (!existingRelation) {
+          throw createError({
+            message: "Relation not found",
+            statusCode: 404,
+          });
+        }
+
+        /**
+         * Check if the relation has been deleted
+         */
+
+        if (existingRelation.action === "delete") {
+          continue;
+        }
+
+        /**
+         * * Check if the relation has changed
+         * * If it has, add the update action
+         * * If it hasn't, add the clone action
+         */
+        if (
+          existingRelation.resource_type !== relation.resource_type ||
+          existingRelation.type !== relation.type
+        ) {
+          await prisma.internalRelation.update({
+            data: {
+              action: "update",
+              resource_type: relation.resource_type,
+              type: relation.type,
+            },
+            where: {
+              id: relation.id,
+            },
+          });
+        } else {
+          await prisma.internalRelation.update({
+            data: {
+              action: "clone",
+              resource_type: relation.resource_type,
+              type: relation.type,
+            },
+            where: {
+              id: relation.id,
+            },
+          });
+        }
+      } else {
+        // Check if the target resource exists and is part of the collection
+        const targetResource = await prisma.resource.findUnique({
+          where: {
+            id: relation.target_id,
+            Version: {
+              some: {
+                collection_id: collectionid,
+              },
+            },
+          },
+        });
+
+        if (!targetResource) {
+          throw createError({
+            message: "Target resource not found",
+            statusCode: 404,
+          });
+        }
+
+        await prisma.internalRelation.update({
+          data: {
+            action: "create",
+            resource_type: relation.resource_type,
+            target_id: relation.target_id,
+            type: relation.type,
+          },
+          where: {
+            id: relation.id,
+          },
+        });
+      }
     } else {
       await prisma.internalRelation.create({
         data: {
