@@ -77,7 +77,9 @@ const { data: relations, pending: relationsPending } = useLazyFetch(
 
 <template>
   <main class="h-full bg-white">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
+    <div
+      class="flex h-36 w-full items-center border-b border-gray-200 bg-white"
+    >
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
@@ -111,7 +113,7 @@ const { data: relations, pending: relationsPending } = useLazyFetch(
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pb-5 pt-10">
+      <div class="flex w-full items-center space-x-4 pb-5 pt-10">
         <TransitionFade>
           <div v-if="relationsPending" class="flex w-full justify-center">
             <client-only>
@@ -123,7 +125,76 @@ const { data: relations, pending: relationsPending } = useLazyFetch(
             </client-only>
           </div>
 
-          <div v-else>
+          <div v-else class="w-full">
+            <div flex class="flex items-center justify-between py-10">
+              <h2>External Relations</h2>
+            </div>
+
+            <n-space vertical size="large" class="w-full">
+              <div
+                v-for="(relation, index) of relations?.external || []"
+                :key="index"
+                class="space-x-8 rounded-xl border bg-white px-3 py-5 transition-all"
+              >
+                <n-space vertical size="large">
+                  <n-space justify="space-between">
+                    <h3>{{ relation.type }}</h3>
+
+                    <n-tag type="info">{{ relation.resource_type }}</n-tag>
+                  </n-space>
+
+                  <div class="flex w-full items-center space-x-1 pb-4 pt-3">
+                    <n-tag type="info" size="small" class="">
+                      {{ relation.target_type }}
+                    </n-tag>
+
+                    <div>
+                      <n-divider vertical />
+                    </div>
+
+                    <div class="group w-max">
+                      <NuxtLink
+                        :to="
+                          relation.target_type !== 'url'
+                            ? `https://identifiers.org/${relation.type}/${relation.target}`
+                            : relation.target
+                        "
+                        class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                        target="_blank"
+                        @click.stop=""
+                      >
+                        {{ relation.target }}
+
+                        <Icon
+                          name="mdi:external-link"
+                          size="16"
+                          class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                        />
+                      </NuxtLink>
+                    </div>
+                  </div>
+
+                  <n-space justify="end">
+                    <n-button type="info">
+                      <template #icon>
+                        <Icon name="mdi:file-document-edit-outline" />
+                      </template>
+
+                      Edit
+                    </n-button>
+
+                    <n-button type="error">
+                      <template #icon>
+                        <Icon name="mdi:delete-outline" />
+                      </template>
+
+                      Delete
+                    </n-button>
+                  </n-space>
+                </n-space>
+              </div>
+            </n-space>
+
             <pre>{{ relations }}</pre>
           </div>
         </TransitionFade>

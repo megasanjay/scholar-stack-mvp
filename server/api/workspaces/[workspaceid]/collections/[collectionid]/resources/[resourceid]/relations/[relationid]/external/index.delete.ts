@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 
   // Delete the relation
 
-  if (relation.action === "create") {
+  if (!relation.original_relation_id) {
     await prisma.externalRelation.delete({
       where: { id: relationid },
     });

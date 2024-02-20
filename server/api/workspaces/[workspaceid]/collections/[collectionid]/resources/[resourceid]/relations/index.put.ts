@@ -177,6 +177,18 @@ export default defineEventHandler(async (event) => {
             },
           });
         }
+      } else {
+        await prisma.externalRelation.update({
+          data: {
+            resource_type: relation.resource_type,
+            target: relation.target,
+            target_type: relation.target_type,
+            type: relation.type,
+          },
+          where: {
+            id: relation.id,
+          },
+        });
       }
     } else {
       await prisma.externalRelation.create({

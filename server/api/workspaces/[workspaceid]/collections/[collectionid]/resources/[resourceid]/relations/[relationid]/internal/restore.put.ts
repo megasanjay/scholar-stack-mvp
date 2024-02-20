@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   }
   // check if the relation exists
 
-  const relation = await prisma.externalRelation.findUnique({
+  const relation = await prisma.internalRelation.findUnique({
     where: { id: relationid, source_id: resourceid },
   });
 
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the original relation
-  const originalRelation = await prisma.externalRelation.findUnique({
+  const originalRelation = await prisma.internalRelation.findUnique({
     where: { id: relation.original_relation_id },
   });
 
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
     originalRelation.type === relation.type
   ) {
     updatedAction = "clone";
-    await prisma.externalRelation.update({
+    await prisma.internalRelation.update({
       data: {
         action: "clone",
       },
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
     });
   } else {
     updatedAction = "update";
-    await prisma.externalRelation.update({
+    await prisma.internalRelation.update({
       data: {
         action: "update",
       },

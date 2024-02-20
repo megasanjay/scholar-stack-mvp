@@ -228,7 +228,7 @@ const addNewExternalRelation = () => {
     original_relation_id: null,
     resource_type: "poster",
     target: faker.internet.url(),
-    target_type: "URL",
+    target_type: "url",
     type: "Cites",
     updated: new Date().toISOString(),
   });

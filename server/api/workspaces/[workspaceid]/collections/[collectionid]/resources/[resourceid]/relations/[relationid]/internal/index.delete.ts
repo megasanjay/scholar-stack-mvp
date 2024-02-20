@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if the relation exists
+  // Check if the relation is exists
   const relation = await prisma.internalRelation.findUnique({
     where: { id: relationid },
   });
@@ -64,31 +64,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // todo: remove mirror on publish
-
-  // const relationType = relation.type;
-  // const mirrorRelationType = mirrorRelation(relationType);
-
-  // if (mirrorRelationType && !relation.mirror) {
-  // Only the original relation should delete the mirror relation
-  //   const mirroredRelation = await prisma.internalRelation.findFirst({
-  //     where: {
-  //       mirror: true,
-  //       target_id: relation.source_id,
-  //       type: mirrorRelationType,
-  //     },
-  //   });
-
-  //   if (mirroredRelation) {
-  // found mirror relation, delete it
-  //     await prisma.internalRelation.delete({
-  //       where: { id: mirroredRelation.id },
-  //     });
-  //   }
-  // }
-
   // Delete the relation
-  if (relation.action === "create") {
+
+  if (!relation.original_relation_id) {
     await prisma.internalRelation.delete({
       where: { id: relationid },
     });
