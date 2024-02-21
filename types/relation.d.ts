@@ -28,29 +28,19 @@ interface Relations {
   external: ExternalRelation[];
 }
 
-interface GroupedInternalRelation {
+interface GroupedRelation {
   id: string;
-  type: string | null;
-  target_id: string | null;
-  original_relation_id?: string | null;
-  resource_type: string | null;
-  created: string;
-  updated: string;
-  action?: string;
-}
-
-interface GroupedExternalRelation {
-  id: string;
-  type: string | null;
-  original_relation_id?: string | null;
+  type: string;
+  relation_type: string; // internal | external
   target: string;
-  target_type: string | null;
+  original_relation_id?: string | null;
+  target_type: string;
   resource_type: string | null;
-  created: string;
-  updated: string;
-  action?: string;
+  created: Date;
+  updated: Date;
+  action?: string | null;
 }
 
 interface GroupedRelations {
-  [key: string]: (GroupedInternalRelation | GroupedExternalRelation)[];
+  [key: string]: GroupedRelation[];
 }

@@ -183,7 +183,7 @@ if (relations.value) {
                       target="_blank"
                       @click.stop=""
                     >
-                      {{ relation.target || relation.target_id }}
+                      {{ relation.target }}
 
                       <Icon
                         name="mdi:external-link"
