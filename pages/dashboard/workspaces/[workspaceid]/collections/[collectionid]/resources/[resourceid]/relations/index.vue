@@ -67,12 +67,41 @@ if (resource.value) {
   }
 }
 
-const { data: relations, pending: relationsPending } = useLazyFetch(
+const { data: relations, error: relationsError } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations`,
   {
     headers: useRequestHeaders(["cookie"]),
   },
 );
+
+const groupedRelations = ref<GroupedRelations>({});
+
+// combine the relations into a single object with the relations grouped by type
+if (relations.value) {
+  for (const relation of relations.value.external) {
+    if (relation.type in groupedRelations.value) {
+      groupedRelations.value[relation.type].push(
+        relation as GroupedExternalRelation,
+      );
+    } else {
+      groupedRelations.value[relation.type] = [
+        relation as GroupedExternalRelation,
+      ];
+    }
+  }
+
+  for (const relation of relations.value.internal) {
+    if (relation.type in groupedRelations.value) {
+      groupedRelations.value[relation.type].push(
+        relation as GroupedInternalRelation,
+      );
+    } else {
+      groupedRelations.value[relation.type] = [
+        relation as GroupedInternalRelation,
+      ];
+    }
+  }
+}
 </script>
 
 <template>
@@ -113,91 +142,152 @@ const { data: relations, pending: relationsPending } = useLazyFetch(
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex w-full items-center space-x-4 pb-5 pt-10">
-        <TransitionFade>
-          <div v-if="relationsPending" class="flex w-full justify-center">
-            <client-only>
-              <Vue3Lottie
-                animation-link="https://assets10.lottiefiles.com/packages/lf20_AQEOul.json"
-                :height="200"
-                :width="200"
-              />
-            </client-only>
+      <n-space vertical size="large" class="w-full">
+        <div v-for="(value, name, index) in groupedRelations" :key="index">
+          <div flex class="flex items-center justify-between py-10">
+            <h2>{{ name }}</h2>
           </div>
 
-          <div v-else class="w-full">
-            <div flex class="flex items-center justify-between py-10">
-              <h2>External Relations</h2>
-            </div>
+          <n-space vertical size="large" class="w-full">
+            <div
+              v-for="(relation, idx) of value || []"
+              :key="idx"
+              class="space-x-8 rounded-xl border bg-white px-3 py-5 transition-all"
+            >
+              <n-space vertical size="large">
+                <n-space justify="start">
+                  <n-tag type="info">{{ relation.resource_type }}</n-tag>
+                </n-space>
 
-            <n-space vertical size="large" class="w-full">
-              <div
-                v-for="(relation, index) of relations?.external || []"
-                :key="index"
-                class="space-x-8 rounded-xl border bg-white px-3 py-5 transition-all"
-              >
-                <n-space vertical size="large">
-                  <n-space justify="space-between">
-                    <h3>{{ relation.type }}</h3>
+                <div class="flex w-full items-center space-x-1 pb-4 pt-3">
+                  <n-tag
+                    v-if="target_type in relation"
+                    type="info"
+                    size="small"
+                  >
+                    {{ relation.target_type }}
+                  </n-tag>
 
-                    <n-tag type="info">{{ relation.resource_type }}</n-tag>
-                  </n-space>
-
-                  <div class="flex w-full items-center space-x-1 pb-4 pt-3">
-                    <n-tag type="info" size="small" class="">
-                      {{ relation.target_type }}
-                    </n-tag>
-
-                    <div>
-                      <n-divider vertical />
-                    </div>
-
-                    <div class="group w-max">
-                      <NuxtLink
-                        :to="
-                          relation.target_type !== 'url'
-                            ? `https://identifiers.org/${relation.type}/${relation.target}`
-                            : relation.target
-                        "
-                        class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                        target="_blank"
-                        @click.stop=""
-                      >
-                        {{ relation.target }}
-
-                        <Icon
-                          name="mdi:external-link"
-                          size="16"
-                          class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                        />
-                      </NuxtLink>
-                    </div>
+                  <div>
+                    <n-divider vertical />
                   </div>
 
-                  <n-space justify="end">
-                    <n-button type="info">
-                      <template #icon>
-                        <Icon name="mdi:file-document-edit-outline" />
-                      </template>
+                  <div class="group w-max">
+                    <NuxtLink
+                      :to="
+                        relation.target_type !== 'url'
+                          ? `https://identifiers.org/${relation.type}/${relation.target}`
+                          : relation.target
+                      "
+                      class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                      target="_blank"
+                      @click.stop=""
+                    >
+                      {{ relation.target || relation.target_id }}
 
-                      Edit
-                    </n-button>
+                      <Icon
+                        name="mdi:external-link"
+                        size="16"
+                        class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                      />
+                    </NuxtLink>
+                  </div>
+                </div>
 
-                    <n-button type="error">
-                      <template #icon>
-                        <Icon name="mdi:delete-outline" />
-                      </template>
+                <n-space justify="end">
+                  <n-button type="info">
+                    <template #icon>
+                      <Icon name="mdi:file-document-edit-outline" />
+                    </template>
 
-                      Delete
-                    </n-button>
-                  </n-space>
+                    Edit
+                  </n-button>
+
+                  <n-button type="error">
+                    <template #icon>
+                      <Icon name="mdi:delete-outline" />
+                    </template>
+
+                    Delete
+                  </n-button>
                 </n-space>
-              </div>
-            </n-space>
+              </n-space>
+            </div>
+          </n-space>
+        </div>
+      </n-space>
 
-            <pre>{{ relations }}</pre>
+      <div>
+        <div flex class="flex items-center justify-between py-10">
+          <h2>External Relations</h2>
+        </div>
+
+        <pre>{{ groupedRelations }}</pre>
+
+        <n-space vertical size="large" class="w-full">
+          <div
+            v-for="(relation, index) of relations?.external || []"
+            :key="index"
+            class="space-x-8 rounded-xl border bg-white px-3 py-5 transition-all"
+          >
+            <n-space vertical size="large">
+              <n-space justify="space-between">
+                <h3>{{ relation.type }}</h3>
+
+                <n-tag type="info">{{ relation.resource_type }}</n-tag>
+              </n-space>
+
+              <div class="flex w-full items-center space-x-1 pb-4 pt-3">
+                <n-tag type="info" size="small" class="">
+                  {{ relation.target_type }}
+                </n-tag>
+
+                <div>
+                  <n-divider vertical />
+                </div>
+
+                <div class="group w-max">
+                  <NuxtLink
+                    :to="
+                      relation.target_type !== 'url'
+                        ? `https://identifiers.org/${relation.type}/${relation.target}`
+                        : relation.target
+                    "
+                    class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    target="_blank"
+                    @click.stop=""
+                  >
+                    {{ relation.target }}
+
+                    <Icon
+                      name="mdi:external-link"
+                      size="16"
+                      class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    />
+                  </NuxtLink>
+                </div>
+              </div>
+
+              <n-space justify="end">
+                <n-button type="info">
+                  <template #icon>
+                    <Icon name="mdi:file-document-edit-outline" />
+                  </template>
+
+                  Edit
+                </n-button>
+
+                <n-button type="error">
+                  <template #icon>
+                    <Icon name="mdi:delete-outline" />
+                  </template>
+
+                  Delete
+                </n-button>
+              </n-space>
+            </n-space>
           </div>
-        </TransitionFade>
+        </n-space>
       </div>
     </div>
 
