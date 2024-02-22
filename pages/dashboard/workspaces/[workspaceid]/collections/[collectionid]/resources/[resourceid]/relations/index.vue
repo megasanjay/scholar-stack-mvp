@@ -127,7 +127,7 @@ const { data: relations, error: relationsError } = await useFetch(
             >
               <n-space vertical size="large">
                 <n-space justify="start">
-                  <n-tag type="info">{{ relation.resource_type }}</n-tag>
+                  <n-tag type="info">{{ relation?.resource_type }}</n-tag>
                 </n-space>
 
                 <div class="flex w-full items-center space-x-1 pb-4 pt-3">

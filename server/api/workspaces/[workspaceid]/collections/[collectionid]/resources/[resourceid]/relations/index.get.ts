@@ -82,16 +82,28 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const relations: GroupedRelations = [
-    ...internalRelations.map((r) => ({
-      ...r,
-      relation_type: "internal",
-      target: r.target_id,
+  const relations: GroupedRelation[] = [
+    ...internalRelations.map((relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      created: relation.created,
+      resource_type: relation.resource_type,
+      target: relation.target_id,
+      target_location: "internal",
       target_type: "loopback",
+      type: relation.type,
+      updated: relation.updated,
     })),
-    ...externalRelations.map((r) => ({
-      ...r,
-      relation_type: "external",
+    ...externalRelations.map((relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      created: relation.created,
+      resource_type: relation.resource_type,
+      target: relation.target,
+      target_location: "external",
+      target_type: relation.target_type,
+      type: relation.type,
+      updated: relation.updated,
     })),
   ];
 

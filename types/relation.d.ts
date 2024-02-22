@@ -31,7 +31,7 @@ interface Relations {
 interface GroupedRelation {
   id: string;
   type: string;
-  relation_type: string; // internal | external
+  target_location: string; // internal | external
   target: string;
   original_relation_id?: string | null;
   target_type: string;
