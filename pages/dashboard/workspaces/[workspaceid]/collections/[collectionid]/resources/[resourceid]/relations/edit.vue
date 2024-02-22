@@ -64,7 +64,7 @@ const { collectionid, resourceid, workspaceid } = route.params as {
 };
 
 const { data: relations, error: relationsError } = await useFetch(
-  `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations`,
+  `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/old`,
   {
     headers: useRequestHeaders(["cookie"]),
   },

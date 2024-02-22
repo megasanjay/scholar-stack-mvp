@@ -73,35 +73,6 @@ const { data: relations, error: relationsError } = await useFetch(
     headers: useRequestHeaders(["cookie"]),
   },
 );
-
-const groupedRelations = ref<GroupedRelations>({});
-
-// combine the relations into a single object with the relations grouped by type
-if (relations.value) {
-  for (const relation of relations.value.external) {
-    if (relation.type in groupedRelations.value) {
-      groupedRelations.value[relation.type].push(
-        relation as GroupedExternalRelation,
-      );
-    } else {
-      groupedRelations.value[relation.type] = [
-        relation as GroupedExternalRelation,
-      ];
-    }
-  }
-
-  for (const relation of relations.value.internal) {
-    if (relation.type in groupedRelations.value) {
-      groupedRelations.value[relation.type].push(
-        relation as GroupedInternalRelation,
-      );
-    } else {
-      groupedRelations.value[relation.type] = [
-        relation as GroupedInternalRelation,
-      ];
-    }
-  }
-}
 </script>
 
 <template>
@@ -143,7 +114,7 @@ if (relations.value) {
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
       <n-space vertical size="large" class="w-full">
-        <div v-for="(value, name, index) in groupedRelations" :key="index">
+        <div v-for="(value, name, index) in relations" :key="index">
           <div flex class="flex items-center justify-between py-10">
             <h2>{{ name }}</h2>
           </div>
@@ -161,7 +132,7 @@ if (relations.value) {
 
                 <div class="flex w-full items-center space-x-1 pb-4 pt-3">
                   <n-tag
-                    v-if="target_type in relation"
+                    v-if="'target_type' in relation"
                     type="info"
                     size="small"
                   >
@@ -222,7 +193,7 @@ if (relations.value) {
           <h2>External Relations</h2>
         </div>
 
-        <pre>{{ groupedRelations }}</pre>
+        <pre>{{ relations }}</pre>
 
         <n-space vertical size="large" class="w-full">
           <div
