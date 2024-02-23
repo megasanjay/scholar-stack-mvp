@@ -4,8 +4,8 @@ interface InternalRelation {
   target_id: string | null;
   original_relation_id?: string | null;
   resource_type: string | null;
-  created: string;
-  updated: string;
+  created: Date;
+  updated: Date;
   action?: string;
   origin: "local" | "remote";
 }
@@ -17,8 +17,8 @@ interface ExternalRelation {
   target: string;
   target_type: string | null;
   resource_type: string | null;
-  created: string;
-  updated: string;
+  created: Date;
+  updated: Date;
   action?: string;
   origin: "local" | "remote";
 }
