@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from "#components";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
 definePageMeta({
   layout: "app-layout",
@@ -15,6 +16,24 @@ const { collectionid, resourceid, workspaceid } = route.params as {
   resourceid: string;
   workspaceid: string;
 };
+
+const resourceTypeOptions = RESOURCE_TYPE_JSON;
+
+const groupedRelations = ref<GroupedRelations>({});
+
+const showAddRelationDrawer = ref(false);
+const showEditRelationDrawer = ref(false);
+
+const selectedRelation = ref<GroupedRelation>({
+  id: "",
+  created: new Date(),
+  resource_type: "",
+  target: "",
+  target_location: "",
+  target_type: "",
+  type: "",
+  updated: new Date(),
+});
 
 const currentCollection = computed(() => {
   return (
@@ -74,8 +93,6 @@ const { data: relations, error: relationsError } = await useFetch(
   },
 );
 
-const groupedRelations = ref<GroupedRelations>({});
-
 if (relations.value) {
   // group relation by type
   for (const relation of relations.value) {
@@ -90,6 +107,25 @@ if (relations.value) {
     }
   }
 }
+
+const openAddRelationDrawer = () => {
+  showAddRelationDrawer.value = true;
+  selectedRelation.value = {
+    id: useId(),
+    created: new Date(),
+    resource_type: "",
+    target: "",
+    target_location: "",
+    target_type: "",
+    type: "",
+    updated: new Date(),
+  };
+};
+
+const openEditRelationDrawer = (relation: GroupedRelation) => {
+  selectedRelation.value = relation;
+  showEditRelationDrawer.value = true;
+};
 </script>
 
 <template>
@@ -125,6 +161,14 @@ if (relations.value) {
               Update relations
             </n-button>
           </NuxtLink>
+
+          <n-button size="large" color="black" @click="openAddRelationDrawer">
+            <template #icon>
+              <Icon name="material-symbols-light:rebase-edit-rounded" />
+            </template>
+
+            Add relations
+          </n-button>
         </div>
       </div>
     </div>
@@ -142,13 +186,40 @@ if (relations.value) {
             <div
               v-for="(relation, idx) of gr || []"
               :key="idx"
-              class="w-full space-x-8 rounded-xl border bg-white px-3 py-5 transition-all"
+              class="w-full space-x-8 rounded-xl border bg-white px-5 py-4 transition-all"
             >
               <n-space vertical size="large">
-                <n-space justify="space-between">
-                  <n-tag type="info">{{ relation?.resource_type }}</n-tag>
+                <div class="group w-max">
+                  <NuxtLink
+                    :to="
+                      relation.target_type !== 'url'
+                        ? `https://identifiers.org/${relation.type}/${relation.target}`
+                        : relation.target
+                    "
+                    class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    target="_blank"
+                    @click.stop=""
+                  >
+                    {{ relation.target }}
 
-                  <n-space justify="end">
+                    <Icon
+                      name="mdi:external-link"
+                      size="16"
+                      class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    />
+                  </NuxtLink>
+                </div>
+
+                <div class="flex items-center justify-between space-x-4">
+                  <div class="flex items-center justify-start space-x-4">
+                    <n-tag type="info"> {{ relation?.resource_type }} </n-tag>
+
+                    <n-tag type="success">
+                      {{ relation.target_type }}
+                    </n-tag>
+                  </div>
+
+                  <div class="flex items-center space-x-4">
                     <n-button type="info">
                       <template #icon>
                         <Icon name="mdi:file-document-edit-outline" />
@@ -164,41 +235,6 @@ if (relations.value) {
 
                       Delete
                     </n-button>
-                  </n-space>
-                </n-space>
-
-                <div class="flex w-full items-center space-x-1 pb-4 pt-3">
-                  <n-tag
-                    v-if="'target_type' in relation"
-                    type="info"
-                    size="small"
-                  >
-                    {{ relation.target_type }}
-                  </n-tag>
-
-                  <div>
-                    <n-divider vertical />
-                  </div>
-
-                  <div class="group w-max">
-                    <NuxtLink
-                      :to="
-                        relation.target_type !== 'url'
-                          ? `https://identifiers.org/${relation.type}/${relation.target}`
-                          : relation.target
-                      "
-                      class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                      target="_blank"
-                      @click.stop=""
-                    >
-                      {{ relation.target }}
-
-                      <Icon
-                        name="mdi:external-link"
-                        size="16"
-                        class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                      />
-                    </NuxtLink>
                   </div>
                 </div>
               </n-space>
@@ -209,5 +245,34 @@ if (relations.value) {
     </div>
 
     <ModalNewCollection />
+
+    <n-drawer
+      v-model:show="showAddRelationDrawer"
+      :width="502"
+      placement="right"
+    >
+      <n-drawer-content title="Add an internal relation ">
+        <n-form>
+          <n-form-item
+            :path="`resource_type`"
+            class="w-full"
+            :rule="{
+              message: 'Please select a resource type',
+              required: true,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Resource Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.resource_type"
+              filterable
+              :options="resourceTypeOptions"
+            /> </n-form-item
+        ></n-form>
+      </n-drawer-content>
+    </n-drawer>
   </main>
 </template>
