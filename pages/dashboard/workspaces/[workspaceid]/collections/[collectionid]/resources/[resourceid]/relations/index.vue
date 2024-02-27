@@ -30,6 +30,8 @@ const showRelationDrawer = ref(false);
 const addNewRelationLoading = ref(false);
 const editRelationLoading = ref(false);
 
+const drawerAction = ref<"Add" | "Edit">("Add");
+
 const formRef = ref<FormInst | null>(null);
 // const groupedRelations = ref<GroupedRelations>({});
 const selectedRelation = ref<GroupedRelation>({
@@ -224,6 +226,8 @@ const openAddRelationDrawer = (targetLocation: string) => {
     updated: new Date(),
   };
 
+  drawerAction.value = "Add";
+
   if (targetLocation === "internal") {
     selectedRelation.value.external = false;
   } else {
@@ -236,75 +240,67 @@ const openAddRelationDrawer = (targetLocation: string) => {
   showRelationDrawer.value = true;
 };
 
-const deleteRelation = async (relationid: string, external: boolean) => {
-  if (external) {
-    const relation = relations.value?.find((r) => r.id === relationid);
+const openEditRelationDrawer = (id: string) => {
+  const relation = relations.value?.find((r) => r.id === id);
 
-    if (relation) {
-      const response = await $fetch(
-        `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external/${relationid}`,
-        {
-          headers: useRequestHeaders(["cookie"]),
-          method: "DELETE",
-        },
-      );
+  if (relation) {
+    /**
+     * TODO: the dates need to be fixed. Not sure where ts thinks the dates are strings
+     */
 
-      if (response.statusCode === 204) {
-        if (relation.original_relation_id) {
-          relation.action = "delete";
+    selectedRelation.value = {
+      id: relation.id,
+      created: new Date(),
+      external: relation.external,
+      resource_type: relation.resource_type,
+      target: relation.target,
+      target_type: relation.external ? relation.target_type : null,
+      type: relation.type,
+      updated: new Date(),
+    };
 
-          push.success("Your relation has been marked for deletion");
-        } else {
-          const index = relations.value?.findIndex((r) => r.id === relationid);
+    drawerAction.value = "Edit";
 
-          if (index && index > -1) {
-            relations.value?.splice(index, 1);
-          } else {
-            push.error("Something went wrong");
-          }
+    showRelationDrawer.value = true;
+  } else {
+    push.error("Something went wrong");
+  }
+};
 
-          push.success("Your relation has been deleted");
-        }
+const deleteRelation = async (relationid: string) => {
+  const relation = relations.value?.find((r) => r.id === relationid);
+
+  if (!relation) {
+    push.error("Something went wrong");
+    return;
+  }
+
+  const response = await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+      method: "DELETE",
+    },
+  );
+
+  if (response.statusCode === 204) {
+    if (relation.original_relation_id) {
+      relation.action = "delete";
+
+      push.success("Your relation has been marked for deletion");
+    } else {
+      const index = relations.value?.findIndex((r) => r.id === relationid);
+
+      if (index && index > -1) {
+        relations.value?.splice(index, 1);
       } else {
         push.error("Something went wrong");
       }
-    } else {
-      push.error("Something went wrong");
+
+      push.success("Your relation has been deleted");
     }
   } else {
-    const relation = relations.value?.find((r) => r.id === relationid);
-
-    if (relation) {
-      const response = await $fetch(
-        `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal/${relationid}`,
-        {
-          headers: useRequestHeaders(["cookie"]),
-          method: "DELETE",
-        },
-      );
-
-      if (response.statusCode === 204) {
-        if (relation.original_relation_id) {
-          relation.action = "delete";
-
-          push.success("Your relation has been marked for deletion");
-        } else {
-          const index = relations.value?.findIndex((r) => r.id === relationid);
-
-          if (index && index > -1) {
-            relations.value?.splice(index, 1);
-          } else {
-            push.error("Something went wrong");
-          }
-
-          push.success("Your relation has been deleted");
-        }
-      } else {
-        push.error("Something went wrong");
-      }
-    } else {
-      push.error("Something went wrong");
-    }
+    push.error("Something went wrong");
   }
 };
 
@@ -513,7 +509,10 @@ const addNewRelation = () => {
                   </div>
 
                   <div class="flex items-center space-x-4">
-                    <n-button type="info">
+                    <n-button
+                      type="info"
+                      @click="openEditRelationDrawer(relation.id)"
+                    >
                       <template #icon>
                         <Icon name="mdi:file-document-edit-outline" />
                       </template>
@@ -521,10 +520,7 @@ const addNewRelation = () => {
                       Edit
                     </n-button>
 
-                    <n-button
-                      type="error"
-                      @click="deleteRelation(relation.id, relation.external)"
-                    >
+                    <n-button type="error" @click="deleteRelation(relation.id)">
                       <template #icon>
                         <Icon name="mdi:delete-outline" />
                       </template>
@@ -544,7 +540,7 @@ const addNewRelation = () => {
 
     <n-drawer v-model:show="showRelationDrawer" :width="502" placement="right">
       <n-drawer-content
-        :title="`Add an ${selectedRelation.external ? 'external' : 'internal'} relation`"
+        :title="`${drawerAction} an ${selectedRelation.external ? 'external' : 'internal'} relation`"
         :mask-closable="!addNewRelationLoading && !editRelationLoading"
         :close-on-esc="!addNewRelationLoading && !editRelationLoading"
       >
