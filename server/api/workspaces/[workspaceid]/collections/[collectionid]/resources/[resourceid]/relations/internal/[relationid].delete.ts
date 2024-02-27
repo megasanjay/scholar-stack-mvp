@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the relation is exists
-  const relation = await prisma.externalRelation.findUnique({
+  const relation = await prisma.internalRelation.findUnique({
     where: { id: relationid },
   });
 
@@ -67,11 +67,11 @@ export default defineEventHandler(async (event) => {
   // Delete the relation
 
   if (!relation.original_relation_id) {
-    await prisma.externalRelation.delete({
+    await prisma.internalRelation.delete({
       where: { id: relationid },
     });
   } else {
-    await prisma.externalRelation.update({
+    await prisma.internalRelation.update({
       data: {
         action: "delete",
       },
@@ -83,6 +83,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     message: "Relation removed",
-    statusCode: 200,
+    statusCode: 204,
   };
 });

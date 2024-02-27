@@ -27,14 +27,15 @@ interface Relations {
   internal: InternalRelation[];
   external: ExternalRelation[];
 }
+s;
 
 interface GroupedRelation {
   id: string;
-  type: string;
-  target_location: string; // internal | external
+  type: string | null;
+  external: boolean;
   target: string;
   original_relation_id?: string | null;
-  target_type: string;
+  target_type: string | null;
   resource_type: string | null;
   created: Date;
   updated: Date;

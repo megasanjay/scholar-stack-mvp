@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { Icon } from "#components";
+import { nanoid } from "nanoid";
+import type { SelectOption, FormInst } from "naive-ui";
+import { faker } from "@faker-js/faker";
+import { NTag, Icon } from "#components";
+import PREFIX_JSON from "@/assets/json/prefix.json";
+import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
 definePageMeta({
@@ -17,21 +22,24 @@ const { collectionid, resourceid, workspaceid } = route.params as {
   workspaceid: string;
 };
 
+const typeOptions = PREFIX_JSON;
+const relationTypeOptions = RELATION_TYPE_JSON;
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
-const groupedRelations = ref<GroupedRelations>({});
+const showRelationDrawer = ref(false);
+const addNewRelationLoading = ref(false);
+const editRelationLoading = ref(false);
 
-const showAddRelationDrawer = ref(false);
-const showEditRelationDrawer = ref(false);
-
+const formRef = ref<FormInst | null>(null);
+// const groupedRelations = ref<GroupedRelations>({});
 const selectedRelation = ref<GroupedRelation>({
   id: "",
   created: new Date(),
-  resource_type: "",
+  external: true,
+  resource_type: null,
   target: "",
-  target_location: "",
-  target_type: "",
-  type: "",
+  target_type: null,
+  type: null,
   updated: new Date(),
 });
 
@@ -93,38 +101,285 @@ const { data: relations, error: relationsError } = await useFetch(
   },
 );
 
-if (relations.value) {
-  // group relation by type
-  for (const relation of relations.value) {
-    if (relation.type in groupedRelations.value) {
-      groupedRelations.value[relation.type].push(
-        relation as unknown as GroupedRelation,
-      );
-    } else {
-      groupedRelations.value[relation.type] = [
-        relation as unknown as GroupedRelation,
-      ];
+const groupedRelations = computed(() => {
+  const grouped: GroupedRelations = {};
+
+  if (relations.value) {
+    // group relation by type
+    for (const relation of relations.value) {
+      if (relation.type) {
+        if (relation.type in grouped) {
+          grouped[relation.type].push(relation as unknown as GroupedRelation);
+        } else {
+          grouped[relation.type] = [relation as unknown as GroupedRelation];
+        }
+      }
     }
   }
+
+  return grouped;
+});
+
+const {
+  data: resourceList,
+  error: resourceListError,
+  pending: resourceListLoadingIndicator,
+} = useLazyFetch(
+  `/api/workspaces/${workspaceid}/collections/${collectionid}/resources?resourceid=${resourceid}`,
+  {
+    headers: useRequestHeaders(["cookie"]),
+  },
+);
+
+// TODO: might need to make this into a watch statement
+if (resourceListError.value) {
+  console.log(resourceListError.value);
+
+  push.error({
+    title: "Something went wrong",
+    message: "We couldn't load your resources",
+  });
 }
 
-const openAddRelationDrawer = () => {
-  showAddRelationDrawer.value = true;
-  selectedRelation.value = {
-    id: useId(),
-    created: new Date(),
-    resource_type: "",
-    target: "",
-    target_location: "",
-    target_type: "",
-    type: "",
-    updated: new Date(),
-  };
+const renderLabel = (option: SelectOption): any => {
+  console.log(option);
+
+  return [
+    option.versionLabel &&
+      h(
+        NTag,
+        {
+          class: "mr-2",
+          size: "small",
+          type: "info",
+        },
+        {
+          default: () => option.versionLabel || "",
+        },
+      ),
+    option.label as string,
+    h(
+      "span",
+      {
+        class: "text-gray-400 ml-2 text-xs",
+      },
+      {
+        default: () => {
+          if (option.latestCollectionVersionName) {
+            return "Last revision: " + option.latestCollectionVersionName;
+          } else {
+            return "";
+          }
+        },
+      },
+    ),
+  ];
 };
 
-const openEditRelationDrawer = (relation: GroupedRelation) => {
-  selectedRelation.value = relation;
-  showEditRelationDrawer.value = true;
+const getResourceName = (resourceid: string) => {
+  if (resourceList.value) {
+    const resources = resourceList.value;
+
+    const resource = resources.find((res) => res.value === resourceid);
+
+    if (resource) {
+      return resource.label;
+    }
+  }
+
+  return "";
+};
+
+const openAddRelationDrawer = (targetLocation: string) => {
+  selectedRelation.value = {
+    id: nanoid(),
+    created: new Date(),
+    external: true,
+    resource_type: null,
+    target: "",
+    target_type: null,
+    type: null,
+    updated: new Date(),
+  };
+
+  if (targetLocation === "internal") {
+    selectedRelation.value.external = false;
+  } else {
+    selectedRelation.value.resource_type = "poster";
+    selectedRelation.value.type = "Cites";
+    selectedRelation.value.target_type = "url";
+    selectedRelation.value.target = faker.internet.url();
+  }
+
+  showRelationDrawer.value = true;
+};
+
+const deleteRelation = async (relationid: string, external: boolean) => {
+  if (external) {
+    const relation = relations.value?.find((r) => r.id === relationid);
+
+    if (relation) {
+      const response = await $fetch(
+        `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external/${relationid}`,
+        {
+          headers: useRequestHeaders(["cookie"]),
+          method: "DELETE",
+        },
+      );
+
+      if (response.statusCode === 204) {
+        if (relation.original_relation_id) {
+          relation.action = "delete";
+
+          push.success("Your relation has been marked for deletion");
+        } else {
+          const index = relations.value?.findIndex((r) => r.id === relationid);
+
+          if (index && index > -1) {
+            relations.value?.splice(index, 1);
+          } else {
+            push.error("Something went wrong");
+          }
+
+          push.success("Your relation has been deleted");
+        }
+      } else {
+        push.error("Something went wrong");
+      }
+    } else {
+      push.error("Something went wrong");
+    }
+  } else {
+    const relation = relations.value?.find((r) => r.id === relationid);
+
+    if (relation) {
+      const response = await $fetch(
+        `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal/${relationid}`,
+        {
+          headers: useRequestHeaders(["cookie"]),
+          method: "DELETE",
+        },
+      );
+
+      if (response.statusCode === 204) {
+        if (relation.original_relation_id) {
+          relation.action = "delete";
+
+          push.success("Your relation has been marked for deletion");
+        } else {
+          const index = relations.value?.findIndex((r) => r.id === relationid);
+
+          if (index && index > -1) {
+            relations.value?.splice(index, 1);
+          } else {
+            push.error("Something went wrong");
+          }
+
+          push.success("Your relation has been deleted");
+        }
+      } else {
+        push.error("Something went wrong");
+      }
+    } else {
+      push.error("Something went wrong");
+    }
+  }
+};
+
+const addNewRelation = () => {
+  formRef.value?.validate(async (errors) => {
+    if (!errors) {
+      if (selectedRelation.value.external) {
+        const d = {
+          resourceType: selectedRelation.value.resource_type,
+          target: selectedRelation.value.target,
+          targetType: selectedRelation.value.target_type,
+          type: selectedRelation.value.type,
+        };
+
+        addNewRelationLoading.value = true;
+
+        const { data: newExternalRelation } = await $fetch(
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external`,
+          {
+            body: JSON.stringify(d),
+            headers: useRequestHeaders(["cookie"]),
+            method: "POST",
+          },
+        );
+
+        addNewRelationLoading.value = false;
+
+        if (newExternalRelation) {
+          const relationType = newExternalRelation.type as string;
+
+          if (relationType in groupedRelations.value) {
+            groupedRelations.value[relationType].push(
+              newExternalRelation as unknown as GroupedRelation,
+            );
+          } else {
+            groupedRelations.value[relationType] = [
+              newExternalRelation as unknown as GroupedRelation,
+            ];
+          }
+
+          // Also add the relation to the main relations array
+          relations.value?.push(newExternalRelation);
+
+          push.success("Your relation has been added");
+
+          showRelationDrawer.value = false;
+        } else {
+          push.error("Something went wrong");
+        }
+      } else {
+        const d = {
+          resourceType: selectedRelation.value.resource_type,
+          target: selectedRelation.value.target,
+          type: selectedRelation.value.type,
+        };
+
+        addNewRelationLoading.value = true;
+
+        const { data: newInternalRelation } = await $fetch(
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal`,
+          {
+            body: JSON.stringify(d),
+            headers: useRequestHeaders(["cookie"]),
+            method: "POST",
+          },
+        );
+
+        addNewRelationLoading.value = false;
+
+        if (newInternalRelation) {
+          const relationType = newInternalRelation.type as string;
+
+          if (relationType in groupedRelations.value) {
+            groupedRelations.value[relationType].push(
+              newInternalRelation as unknown as GroupedRelation,
+            );
+          } else {
+            groupedRelations.value[relationType] = [
+              newInternalRelation as unknown as GroupedRelation,
+            ];
+          }
+
+          // Also add the relation to the main relations array
+          relations.value?.push(newInternalRelation);
+
+          push.success("Your relation has been added");
+
+          showRelationDrawer.value = false;
+        } else {
+          push.error("Something went wrong");
+        }
+      }
+    } else {
+      console.log(errors);
+      push.error("Invalid");
+    }
+  });
 };
 </script>
 
@@ -158,16 +413,32 @@ const openEditRelationDrawer = (relation: GroupedRelation) => {
                 <Icon name="material-symbols-light:rebase-edit-rounded" />
               </template>
 
-              Update relations
+              old edit
             </n-button>
           </NuxtLink>
 
-          <n-button size="large" color="black" @click="openAddRelationDrawer">
+          <n-button
+            size="large"
+            color="black"
+            @click="openAddRelationDrawer('external')"
+          >
             <template #icon>
               <Icon name="material-symbols-light:rebase-edit-rounded" />
             </template>
 
-            Add relations
+            Add external relation
+          </n-button>
+
+          <n-button
+            size="large"
+            color="black"
+            @click="openAddRelationDrawer('internal')"
+          >
+            <template #icon>
+              <Icon name="material-symbols-light:rebase-edit-rounded" />
+            </template>
+
+            Add internal relation
           </n-button>
         </div>
       </div>
@@ -228,7 +499,10 @@ const openEditRelationDrawer = (relation: GroupedRelation) => {
                       Edit
                     </n-button>
 
-                    <n-button type="error">
+                    <n-button
+                      type="error"
+                      @click="deleteRelation(relation.id, relation.external)"
+                    >
                       <template #icon>
                         <Icon name="mdi:delete-outline" />
                       </template>
@@ -246,15 +520,15 @@ const openEditRelationDrawer = (relation: GroupedRelation) => {
 
     <ModalNewCollection />
 
-    <n-drawer
-      v-model:show="showAddRelationDrawer"
-      :width="502"
-      placement="right"
-    >
-      <n-drawer-content title="Add an internal relation ">
-        <n-form>
+    <n-drawer v-model:show="showRelationDrawer" :width="502" placement="right">
+      <n-drawer-content
+        :title="`Add an ${selectedRelation.external ? 'external' : 'internal'} relation`"
+        :mask-closable="!addNewRelationLoading && !editRelationLoading"
+        :close-on-esc="!addNewRelationLoading && !editRelationLoading"
+      >
+        <n-form ref="formRef" :model="selectedRelation" size="large">
           <n-form-item
-            :path="`resource_type`"
+            path="resource_type"
             class="w-full"
             :rule="{
               message: 'Please select a resource type',
@@ -270,8 +544,114 @@ const openEditRelationDrawer = (relation: GroupedRelation) => {
               v-model:value="selectedRelation.resource_type"
               filterable
               :options="resourceTypeOptions"
-            /> </n-form-item
-        ></n-form>
+              placeholder="Dataset"
+            />
+          </n-form-item>
+
+          <n-form-item
+            path="type"
+            class="w-full"
+            :rule="{
+              message: 'Please select a relation type',
+              required: true,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Relation Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.type"
+              filterable
+              :options="relationTypeOptions"
+              placeholder="isPartOf"
+            />
+          </n-form-item>
+
+          <n-form-item
+            v-if="selectedRelation.external"
+            path="target_type"
+            :rule="{
+              message: 'Please select a target type',
+              required: selectedRelation.external,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Target Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.target_type"
+              :disabled="!!selectedRelation.original_relation_id"
+              filterable
+              :options="typeOptions"
+              placeholder="DOI"
+            />
+          </n-form-item>
+
+          <n-form-item
+            v-if="selectedRelation.external"
+            path="target"
+            :rule="{
+              message: 'Please enter a target',
+              required: selectedRelation.external,
+              trigger: ['blur', 'input'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Target</span>
+            </template>
+
+            <n-input
+              v-model:value="selectedRelation.target"
+              :disabled="!!selectedRelation.original_relation_id"
+              placeholder="My Awesome Dataset"
+            />
+          </n-form-item>
+
+          <n-form-item
+            v-if="!selectedRelation.external"
+            path="target"
+            :rule="{
+              message: 'Please select a target',
+              required: !selectedRelation.external,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Target</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.target"
+              filterable
+              :render-label="renderLabel"
+              :disabled="!!selectedRelation.original_relation_id"
+              :loading="resourceListLoadingIndicator"
+              :options="resourceList || []"
+            />
+          </n-form-item>
+        </n-form>
+
+        <pre>
+          {{ selectedRelation }}
+        </pre>
+
+        <template #footer>
+          <n-button
+            type="info"
+            :loading="addNewRelationLoading"
+            size="large"
+            @click="addNewRelation"
+          >
+            <template #icon>
+              <Icon name="material-symbols:save-sharp" />
+            </template>
+            Save relation
+          </n-button>
+        </template>
       </n-drawer-content>
     </n-drawer>
   </main>
