@@ -80,6 +80,13 @@ export default defineEventHandler(async (event) => {
 
   const { resourceType, target, type } = parsedBody.data;
 
+  if (target === resourceid) {
+    throw createError({
+      message: "Cannot create a relation to itself",
+      statusCode: 400,
+    });
+  }
+
   const internalRelation = await prisma.internalRelation.create({
     data: {
       action: "create",
@@ -104,6 +111,7 @@ export default defineEventHandler(async (event) => {
 
   const responseObject: GroupedRelation = {
     id: internalRelation.id,
+    action: "create",
     created: internalRelation.created,
     external: false,
     resource_type: internalRelation.resource_type,

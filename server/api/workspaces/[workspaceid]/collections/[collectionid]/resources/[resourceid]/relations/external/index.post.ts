@@ -106,6 +106,7 @@ export default defineEventHandler(async (event) => {
 
   const responseObject: GroupedRelation = {
     id: externalRelation.id,
+    action: "create",
     created: externalRelation.created,
     external: true,
     resource_type: externalRelation.resource_type,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
-import type { SelectOption, FormInst } from "naive-ui";
+import type { SelectOption, FormInst, FormItemRule } from "naive-ui";
 import { faker } from "@faker-js/faker";
 import { NTag, Icon } from "#components";
 import PREFIX_JSON from "@/assets/json/prefix.json";
@@ -142,8 +142,6 @@ if (resourceListError.value) {
 }
 
 const renderLabel = (option: SelectOption): any => {
-  console.log(option);
-
   return [
     option.versionLabel &&
       h(
@@ -188,6 +186,30 @@ const getResourceName = (resourceid: string) => {
   }
 
   return "";
+};
+
+const selectedIdentifier = computed(() => {
+  return typeOptions.find(
+    (prefix) => prefix.value === selectedRelation.value.target_type,
+  );
+});
+
+const selectedIdentiferValidator = (rule: FormItemRule, value: string) => {
+  if (!value) {
+    return new Error("Please enter your identifier");
+  }
+
+  if (selectedIdentifier.value && selectedIdentifier.value.pattern) {
+    const pattern = new RegExp(selectedIdentifier.value.pattern);
+
+    if (!pattern.test(value)) {
+      return new Error(
+        `Please enter a valid ${selectedIdentifier.value.label}`,
+      );
+    }
+  }
+
+  return true;
 };
 
 const openAddRelationDrawer = (targetLocation: string) => {
@@ -464,7 +486,7 @@ const addNewRelation = () => {
                   <NuxtLink
                     :to="
                       relation.target_type !== 'url'
-                        ? `https://identifiers.org/${relation.type}/${relation.target}`
+                        ? `https://identifiers.org/${relation.target_type}:${relation.target}`
                         : relation.target
                     "
                     class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
@@ -543,6 +565,7 @@ const addNewRelation = () => {
             <n-select
               v-model:value="selectedRelation.resource_type"
               filterable
+              clearable
               :options="resourceTypeOptions"
               placeholder="Dataset"
             />
@@ -564,6 +587,7 @@ const addNewRelation = () => {
             <n-select
               v-model:value="selectedRelation.type"
               filterable
+              clearable
               :options="relationTypeOptions"
               placeholder="isPartOf"
             />
@@ -586,6 +610,7 @@ const addNewRelation = () => {
               v-model:value="selectedRelation.target_type"
               :disabled="!!selectedRelation.original_relation_id"
               filterable
+              clearable
               :options="typeOptions"
               placeholder="DOI"
             />
@@ -595,7 +620,7 @@ const addNewRelation = () => {
             v-if="selectedRelation.external"
             path="target"
             :rule="{
-              message: 'Please enter a target',
+              validator: selectedIdentiferValidator,
               required: selectedRelation.external,
               trigger: ['blur', 'input'],
             }"
@@ -606,8 +631,9 @@ const addNewRelation = () => {
 
             <n-input
               v-model:value="selectedRelation.target"
+              clearable
               :disabled="!!selectedRelation.original_relation_id"
-              placeholder="My Awesome Dataset"
+              :placeholder="selectedIdentifier?.placeholder"
             />
           </n-form-item>
 
@@ -627,6 +653,7 @@ const addNewRelation = () => {
             <n-select
               v-model:value="selectedRelation.target"
               filterable
+              clearable
               :render-label="renderLabel"
               :disabled="!!selectedRelation.original_relation_id"
               :loading="resourceListLoadingIndicator"
@@ -637,6 +664,7 @@ const addNewRelation = () => {
 
         <pre>
           {{ selectedRelation }}
+           {{ selectedIdentifier }}
         </pre>
 
         <template #footer>
