@@ -289,9 +289,10 @@ const deleteRelation = async (relationid: string) => {
 
       push.success("Your relation has been marked for deletion");
     } else {
-      const index = relations.value?.findIndex((r) => r.id === relationid);
+      const index =
+        relations.value?.findIndex((r) => r.id === relationid) ?? -1;
 
-      if (index && index > -1) {
+      if (index > -1) {
         relations.value?.splice(index, 1);
       } else {
         push.error("Something went wrong");
@@ -329,18 +330,6 @@ const addNewRelation = () => {
         addNewRelationLoading.value = false;
 
         if (newExternalRelation) {
-          const relationType = newExternalRelation.type as string;
-
-          if (relationType in groupedRelations.value) {
-            groupedRelations.value[relationType].push(
-              newExternalRelation as unknown as GroupedRelation,
-            );
-          } else {
-            groupedRelations.value[relationType] = [
-              newExternalRelation as unknown as GroupedRelation,
-            ];
-          }
-
           // Also add the relation to the main relations array
           relations.value?.push(newExternalRelation);
 
@@ -371,18 +360,6 @@ const addNewRelation = () => {
         addNewRelationLoading.value = false;
 
         if (newInternalRelation) {
-          const relationType = newInternalRelation.type as string;
-
-          if (relationType in groupedRelations.value) {
-            groupedRelations.value[relationType].push(
-              newInternalRelation as unknown as GroupedRelation,
-            );
-          } else {
-            groupedRelations.value[relationType] = [
-              newInternalRelation as unknown as GroupedRelation,
-            ];
-          }
-
           // Also add the relation to the main relations array
           relations.value?.push(newInternalRelation);
 
@@ -395,6 +372,100 @@ const addNewRelation = () => {
       }
     } else {
       console.log(errors);
+      push.error("Invalid");
+    }
+  });
+};
+
+const editRelation = () => {
+  formRef.value?.validate(async (errors) => {
+    if (!errors) {
+      if (selectedRelation.value.external) {
+        const d = {
+          resourceType: selectedRelation.value.resource_type,
+          target: selectedRelation.value.target,
+          targetType: selectedRelation.value.target_type,
+          type: selectedRelation.value.type,
+        };
+
+        editRelationLoading.value = true;
+
+        const { data: updatedExternalRelation } = await $fetch(
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external/${selectedRelation.value.id}`,
+          {
+            body: JSON.stringify(d),
+            headers: useRequestHeaders(["cookie"]),
+            method: "PUT",
+          },
+        );
+
+        editRelationLoading.value = false;
+
+        if (updatedExternalRelation) {
+          // Also update the relation in the main relations array
+          const index =
+            relations.value?.findIndex(
+              (r) => r.id === updatedExternalRelation.id,
+            ) ?? -1;
+
+          if (index > -1 && relations.value) {
+            relations.value[index] = updatedExternalRelation;
+          } else {
+            push.error("Something went wrong");
+          }
+
+          push.success("Your relation has been updated");
+
+          showRelationDrawer.value = false;
+        } else {
+          push.error("Something went wrong");
+        }
+      } else {
+        const d = {
+          resourceType: selectedRelation.value.resource_type,
+          target: selectedRelation.value.target,
+          type: selectedRelation.value.type,
+        };
+
+        editRelationLoading.value = true;
+
+        const { data: updatedInternalRelation } = await $fetch(
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal/${selectedRelation.value.id}`,
+          {
+            body: JSON.stringify(d),
+            headers: useRequestHeaders(["cookie"]),
+            method: "PUT",
+          },
+        );
+
+        editRelationLoading.value = false;
+
+        if (updatedInternalRelation) {
+          // Also update the relation in the main relations array
+          const index =
+            relations.value?.findIndex(
+              (r) => r.id === updatedInternalRelation.id,
+            ) ?? -1;
+
+          console.log(index);
+          console.log(relations.value);
+          console.log(updatedInternalRelation);
+
+          if (index > -1 && relations.value) {
+            relations.value[index] = updatedInternalRelation;
+          } else {
+            push.error("Something went wrong!");
+          }
+
+          push.success("Your relation has been updated");
+
+          showRelationDrawer.value = false;
+        } else {
+          push.error("Something went wrong!!");
+        }
+      }
+    } else {
+      console.error(errors);
       push.error("Invalid");
     }
   });
@@ -666,9 +737,13 @@ const addNewRelation = () => {
         <template #footer>
           <n-button
             type="info"
-            :loading="addNewRelationLoading"
+            :loading="addNewRelationLoading || editRelationLoading"
             size="large"
-            @click="addNewRelation"
+            @click="
+              () => {
+                drawerAction === 'Add' ? addNewRelation() : editRelation();
+              }
+            "
           >
             <template #icon>
               <Icon name="material-symbols:save-sharp" />

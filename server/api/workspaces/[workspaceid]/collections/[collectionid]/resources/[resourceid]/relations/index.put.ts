@@ -39,8 +39,6 @@ export default defineEventHandler(async (event) => {
   const parsedBody = bodySchema.safeParse(body);
 
   if (!parsedBody.success) {
-    console.log(parsedBody.error);
-
     throw createError({
       message: "The provided parameters are invalid",
       statusCode: 400,
