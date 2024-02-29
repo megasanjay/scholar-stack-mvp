@@ -181,6 +181,7 @@ export default defineEventHandler(async (event) => {
       action: updatedRelation?.action || null,
       created: updatedRelation?.created,
       external: false,
+      original_relation_id: updatedRelation?.original_relation_id || null,
       resource_type: updatedRelation?.resource_type,
       target: updatedRelation?.target_id,
       target_type: null,

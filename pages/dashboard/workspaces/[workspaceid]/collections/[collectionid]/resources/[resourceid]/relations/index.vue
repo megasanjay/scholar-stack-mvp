@@ -275,34 +275,39 @@ const deleteRelation = async (relationid: string) => {
     return;
   }
 
-  const response = await $fetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "DELETE",
     },
-  );
+  )
+    .then((response) => {
+      if (response.statusCode === 204) {
+        if (relation.original_relation_id) {
+          relation.action = "delete";
 
-  if (response.statusCode === 204) {
-    if (relation.original_relation_id) {
-      relation.action = "delete";
+          push.success("Your relation has been marked for deletion");
+        } else {
+          const index =
+            relations.value?.findIndex((r) => r.id === relationid) ?? -1;
 
-      push.success("Your relation has been marked for deletion");
-    } else {
-      const index =
-        relations.value?.findIndex((r) => r.id === relationid) ?? -1;
+          if (index > -1) {
+            relations.value?.splice(index, 1);
+          } else {
+            push.error("Something went wrong");
+          }
 
-      if (index > -1) {
-        relations.value?.splice(index, 1);
+          push.success("Your relation has been deleted");
+        }
       } else {
         push.error("Something went wrong");
       }
-
-      push.success("Your relation has been deleted");
-    }
-  } else {
-    push.error("Something went wrong");
-  }
+    })
+    .catch((error) => {
+      console.error(error);
+      push.error("Something went wrong");
+    });
 };
 
 const addNewRelation = () => {
@@ -348,27 +353,33 @@ const addNewRelation = () => {
 
         addNewRelationLoading.value = true;
 
-        const { data: newInternalRelation } = await $fetch(
+        await $fetch(
           `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
             method: "POST",
           },
-        );
+        )
+          .then((response) => {
+            if (response.statusCode === 201) {
+              // Also add the relation to the main relations array
+              relations.value?.push(response.data);
 
-        addNewRelationLoading.value = false;
+              push.success("Your relation has been added");
 
-        if (newInternalRelation) {
-          // Also add the relation to the main relations array
-          relations.value?.push(newInternalRelation);
-
-          push.success("Your relation has been added");
-
-          showRelationDrawer.value = false;
-        } else {
-          push.error("Something went wrong");
-        }
+              showRelationDrawer.value = false;
+            } else {
+              push.error("Something went wrong");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            push.error("Something went wrong");
+          })
+          .finally(() => {
+            addNewRelationLoading.value = false;
+          });
       }
     } else {
       console.log(errors);
@@ -390,36 +401,44 @@ const editRelation = () => {
 
         editRelationLoading.value = true;
 
-        const { data: updatedExternalRelation } = await $fetch(
+        await $fetch(
           `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external/${selectedRelation.value.id}`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
             method: "PUT",
           },
-        );
+        )
+          .then((response) => {
+            editRelationLoading.value = false;
 
-        editRelationLoading.value = false;
+            if (response.statusCode === 200) {
+              // Also update the relation in the main relations array
+              const index =
+                relations.value?.findIndex(
+                  (r) => r.id === selectedRelation.value.id,
+                ) ?? -1;
 
-        if (updatedExternalRelation) {
-          // Also update the relation in the main relations array
-          const index =
-            relations.value?.findIndex(
-              (r) => r.id === updatedExternalRelation.id,
-            ) ?? -1;
+              if (index > -1 && relations.value) {
+                relations.value[index] = response.data;
+              } else {
+                push.error("Something went wrong");
+              }
 
-          if (index > -1 && relations.value) {
-            relations.value[index] = updatedExternalRelation;
-          } else {
+              push.success("Your relation has been updated");
+
+              showRelationDrawer.value = false;
+            } else {
+              push.error("Something went wrong");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
             push.error("Something went wrong");
-          }
-
-          push.success("Your relation has been updated");
-
-          showRelationDrawer.value = false;
-        } else {
-          push.error("Something went wrong");
-        }
+          })
+          .finally(() => {
+            editRelationLoading.value = false;
+          });
       } else {
         const d = {
           resourceType: selectedRelation.value.resource_type,
@@ -429,46 +448,85 @@ const editRelation = () => {
 
         editRelationLoading.value = true;
 
-        const { data: updatedInternalRelation } = await $fetch(
+        await $fetch(
           `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal/${selectedRelation.value.id}`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
             method: "PUT",
           },
-        );
+        )
+          .then((response) => {
+            editRelationLoading.value = false;
 
-        editRelationLoading.value = false;
+            if (response.statusCode === 200) {
+              // Also update the relation in the main relations array
+              const index =
+                relations.value?.findIndex(
+                  (r) => r.id === selectedRelation.value.id,
+                ) ?? -1;
 
-        if (updatedInternalRelation) {
-          // Also update the relation in the main relations array
-          const index =
-            relations.value?.findIndex(
-              (r) => r.id === updatedInternalRelation.id,
-            ) ?? -1;
+              if (index > -1 && relations.value) {
+                relations.value[index] = response.data;
+              } else {
+                push.error("Something went wrong");
+              }
 
-          console.log(index);
-          console.log(relations.value);
-          console.log(updatedInternalRelation);
+              push.success("Your relation has been updated");
 
-          if (index > -1 && relations.value) {
-            relations.value[index] = updatedInternalRelation;
-          } else {
-            push.error("Something went wrong!");
-          }
-
-          push.success("Your relation has been updated");
-
-          showRelationDrawer.value = false;
-        } else {
-          push.error("Something went wrong!!");
-        }
+              showRelationDrawer.value = false;
+            } else {
+              push.error("Something went wrong");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            push.error("Something went wrong");
+          })
+          .finally(() => {
+            editRelationLoading.value = false;
+          });
       }
     } else {
       console.error(errors);
       push.error("Invalid");
     }
   });
+};
+
+const restoreRelation = async (relationid: string) => {
+  const relation = relations.value?.find((r) => r.id === relationid);
+
+  if (!relation) {
+    push.error("Something went wrong");
+    return;
+  }
+
+  const d = {
+    action: "restore",
+  };
+
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
+    {
+      body: JSON.stringify(d),
+      headers: useRequestHeaders(["cookie"]),
+      method: "PATCH",
+    },
+  )
+    .then((response) => {
+      if (response.statusCode === 200) {
+        relation.action = response.updatedAction;
+
+        push.success("Your relation has been restored");
+      } else {
+        push.error("Something went wrong");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      push.error("Something went wrong");
+    });
 };
 </script>
 
@@ -662,6 +720,7 @@ const editRelation = () => {
                     <n-button
                       v-if="relation.action === 'delete'"
                       type="warning"
+                      @click="restoreRelation(relation.id)"
                     >
                       <template #icon>
                         <Icon name="mdi:undo" />

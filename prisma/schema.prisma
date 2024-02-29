@@ -209,10 +209,10 @@ model InternalRelation {
   original_relation    InternalRelation? @relation("OriginalInternalRelation", fields: [original_relation_id], references: [id])
   original_relation_id String?
 
-  source    Resource @relation("SourceRelation", fields: [source_id], references: [id])
+  source    Resource @relation("SourceRelation", fields: [source_id], references: [id], onDelete: Cascade)
   source_id String
 
-  target    Resource @relation("TargetRelation", fields: [target_id], references: [id])
+  target    Resource @relation("TargetRelation", fields: [target_id], references: [id], onDelete: Cascade)
   target_id String
 
   type          String // isCitedBy, etc 
