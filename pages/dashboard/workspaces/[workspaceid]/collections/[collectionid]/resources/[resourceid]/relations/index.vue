@@ -546,7 +546,16 @@ const editRelation = () => {
             <div
               v-for="(relation, idx) of gr || []"
               :key="idx"
-              class="w-full space-x-8 rounded-xl border bg-white px-5 py-4 transition-all"
+              class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
+              :class="{
+                'border-slate-300 bg-white':
+                  !relation.action || relation.action === 'clone',
+                'cursor-not-allowed border-red-300 bg-red-50':
+                  relation.action === 'delete',
+                'border-emerald-400 bg-emerald-50/20':
+                  relation.action === 'update',
+                'border-blue-300 bg-cyan-50/20': relation.action === 'create',
+              }"
             >
               <n-space vertical size="large">
                 <div class="group w-max">
@@ -580,8 +589,55 @@ const editRelation = () => {
                   </div>
 
                   <div class="flex items-center space-x-4">
+                    <n-space>
+                      <n-tag
+                        v-if="relation.action === 'create'"
+                        type="info"
+                        size="medium"
+                      >
+                        <template #icon>
+                          <Icon name="mdi:new-box" size="16" />
+                        </template>
+                        New Relation
+                      </n-tag>
+
+                      <n-tag
+                        v-if="relation.action === 'update'"
+                        type="success"
+                        size="medium"
+                      >
+                        <template #icon>
+                          <Icon
+                            name="mdi:file-document-edit-outline"
+                            size="16"
+                          />
+                        </template>
+                        Updated
+                      </n-tag>
+
+                      <n-tag
+                        v-if="relation.action === 'delete'"
+                        type="error"
+                        size="medium"
+                      >
+                        <template #icon>
+                          <Icon name="mdi:delete-outline" size="16" />
+                        </template>
+                        Marked for deletion
+                      </n-tag>
+                    </n-space>
+
+                    <div>
+                      <n-divider
+                        v-if="relation.action && relation.action !== 'clone'"
+                        vertical
+                      />
+                    </div>
+
                     <n-button
+                      v-if="relation.action !== 'delete'"
                       type="info"
+                      :disabled="relation.action === 'delete'"
                       @click="openEditRelationDrawer(relation.id)"
                     >
                       <template #icon>
@@ -591,12 +647,24 @@ const editRelation = () => {
                       Edit
                     </n-button>
 
-                    <n-button type="error" @click="deleteRelation(relation.id)">
+                    <n-button
+                      v-if="relation.action !== 'delete'"
+                      type="error"
+                      @click="deleteRelation(relation.id)"
+                    >
                       <template #icon>
                         <Icon name="mdi:delete-outline" />
                       </template>
 
                       Delete
+                    </n-button>
+
+                    <n-button v-if="relation.action === 'delete'" type="error">
+                      <template #icon>
+                        <Icon name="mdi:undo" />
+                      </template>
+
+                      Undo delete
                     </n-button>
                   </div>
                 </div>
