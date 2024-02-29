@@ -659,7 +659,10 @@ const editRelation = () => {
                       Delete
                     </n-button>
 
-                    <n-button v-if="relation.action === 'delete'" type="error">
+                    <n-button
+                      v-if="relation.action === 'delete'"
+                      type="warning"
+                    >
                       <template #icon>
                         <Icon name="mdi:undo" />
                       </template>
