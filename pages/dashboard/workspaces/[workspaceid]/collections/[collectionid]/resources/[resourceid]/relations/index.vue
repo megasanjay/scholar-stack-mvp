@@ -190,6 +190,12 @@ const getResourceName = (resourceid: string) => {
   return "";
 };
 
+const getRelationName = (relationType: string) => {
+  const relation = relationTypeOptions.find((r) => r.value === relationType);
+
+  return relation?.label || relationType;
+};
+
 const selectedIdentifier = computed(() => {
   return typeOptions.find(
     (prefix) => prefix.value === selectedRelation.value.target_type,
@@ -551,19 +557,6 @@ const restoreRelation = async (relationid: string) => {
         </n-space>
 
         <div class="flex items-center space-x-2">
-          <NuxtLink
-            v-if="!currentCollection?.version?.published"
-            :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/edit`"
-          >
-            <n-button size="large" color="black">
-              <template #icon>
-                <Icon name="material-symbols-light:rebase-edit-rounded" />
-              </template>
-
-              old edit
-            </n-button>
-          </NuxtLink>
-
           <n-button
             size="large"
             color="black"
@@ -594,11 +587,9 @@ const restoreRelation = async (relationid: string) => {
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
       <n-space vertical size="large" class="w-full">
         <div v-for="(gr, name, index) in groupedRelations" :key="index">
-          <div flex class="flex items-center justify-between py-10">
-            <h2>{{ name }}</h2>
+          <div flex class="flex items-center justify-between pb-5 pt-10">
+            <h2>{{ getRelationName(name as string) }}</h2>
           </div>
-
-          <pre>{{ gr }}</pre>
 
           <n-space vertical size="large" class="w-full">
             <div
