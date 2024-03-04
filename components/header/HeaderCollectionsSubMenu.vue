@@ -43,7 +43,7 @@ const isDraftVersion = computed(() => {
       <div
         class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
-        <Icon name="mdi:home-outline" />
+        <Icon name="material-symbols:overview-key-outline-rounded" />
 
         <span class="text-sm"> Overview </span>
       </div>

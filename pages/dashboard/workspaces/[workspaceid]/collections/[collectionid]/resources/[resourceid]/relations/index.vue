@@ -119,6 +119,24 @@ const groupedRelations = computed(() => {
     }
   }
 
+  Object.keys(grouped).forEach((key) => {
+    const group = grouped[key];
+
+    if (group) {
+      group.sort((a, b) => {
+        if (a.updated > b.updated) {
+          return -1;
+        }
+
+        if (a.updated < b.updated) {
+          return 1;
+        }
+
+        return 0;
+      });
+    }
+  });
+
   return grouped;
 });
 
@@ -584,7 +602,7 @@ const restoreRelation = async (relationid: string) => {
       </div>
     </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
+    <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
       <n-space vertical size="large" class="w-full">
         <div v-for="(gr, name, index) in groupedRelations" :key="index">
           <div flex class="flex items-center justify-between pb-5 pt-10">
@@ -609,6 +627,7 @@ const restoreRelation = async (relationid: string) => {
               <n-space vertical size="large">
                 <div class="group w-max">
                   <NuxtLink
+                    v-if="relation.external"
                     :to="
                       relation.target_type !== 'url'
                         ? `https://identifiers.org/${relation.target_type}:${relation.target}`
@@ -626,18 +645,25 @@ const restoreRelation = async (relationid: string) => {
                       class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
                     />
                   </NuxtLink>
+
+                  <div v-else class="flex items-center font-medium">
+                    {{ getResourceName(relation.target) }}
+                  </div>
                 </div>
 
                 <div class="flex items-center justify-between space-x-4">
                   <div class="flex items-center justify-start space-x-4">
                     <n-tag type="info"> {{ relation?.resource_type }} </n-tag>
 
-                    <n-tag type="success">
+                    <n-tag v-if="relation.target_type" type="success">
                       {{ relation.target_type }}
                     </n-tag>
                   </div>
 
-                  <div class="flex items-center space-x-4">
+                  <div
+                    v-if="!currentCollection?.version?.published"
+                    class="flex items-center space-x-4"
+                  >
                     <n-space>
                       <n-tag
                         v-if="relation.action === 'create'"

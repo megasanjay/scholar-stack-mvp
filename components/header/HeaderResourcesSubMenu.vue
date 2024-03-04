@@ -16,7 +16,7 @@ const route = useRoute();
       <div
         class="mb-1 flex items-center space-x-1 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
-        <Icon name="mdi:home-outline" />
+        <Icon name="mdi:about-circle-outline" />
 
         <span class="text-sm"> About </span>
       </div>

@@ -195,19 +195,6 @@ const createNewVersion = async () => {
                 </n-button>
               </NuxtLink>
 
-              <NuxtLink
-                v-if="!currentCollection?.version?.published"
-                :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/edit`"
-              >
-                <n-button ghost size="large">
-                  <template #icon>
-                    <Icon name="carbon:chart-relationship" />
-                  </template>
-
-                  Edit relations
-                </n-button>
-              </NuxtLink>
-
               <n-button
                 v-if="
                   resource &&
