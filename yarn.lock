@@ -1565,9 +1565,9 @@
   integrity sha512-5gc02Pu1HycOVUWJ8aYsWeeXcSTPe8iX8+KIrhyEtEoOSkY0eMBuo0ssljB8wALuEmepv31DlYe5gpiRwkjESA==
 
 "@nuxt/ui@^2.13.0":
-  version "2.14.1"
-  resolved "https://registry.yarnpkg.com/@nuxt/ui/-/ui-2.14.1.tgz#0a904b994a3dfaab1f6be6da8a6b5cdc6c9d3d92"
-  integrity sha512-yz6S05a37Q5PRskw1eXtRet4q8C463WMJFSu1Lw7zpKSl2yCyPJYegzwXqQV/fLo/NvM9j62XTuEy7+Xe7j0Kw==
+  version "2.14.2"
+  resolved "https://registry.yarnpkg.com/@nuxt/ui/-/ui-2.14.2.tgz#56b93d047bc53d97024425ce365af9bc15caebda"
+  integrity sha512-xEtgnofE2A/Ou+Afv70m/hLtcfvLs41cs/qZHVcqErv6OO8uKyDETS5bKhiZGlDcI0wccTJq/ULaDUGuwnRN2g==
   dependencies:
     "@egoist/tailwindcss-icons" "^1.7.4"
     "@headlessui/tailwindcss" "^0.2.0"
@@ -1581,9 +1581,9 @@
     "@tailwindcss/container-queries" "^0.1.1"
     "@tailwindcss/forms" "^0.5.7"
     "@tailwindcss/typography" "^0.5.10"
-    "@vueuse/core" "^10.8.0"
-    "@vueuse/integrations" "^10.8.0"
-    "@vueuse/math" "^10.8.0"
+    "@vueuse/core" "^10.9.0"
+    "@vueuse/integrations" "^10.9.0"
+    "@vueuse/math" "^10.9.0"
     defu "^6.1.4"
     fuse.js "^6.6.2"
     nuxt-icon "^0.6.8"
@@ -2655,7 +2655,7 @@
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.4.21.tgz#de526a9059d0a599f0b429af7037cd0c3ed7d5a1"
   integrity sha512-PuJe7vDIi6VYSinuEbUIQgMIRZGgM8e4R+G+/dQTk0X1NEdvgvvgv7m+rfmDH1gZzyA1OjjoWskvHlfRNfQf3g==
 
-"@vueuse/core@10.9.0", "@vueuse/core@^10.4.1", "@vueuse/core@^10.8.0":
+"@vueuse/core@10.9.0", "@vueuse/core@^10.4.1", "@vueuse/core@^10.9.0":
   version "10.9.0"
   resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-10.9.0.tgz#7d779a95cf0189de176fee63cee4ba44b3c85d64"
   integrity sha512-/1vjTol8SXnx6xewDEKfS0Ra//ncg4Hb0DaZiwKf7drgfMsKFExQ+FnnENcN6efPen+1kIzhLQoGSy0eDUVOMg==
@@ -2665,7 +2665,7 @@
     "@vueuse/shared" "10.9.0"
     vue-demi ">=0.14.7"
 
-"@vueuse/integrations@^10.8.0":
+"@vueuse/integrations@^10.9.0":
   version "10.9.0"
   resolved "https://registry.yarnpkg.com/@vueuse/integrations/-/integrations-10.9.0.tgz#2b1a9556215ad3c1f96d39cbfbef102cf6e0ec05"
   integrity sha512-acK+A01AYdWSvL4BZmCoJAcyHJ6EqhmkQEXbQLwev1MY7NBnS+hcEMx/BzVoR9zKI+UqEPMD9u6PsyAuiTRT4Q==
@@ -2674,7 +2674,7 @@
     "@vueuse/shared" "10.9.0"
     vue-demi ">=0.14.7"
 
-"@vueuse/math@^10.8.0":
+"@vueuse/math@^10.9.0":
   version "10.9.0"
   resolved "https://registry.yarnpkg.com/@vueuse/math/-/math-10.9.0.tgz#0db3cb27c893fa22c50351397c283d5b6df0f5bc"
   integrity sha512-qb60AzFKzg8Gw85c4YiheEMC2AMkk+eO/nB9MmuQFU/HAHvfVckesiPlwaQqUlZQ4MJt0z8qP18/H7ozpj0sKQ==
