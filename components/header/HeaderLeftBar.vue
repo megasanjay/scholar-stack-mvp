@@ -11,18 +11,24 @@ const selectedWorkspace = ref("");
 const selectedCollection = ref("");
 const selectedResource = ref("");
 
-workspaceStore.fetchWorkspaces();
-
 const personalWorkspace = computed(() => {
-  return workspaceStore.workspaces.find((workspace) => workspace.personal);
+  return workspaceStore.workspaces.find(
+    (workspace: Workspace) => workspace.personal,
+  );
 });
 
 const allOtherWorkspaces = computed(() => {
-  return workspaceStore.workspaces.filter((workspace) => !workspace.personal);
+  return workspaceStore.workspaces.filter(
+    (workspace: Workspace) => !workspace.personal,
+  );
 });
 
 const currentWorkspace = computed(() => {
-  return workspaceStore.workspace;
+  const allWorkspaces = workspaceStore.workspaces;
+
+  return allWorkspaces.find(
+    (workspace: Workspace) => workspace.id === selectedWorkspace.value,
+  );
 });
 
 const allCollections = computed(() => {
@@ -41,6 +47,33 @@ const currentResource = computed(() => {
   return resourceStore.resource;
 });
 
+const fetchAllWorkspaces = async () => {
+  workspaceStore.getLoading = true;
+
+  const { data: workspaces, error } = await useFetch("/api/workspaces", {
+    headers: useRequestHeaders(["cookie"]),
+  });
+
+  workspaceStore.getLoading = false;
+
+  if (error.value) {
+    console.log(error);
+
+    push.error({
+      title: "Something went wrong",
+      message: "We couldn't load your workspaces",
+    });
+  }
+
+  if (workspaces.value) {
+    workspaceStore.setWorkspaces(
+      workspaces.value?.length > 0 ? workspaces.value : [],
+    );
+
+    workspaceStore.sortWorkspaces();
+  }
+};
+
 // watch for route changes and update selected workspace
 watchEffect(() => {
   const workspaceid = route.params.workspaceid;
@@ -49,7 +82,7 @@ watchEffect(() => {
 
   if (workspaceid) {
     selectedWorkspace.value = workspaceid as string;
-    workspaceStore.getWorkspace(workspaceid as string);
+    fetchAllWorkspaces();
   }
 
   if (collectionid) {

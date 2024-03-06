@@ -2,7 +2,6 @@
 import type { SelectRenderTag, SelectRenderLabel } from "naive-ui";
 import { NAvatar, NText } from "naive-ui";
 
-const collectionStore = useCollectionStore();
 const user = useSupabaseUser();
 
 const userToInvite = ref<string | null>(null);
@@ -32,6 +31,11 @@ if (error.value) {
     message: "We couldn't load your workspace details",
   });
 }
+
+const { collectionPermission, collectionPermissionGetLoading } =
+  await useCollectionPermission(workspaceid, collectionid);
+
+const foo = useFoo();
 
 const parseMembers = (members: any) => {
   for (const member of members) {
@@ -66,12 +70,12 @@ const generateEditorDropdownOptions = (memberid: string) => {
     {
       key: "makeAdmin",
       label: "Assign as administrator",
-      show: collectionStore.collectionPermission === "admin",
+      show: collectionPermission === "admin",
     },
     {
       key: "removeEditor",
       label: "Remove editor",
-      show: collectionStore.collectionPermission === "admin",
+      show: collectionPermission === "admin",
     },
     {
       key: "leaveCollection",
@@ -327,10 +331,7 @@ const inviteMember = async () => {
             :options="generateEditorDropdownOptions(member.id)"
             @select="manageMember"
           >
-            <n-button
-              secondary
-              :loading="collectionStore.collectionPermissionGetLoading"
-            >
+            <n-button secondary :loading="collectionPermissionGetLoading">
               <template #icon>
                 <Icon name="iconamoon:menu-kebab-vertical-bold" />
               </template>
@@ -367,7 +368,7 @@ const inviteMember = async () => {
             filterable
             :loading="viewersLoading"
             clearable
-            :disabled="collectionStore.collectionPermission !== 'admin'"
+            :disabled="collectionPermission !== 'admin'"
             placeholder="Search for a user to invite"
           />
         </n-form-item>

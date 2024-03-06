@@ -64,9 +64,10 @@ const createWorkspace = () => {
       });
 
       workspaceStore.hideNewWorkspaceModal();
-      workspaceStore.fetchWorkspaces(); // refreshes the header list
+      // workspaceStore.fetchWorkspaces(); // refreshes the header list
 
-      navigateTo(`/dashboard/workspaces/${workspace.value.workspace.id}`);
+      // navigateTo(`/dashboard/workspaces/${workspace.value.workspace.id}`);
+      window.location.href = `/dashboard/workspaces/${workspace.value.workspace.id}`;
     } else {
       console.log(errors);
       push.error({

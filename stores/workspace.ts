@@ -49,42 +49,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     }
   };
 
-  const fetchWorkspaces = async () => {
-    getLoading.value = true;
-
-    await fetch("/api/workspaces", {
-      headers: useRequestHeaders(["cookie"]),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        getLoading.value = false;
-
-        if (data) {
-          workspaces.value = data;
-
-          sortWorkspaces();
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        getLoading.value = false;
-      });
-  };
-
-  const getWorkspace = async (workspaceId: string) => {
-    if (workspaces.value.length === 0) {
-      await fetchWorkspaces();
-    }
-
-    workspace.value = workspaces.value.find(
-      (workspace) => workspace.id === workspaceId,
-    );
-
-    getWorkspacePermission(workspaceId);
-  };
-
   const setWorkspaces = (data: Workspaces) => {
     workspaces.value = data;
   };
@@ -126,9 +90,8 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   };
 
   return {
-    fetchWorkspaces,
     getLoading,
-    getWorkspace,
+
     hideNewWorkspaceModal,
     newWorkspaceModalIsOpen,
     setWorkspaces,

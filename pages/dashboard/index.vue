@@ -60,8 +60,6 @@ if (workspaces.value?.length === 0) {
     });
 
     workspaceStore.setWorkspaces([workspace.value.workspace]);
-
-    window.location.reload();
   }
 } else {
   workspaceStore.setWorkspaces(workspaces.value || []);
