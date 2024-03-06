@@ -91,7 +91,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 
   return {
     getLoading,
-
     hideNewWorkspaceModal,
     newWorkspaceModalIsOpen,
     setWorkspaces,

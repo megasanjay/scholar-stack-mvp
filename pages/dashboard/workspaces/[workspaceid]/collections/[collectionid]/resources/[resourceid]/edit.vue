@@ -3,7 +3,6 @@ import type { FormInst, FormItemRule, SelectOption } from "naive-ui";
 
 import type { VNodeChild } from "vue";
 import { faker } from "@faker-js/faker";
-import { useResourceStore } from "@/stores/resource";
 import { Icon } from "#components";
 
 import FALLBACK_JSON from "@/assets/json/url-doi-icons.json";
@@ -17,21 +16,26 @@ definePageMeta({
 
 const route = useRoute();
 
-const resourceStore = useResourceStore();
 const collectionStore = useCollectionStore();
 
-await collectionStore.getCollection(
-  route.params.workspaceid as string,
-  route.params.collectionid as string,
-);
+// await collectionStore.getCollection(
+//   route.params.workspaceid as string,
+//   route.params.collectionid as string,
+// );
 
-const currentCollection = collectionStore.collection;
-
-if (currentCollection?.version?.published) {
-  navigateTo(
-    `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources/${route.params.resourceid}`,
+const currentCollection = computed(() => {
+  return collectionStore.collections.find(
+    (collection) => collection.id === route.params.collectionid,
   );
-}
+});
+
+watchEffect(() => {
+  if (currentCollection.value?.version?.published) {
+    navigateTo(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources/${route.params.resourceid}`,
+    );
+  }
+});
 
 const formRef = ref<FormInst | null>(null);
 
@@ -189,40 +193,41 @@ const saveResourceData = () => {
 
       saveResourceLoadingIndicator.value = true;
 
-      const { data, error } = await useFetch(
+      await $fetch(
         `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
         {
           body: JSON.stringify(body),
           headers: useRequestHeaders(["cookie"]),
           method: "PUT",
         },
-      );
+      )
+        .then((data) => {
+          saveResourceLoadingIndicator.value = false;
 
-      saveResourceLoadingIndicator.value = false;
+          if (data) {
+            push.success({
+              title: "Saved successfully",
+              message: "Your resource has been updated",
+            });
 
-      if (error.value) {
-        console.log(error.value);
+            navigateTo(
+              `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
+            );
+          }
+        })
+        .catch((error) => {
+          console.log(error);
 
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't save your resource",
+          push.error({
+            title: "Something went wrong",
+            message: "We couldn't save your resource",
+          });
+
+          throw new Error("Something went wrong");
+        })
+        .finally(() => {
+          saveResourceLoadingIndicator.value = false;
         });
-
-        throw new Error("Something went wrong");
-      }
-
-      if (data.value) {
-        resourceStore.fetchResources(workspaceid, collectionid);
-
-        push.success({
-          title: "Saved successfully",
-          message: "Your resource has been updated",
-        });
-
-        navigateTo(
-          `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
-        );
-      }
     } else {
       console.log(errors);
       console.log("Invalid");

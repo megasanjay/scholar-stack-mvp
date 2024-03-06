@@ -188,34 +188,36 @@ const discardDraftVersion = async () => {
       </div>
     </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 py-10 lg:px-20">
-      <h3>About</h3>
+    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
+      <div class="flex items-center justify-between space-x-4 pb-5 pt-10">
+        <h2>About</h2>
+      </div>
 
-      <h4 class="pb-2 pt-5">Description</h4>
+      <h3 class="pb-2 pt-5">Description</h3>
 
       <p class="text-lg">
         {{ collection?.description || "No description provided" }}
       </p>
 
-      <h4 class="pb-2 pt-5">Identifer</h4>
+      <h3 class="pb-2 pt-5">Identifer</h3>
 
       <p class="text-lg">
         {{ collection?.identifier }}
       </p>
 
-      <h4 class="pb-2 pt-5">Visibility</h4>
+      <h3 class="pb-2 pt-5">Visibility</h3>
 
       <p class="text-lg">
         {{ collection?.private ? "Private" : "Public" }}
       </p>
 
-      <h4 class="pb-2 pt-5">Created on</h4>
+      <h3 class="pb-2 pt-5">Created on</h3>
 
       <p class="text-lg">
         {{ displayLongDate(collection?.created as string) }}
       </p>
 
-      <h4 class="pb-2 pt-5">Image</h4>
+      <h3 class="pb-2 pt-5">Image</h3>
 
       <n-image
         v-if="collection?.image"

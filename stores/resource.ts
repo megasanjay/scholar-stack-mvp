@@ -32,39 +32,10 @@ export const useResourceStore = defineStore("Resource", () => {
     });
   };
 
-  const fetchResources = async (workspaceid: string, collectionid: string) => {
-    getLoading.value = true;
+  const setResources = (data: ResourceType[]) => {
+    resources.value = data;
 
-    const { data, error } = await useFetch(
-      `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-      {
-        headers: useRequestHeaders(["cookie"]),
-      },
-    );
-
-    getLoading.value = false;
-
-    if (error.value) {
-      console.error(error);
-    }
-
-    if (data.value) {
-      resources.value = data.value.resources;
-
-      sortResources();
-    }
-  };
-
-  const getResource = async (
-    workspaceid: string,
-    collectionid: string,
-    resourceid: string,
-  ) => {
-    if (resources.value.length === 0) {
-      await fetchResources(workspaceid, collectionid);
-    }
-
-    resource.value = resources.value.find((r) => r.id === resourceid);
+    sortResources();
   };
 
   const showNewResourceModal = () => {
@@ -76,13 +47,13 @@ export const useResourceStore = defineStore("Resource", () => {
   };
 
   return {
-    fetchResources,
     getLoading,
-    getResource,
     hideNewResourceModal,
     newResourceModalIsOpen,
     resource,
     resources,
+    setResources,
     showNewResourceModal,
+    sortResources,
   };
 });

@@ -19,12 +19,19 @@ const route = useRoute();
 const collectionStore = useCollectionStore();
 const resourceStore = useResourceStore();
 
-await collectionStore.getCollection(
-  route.params.workspaceid as string,
-  route.params.collectionid as string,
-);
+const currentCollection = computed(() => {
+  return collectionStore.collections.find(
+    (collection) => collection.id === route.params.collectionid,
+  );
+});
 
-const currentCollection = collectionStore.collection;
+watchEffect(() => {
+  if (currentCollection.value?.version?.published) {
+    navigateTo(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources/${route.params.resourceid}`,
+    );
+  }
+});
 
 const currentResource = computed(() => {
   const resource = resourceStore.resources.find(
@@ -37,12 +44,6 @@ const currentResource = computed(() => {
 
   return null;
 });
-
-if (currentCollection?.version?.published) {
-  navigateTo(
-    `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources/${route.params.resourceid}`,
-  );
-}
 
 const formRef = ref<FormInst | null>(null);
 

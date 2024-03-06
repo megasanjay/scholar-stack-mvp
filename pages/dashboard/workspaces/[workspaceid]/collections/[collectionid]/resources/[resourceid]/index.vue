@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useResourceStore } from "@/stores/resource";
 import { Icon } from "#components";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 import { displayLongDate } from "~/utils/displayDates";
@@ -11,7 +10,6 @@ definePageMeta({
 
 const route = useRoute();
 
-const resourceStore = useResourceStore();
 const collectionStore = useCollectionStore();
 
 const devMode = process.env.NODE_ENV === "development";
@@ -134,40 +132,46 @@ const createNewVersion = async () => {
 
   newResourceVersionLoadingIndicator.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/new-version`,
     {
       body: JSON.stringify(body),
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((response) => {
+      newResourceVersionLoadingIndicator.value = false;
 
-  newResourceVersionLoadingIndicator.value = false;
+      if (response.statusCode === 201) {
+        push.success({
+          title: "Success",
+          message: "A new version of your resource has been created",
+        });
 
-  if (error.value) {
-    console.log(error.value);
+        navigateTo(
+          `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${response.resourceId}`,
+        );
+      } else {
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't create a new version of your resource",
+        });
+      }
+    })
+    .catch((error) => {
+      newResourceVersionLoadingIndicator.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't create a new version of your resource",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't create a new version of your resource",
+      });
+    })
+    .finally(() => {
+      newResourceVersionLoadingIndicator.value = false;
     });
-
-    throw new Error("Something went wrong");
-  }
-
-  if (data.value) {
-    resourceStore.fetchResources(workspaceid, collectionid);
-
-    push.success({
-      title: "Success",
-      message: "A new version of your resource has been created",
-    });
-
-    navigateTo(
-      `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${data.value.resourceId}`,
-    );
-  }
 };
 </script>
 

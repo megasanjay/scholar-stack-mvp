@@ -36,7 +36,11 @@ const allCollections = computed(() => {
 });
 
 const currentCollection = computed(() => {
-  return collectionStore.collection;
+  const allCollections = collectionStore.collections;
+
+  return allCollections.find(
+    (collection: Collection) => collection.id === selectedCollection.value,
+  );
 });
 
 const allResources = computed(() => {
@@ -44,10 +48,16 @@ const allResources = computed(() => {
 });
 
 const currentResource = computed(() => {
-  return resourceStore.resource;
+  const allResources = resourceStore.resources;
+
+  return allResources.find(
+    (resource: ResourceType) => resource.id === selectedResource.value,
+  );
 });
 
-const fetchAllWorkspaces = async () => {
+const fetchAllWorkspaces = async (workspaceid: string) => {
+  if (workspaceid === currentWorkspace.value?.id) return;
+
   workspaceStore.getLoading = true;
 
   const { data: workspaces, error } = await useFetch("/api/workspaces", {
@@ -74,6 +84,80 @@ const fetchAllWorkspaces = async () => {
   }
 };
 
+const fetchAllCollections = async (
+  workspaceid: string,
+  collectionid: string = "",
+) => {
+  if (collectionid === currentCollection.value?.id) return;
+
+  collectionStore.getLoading = true;
+
+  const { data: workspace, error } = await useFetch(
+    `/api/workspaces/${workspaceid}`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+    },
+  );
+
+  collectionStore.getLoading = false;
+
+  if (error.value) {
+    console.log(error);
+
+    push.error({
+      title: "Something went wrong",
+      message: "We couldn't load your collections",
+    });
+  }
+
+  if (workspace.value) {
+    collectionStore.setCollections(
+      workspace.value?.collections.length > 0
+        ? workspace.value.collections
+        : [],
+    );
+
+    collectionStore.sortCollections();
+  }
+};
+
+const fetchAllResources = async (
+  workspaceid: string,
+  collectionid: string,
+  resourceid: string = "",
+) => {
+  if (resourceid === currentResource.value?.id) return;
+  resourceStore.getLoading = true;
+
+  const { data: collection, error } = await useFetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+    },
+  );
+
+  resourceStore.getLoading = false;
+
+  if (error.value) {
+    console.log(error);
+
+    push.error({
+      title: "Something went wrong",
+      message: "We couldn't load your resources",
+    });
+  }
+
+  if (collection.value) {
+    resourceStore.setResources(
+      collection.value?.resources.length > 0
+        ? (collection.value.resources as ResourceType[])
+        : [],
+    );
+
+    resourceStore.sortResources();
+  }
+};
+
 // watch for route changes and update selected workspace
 watchEffect(() => {
   const workspaceid = route.params.workspaceid;
@@ -82,20 +166,17 @@ watchEffect(() => {
 
   if (workspaceid) {
     selectedWorkspace.value = workspaceid as string;
-    fetchAllWorkspaces();
+    fetchAllWorkspaces(workspaceid as string);
   }
 
   if (collectionid) {
     selectedCollection.value = collectionid as string;
-    collectionStore.getCollection(
-      workspaceid as string,
-      collectionid as string,
-    );
+    fetchAllCollections(workspaceid as string, collectionid as string);
   }
 
   if (resourceid) {
     selectedResource.value = resourceid as string;
-    resourceStore.getResource(
+    fetchAllResources(
       workspaceid as string,
       collectionid as string,
       resourceid as string,
@@ -106,7 +187,7 @@ watchEffect(() => {
 const navigateToWorkspace = (workspaceid: string) => {
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
 
-  collectionStore.fetchCollections(workspaceid);
+  fetchAllCollections(workspaceid);
 };
 
 const createNewWorkspace = () => {
@@ -118,7 +199,7 @@ const navigateToCollection = (collectionid: string) => {
     `/dashboard/workspaces/${selectedWorkspace.value}/collections/${collectionid}`,
   );
 
-  resourceStore.fetchResources(selectedWorkspace.value, collectionid);
+  fetchAllResources(selectedWorkspace.value, collectionid);
 };
 
 const createNewCollection = () => {

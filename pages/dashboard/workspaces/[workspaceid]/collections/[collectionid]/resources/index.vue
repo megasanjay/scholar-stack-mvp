@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useResourceStore } from "@/stores/resource";
 import { displayLongDate } from "~/utils/displayDates";
 
 definePageMeta({
@@ -8,8 +7,6 @@ definePageMeta({
 });
 
 const route = useRoute();
-
-const resourceStore = useResourceStore();
 
 const newResourceLoading = ref(false);
 const draftVersionLoading = ref(false);
@@ -25,6 +22,8 @@ const { data: collection, error } = await useFetch<CollectionGETAPIResponse>(
     headers: useRequestHeaders(["cookie"]),
   },
 );
+
+console.log(collection.value);
 
 if (error.value) {
   console.log(error.value);
@@ -73,41 +72,48 @@ const createNewDraftVersion = async () => {
 const addResource = async () => {
   newResourceLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((response) => {
+      newResourceLoading.value = false;
 
-  newResourceLoading.value = false;
+      if (response.statusCode === 201) {
+        push.success({
+          title: "Success",
+          message: "We created a new resource",
+        });
 
-  if (error.value) {
-    console.log(error.value);
+        // navigate to the new resource
+        navigateTo(
+          `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${response.resourceId}/edit`,
+        );
+      } else {
+        console.log(response);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't create a new resource",
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't create a new resource",
+        });
+      }
+    })
+    .catch((error) => {
+      newResourceLoading.value = false;
+
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't create a new resource",
+      });
+    })
+    .finally(() => {
+      newResourceLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    resourceStore.fetchResources(workspaceid, collectionid);
-
-    push.success({
-      title: "Success",
-      message: "We created a new resource",
-    });
-
-    // get the new resource id
-    const resourceId = data.value.resourceId;
-
-    // navigate to the new resource
-    navigateTo(
-      `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceId}/edit`,
-    );
-  }
 };
 </script>
 
