@@ -2,8 +2,10 @@ export default async function getCollectionPermission(
   workspaceid: string,
   collectionid: string,
 ) {
-  const collectionPermissionGetLoading = ref(false);
+  const collectionPermissionGetLoading = ref(true);
   const collectionPermission = ref("");
+
+  collectionPermissionGetLoading.value = true;
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/permissions`,

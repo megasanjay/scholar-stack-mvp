@@ -35,8 +35,6 @@ if (error.value) {
 const { collectionPermission, collectionPermissionGetLoading } =
   await useCollectionPermission(workspaceid, collectionid);
 
-const foo = useFoo();
-
 const parseMembers = (members: any) => {
   for (const member of members) {
     if (member.role === "collection-admin") {
@@ -70,12 +68,12 @@ const generateEditorDropdownOptions = (memberid: string) => {
     {
       key: "makeAdmin",
       label: "Assign as administrator",
-      show: collectionPermission === "admin",
+      show: collectionPermission.value === "admin",
     },
     {
       key: "removeEditor",
       label: "Remove editor",
-      show: collectionPermission === "admin",
+      show: collectionPermission.value === "admin",
     },
     {
       key: "leaveCollection",

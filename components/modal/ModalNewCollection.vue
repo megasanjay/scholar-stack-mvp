@@ -32,46 +32,43 @@ const createCollection = () => {
       loading.value = true;
 
       // Create a new collection
-      const { data: collection, error } = await useFetch(
-        `/api/workspaces/${workspaceid}/collections`,
-        {
-          body: JSON.stringify({
-            title: formValue.name.trim(),
-            description: formValue.description.trim(),
-          }),
-          headers: useRequestHeaders(["cookie"]),
-          method: "POST",
-        },
-      );
+      await $fetch(`/api/workspaces/${workspaceid}/collections`, {
+        body: JSON.stringify({
+          title: formValue.name.trim(),
+          description: formValue.description.trim(),
+        }),
+        headers: useRequestHeaders(["cookie"]),
+        method: "POST",
+      })
+        .then((res) => {
+          loading.value = false;
 
-      loading.value = false;
+          if (res.statusCode === 201) {
+            collectionStore.hideNewCollectionModal();
 
-      if (error.value) {
-        console.log(error.value);
+            push.success({
+              title: "Collection created",
+            });
 
-        push.error({
-          title: "Something went wrong",
+            navigateTo(
+              `/dashboard/workspaces/${workspaceid}/collections/${res.collectionId}`,
+            );
+          } else {
+            console.error(res);
+          }
+        })
+        .catch((err) => {
+          loading.value = false;
+
+          push.error({
+            title: "Something went wrong",
+          });
+
+          console.error(err);
+        })
+        .finally(() => {
+          loading.value = false;
         });
-
-        return;
-      }
-
-      console.log("Collection created", collection.value);
-      push.success({
-        title: "Collection created",
-      });
-
-      collectionStore.hideNewCollectionModal();
-      collectionStore.fetchCollections(workspaceid);
-
-      navigateTo(
-        `/dashboard/workspaces/${workspaceid}/collections/${collection.value?.collectionId}`,
-      );
-
-      /**
-       * reload the window to refresh the list component?
-       * or just add the new workspace to the list
-       */
     } else {
       console.log(errors);
       push.error({

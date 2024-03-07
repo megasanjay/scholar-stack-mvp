@@ -26,8 +26,6 @@ const inviteLoading = ref(false);
 
 const { workspaceid } = useRoute().params as { workspaceid: string };
 
-workspaceStore.getWorkspace(workspaceid);
-
 const { data: members, error } = await useFetch(
   `/api/workspaces/${workspaceid}/members`,
   {
