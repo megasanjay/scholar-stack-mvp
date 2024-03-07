@@ -44,7 +44,7 @@
     "nuxt": "^3.10.3",
     "nuxt-headlessui": "^1.1.4",
     "prettier": "3.2.5",
-    "prettier-plugin-tailwindcss": "0.5.11",
+    "prettier-plugin-tailwindcss": "0.5.12",
     "prisma": "5.10.2",
     "tailwindcss-debug-screens": "2.2.1",
     "ts-node": "^10.9.1",
