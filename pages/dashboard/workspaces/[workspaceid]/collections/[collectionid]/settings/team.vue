@@ -39,7 +39,10 @@ const parseMembers = (members: any) => {
   for (const member of members) {
     if (member.role === "collection-admin") {
       publishAccess.value.push(member);
-    } else if (member.role === "workspace-admin") {
+    } else if (
+      member.role === "workspace-admin" ||
+      member.role === "workspace-owner"
+    ) {
       publishAccess.value.push(member);
     } else {
       editAccess.value.push(member);
@@ -220,12 +223,10 @@ const inviteMember = async () => {
   <div class="flex flex-col">
     <h2 class="text-xl">Publish Access</h2>
 
-    <p class="pt-1 text-slate-700">
+    <p class="mb-6 pt-1 text-slate-700">
       The following members can publish this collection to the public. They can
       also edit the collection and manage its settings.
     </p>
-
-    <n-divider />
 
     <div class="flex flex-col">
       <div
@@ -285,15 +286,11 @@ const inviteMember = async () => {
       </div>
     </div>
 
-    <n-divider />
+    <h2 class="mt-12 text-xl">Edit Access</h2>
 
-    <h2 class="text-xl">Edit Access</h2>
-
-    <p class="pt-1 text-slate-700">
+    <p class="mb-6 pt-1 text-slate-700">
       The following members can only edit this collection.
     </p>
-
-    <n-divider />
 
     <div v-if="editAccess.length > 0" class="flex flex-col">
       <div

@@ -7,6 +7,13 @@ export default defineEventHandler(async (event) => {
   // Check if the collection exists in the workspace
   const collectionid = await collectionExists(event);
 
+  // workspace admins also have collection admin permission by default
+  const workspaceAdmin = await workspaceMinAdminPermission(event);
+
+  if (workspaceAdmin) {
+    return true;
+  }
+
   // Check access table for the workspace
   const collectionAccess = await prisma.collectionAccess.findFirst({
     where: {
