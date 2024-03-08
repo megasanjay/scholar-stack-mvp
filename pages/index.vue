@@ -30,12 +30,12 @@ definePageMeta({
       </div>
     </div>
 
-    <section class="">
+    <section class="relative">
       <div
         class="relative mx-auto max-w-screen-xl px-4 pt-8 text-center lg:px-12 lg:pt-16"
       >
         <h1
-          class="mb-4 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text py-2 text-4xl font-extrabold text-transparent md:text-5xl lg:text-6xl"
+          class="relative mb-4 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text py-2 text-4xl font-extrabold text-transparent md:text-5xl lg:text-6xl"
         >
           Creating the connections that matter
         </h1>

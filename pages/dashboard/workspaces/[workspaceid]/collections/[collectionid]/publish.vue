@@ -71,38 +71,39 @@ const markdownToHtml = computed(() => {
 const publishCollection = async () => {
   publishLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/publish`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((_res) => {
+      publishLoading.value = false;
 
-  publishLoading.value = false;
+      push.success({
+        title: "Collection published",
+        message: "Your collection has been published",
+      });
 
-  if (error.value) {
-    console.log(error.value.message);
+      // navigate to collection overview using window.location.href
+      // This will cause a full page reload, but it's the only way to
+      // ensure that the page clears the stores and fetches the new data
+      window.location.href = `/dashboard/workspaces/${workspaceid}/collections/${collectionid}`;
+    })
+    .catch((error) => {
+      publishLoading.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't publish your collection",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't publish your collection",
+      });
+    })
+    .finally(() => {
+      publishLoading.value = false;
     });
-
-    return;
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Collection published",
-      message: "Your collection has been published",
-    });
-
-    // navigate to collection overview using window.location.href
-    // This will cause a full page reload, but it's the only way to
-    // ensure that the page clears the stores and fetches the new data
-    window.location.href = `/dashboard/workspaces/${workspaceid}/collections/${collectionid}`;
-  }
 };
 </script>
 

@@ -61,7 +61,7 @@ if (data.value) {
 const saveChangelog = async () => {
   saveLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/version/changelog`,
     {
       body: JSON.stringify({
@@ -70,25 +70,28 @@ const saveChangelog = async () => {
       headers: useRequestHeaders(["cookie"]),
       method: "PUT",
     },
-  );
+  )
+    .then((_res) => {
+      saveLoading.value = false;
 
-  saveLoading.value = false;
+      push.success({
+        title: "Success",
+        message: "We saved your changelog.",
+      });
+    })
+    .catch((error) => {
+      saveLoading.value = false;
 
-  if (error.value) {
-    console.log(error.value);
+      console.log(error);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't save your changelog.",
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't save your changelog.",
+      });
+    })
+    .finally(() => {
+      saveLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "We saved your changelog.",
-    });
-  }
 };
 </script>
 

@@ -35,67 +35,73 @@ if (error.value) {
 const createNewDraftVersion = async () => {
   newVersionLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((_res) => {
+      newVersionLoading.value = false;
 
-  newVersionLoading.value = false;
+      push.success({
+        title: "Success",
+        message: "We created a new draft version",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      // refresh the page
+      window.location.reload();
+    })
+    .catch((error) => {
+      newVersionLoading.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't create a new draft version",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't create a new draft version",
+      });
+    })
+    .finally(() => {
+      newVersionLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "We created a new draft version",
-    });
-
-    // refresh the page
-    window.location.reload();
-  }
 };
 
 const discardDraftVersion = async () => {
   discardVersionLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "DELETE",
     },
-  );
+  )
+    .then((_res) => {
+      discardVersionLoading.value = false;
 
-  discardVersionLoading.value = false;
+      push.success({
+        title: "Success",
+        message: "We discarded the draft version",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      // refresh the page
+      window.location.reload();
+    })
+    .catch((error) => {
+      discardVersionLoading.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't discard the draft version",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't discard the draft version",
+      });
+    })
+    .finally(() => {
+      discardVersionLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "We discarded the draft version",
-    });
-
-    // refresh the page
-    window.location.reload();
-  }
 };
 </script>
 

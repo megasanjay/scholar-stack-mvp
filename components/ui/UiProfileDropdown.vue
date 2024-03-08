@@ -16,7 +16,7 @@ const logout = async () => {
   <HeadlessMenu
     v-if="loggedIn"
     as="div"
-    class="relative inline-block text-left"
+    class="relative z-10 inline-block text-left"
   >
     <div>
       <HeadlessMenuButton

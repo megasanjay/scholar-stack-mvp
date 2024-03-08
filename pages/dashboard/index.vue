@@ -25,45 +25,7 @@ if (error.value) {
   navigateTo("/");
 }
 
-if (workspaces.value?.length === 0) {
-  push.info({
-    message: "Please wait while we create your personal workspace...",
-  });
-
-  // Create a new personal workspace
-  const { data: workspace, error } = await useFetch("/api/workspaces", {
-    body: JSON.stringify({
-      title: "My workspace",
-      description: "This is my personal workspace",
-      personal: true,
-      type: "personal",
-    }),
-    headers: useRequestHeaders(["cookie"]),
-    method: "POST",
-  });
-
-  if (error.value) {
-    console.log(error.value);
-
-    push.error({
-      title: "Something went wrong",
-      message: "Please contact support",
-    });
-
-    navigateTo("/");
-  }
-
-  if (workspace.value) {
-    push.success({
-      title: "Workspace created",
-      message: "You can now start adding your collections",
-    });
-
-    workspaceStore.setWorkspaces([workspace.value.workspace]);
-  }
-} else {
-  workspaceStore.setWorkspaces(workspaces.value || []);
-}
+workspaceStore.setWorkspaces(workspaces.value || []);
 </script>
 
 <template>
