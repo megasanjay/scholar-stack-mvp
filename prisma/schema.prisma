@@ -177,7 +177,7 @@ model Resource {
   title       String @default("")
   description String @default("")
 
-  resource_type String @default("other")
+  resource_type String @default("")
 
   back_link     Resource? @relation("NewVersionRelation", fields: [back_link_id], references: [id])
   back_link_id  String?

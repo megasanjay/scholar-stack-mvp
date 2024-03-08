@@ -71,7 +71,7 @@
   },
   {
     "label": "Other",
-    "value": "",
+    "value": "other",
     "icon": "mdi:resource-description-framework"
   }
 ]

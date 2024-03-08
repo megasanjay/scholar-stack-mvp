@@ -93,7 +93,7 @@ const rules = {
   resource_type: {
     message: "Please enter a type",
     required: true,
-    trigger: ["blur", "input"],
+    trigger: ["blur", "change"],
   },
 };
 
@@ -159,7 +159,7 @@ if (resource.value && "action" in resource.value) {
   formData.description = resource.value.description || faker.lorem.paragraph();
   formData.identifier = resource.value.identifier || faker.internet.url();
   formData.identifier_type = resource.value.identifier_type || "url";
-  formData.resource_type = resource.value.resource_type;
+  formData.resource_type = resource.value.resource_type || "other";
   formData.version_label = resource.value.version_label || "";
 }
 
@@ -207,7 +207,7 @@ const saveResourceData = () => {
         title: formData.title,
         description: formData.description,
         identifier: formData.identifier,
-        identifier_type: formData.identifier_type,
+        identifierType: formData.identifier_type,
         resourceType: formData.resource_type,
         versionLabel: formData.version_label,
       };

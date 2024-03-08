@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
     .object({
       title: z.string().min(1),
       description: z.string(),
-      icon: z.string().min(1),
       identifier: z.string().min(1),
       identifierType: z.string().min(1),
       resourceType: z.string().min(1),
