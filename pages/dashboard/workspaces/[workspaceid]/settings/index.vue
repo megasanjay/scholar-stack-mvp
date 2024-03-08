@@ -42,33 +42,31 @@ const openModal = () => {
 };
 
 const updateWorkspaceDetails = async () => {
-  const { data, error } = await useFetch(`/api/workspaces/${workspaceid}`, {
+  await $fetch(`/api/workspaces/${workspaceid}`, {
     body: JSON.stringify({
       title: workspaceName.value.trim(),
       description: workspaceDescription.value.trim(),
     }),
     headers: useRequestHeaders(["cookie"]),
     method: "PUT",
-  });
+  })
+    .then((_res) => {
+      push.success({
+        title: "Success",
+        message:
+          "Your workspace details have been updated. Please wait for a few seconds to see the changes.",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.log(err);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't update your workspace details",
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't update your workspace details",
+      });
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message:
-        "Your workspace details have been updated. Please wait for a few seconds to see the changes.",
-    });
-
-    window.location.reload();
-  }
 };
 
 const deleteWorkspace = () => {

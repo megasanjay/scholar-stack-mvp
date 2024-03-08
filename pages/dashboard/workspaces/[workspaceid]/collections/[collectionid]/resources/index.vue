@@ -52,34 +52,37 @@ const selectIcon = (type: string) => {
 const createNewDraftVersion = async () => {
   draftVersionLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((_response) => {
+      draftVersionLoading.value = false;
 
-  draftVersionLoading.value = false;
+      push.success({
+        title: "Success",
+        message: "We created a new draft version",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      // refresh the page
+      window.location.reload();
+    })
+    .catch((error) => {
+      draftVersionLoading.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't create a new draft version",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't create a new draft version",
+      });
+    })
+    .finally(() => {
+      draftVersionLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "We created a new draft version",
-    });
-
-    // refresh the page
-    window.location.reload();
-  }
 };
 
 const addResource = async () => {

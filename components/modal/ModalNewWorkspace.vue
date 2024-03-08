@@ -26,8 +26,7 @@ const createWorkspace = () => {
     if (!errors) {
       loading.value = true;
 
-      // Create a new workspace
-      const { data: workspace, error } = await useFetch("/api/workspaces", {
+      await $fetch(`/api/workspaces`, {
         body: JSON.stringify({
           title: formValue.name.trim(),
           description: formValue.description.trim(),
@@ -35,39 +34,30 @@ const createWorkspace = () => {
         }),
         headers: useRequestHeaders(["cookie"]),
         method: "POST",
-      });
+      })
+        .then((res) => {
+          loading.value = false;
 
-      loading.value = false;
+          push.success({
+            title: "Workspace created",
+          });
 
-      if (error.value) {
-        console.log(error.value);
+          workspaceStore.hideNewWorkspaceModal();
+          // workspaceStore.fetchWorkspaces(); // refreshes the header list
 
-        push.error({
-          title: "Something went wrong",
+          // navigateTo(`/dashboard/workspaces/${res.data.workspace.id}`);
+          window.location.href = `/dashboard/workspaces/${res.workspace.id}`;
+        })
+        .catch((err) => {
+          console.log(err);
+
+          push.error({
+            title: "Something went wrong",
+          });
+        })
+        .finally(() => {
+          loading.value = false;
         });
-
-        return;
-      }
-
-      if (!workspace.value) {
-        console.log("No workspace found");
-
-        push.error({
-          title: "Something went wrong",
-        });
-
-        return;
-      }
-
-      push.success({
-        title: "Workspace created",
-      });
-
-      workspaceStore.hideNewWorkspaceModal();
-      // workspaceStore.fetchWorkspaces(); // refreshes the header list
-
-      // navigateTo(`/dashboard/workspaces/${workspace.value.workspace.id}`);
-      window.location.href = `/dashboard/workspaces/${workspace.value.workspace.id}`;
     } else {
       console.log(errors);
       push.error({

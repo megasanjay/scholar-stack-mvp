@@ -96,35 +96,38 @@ const resourceType = computed(() => {
 const removeResource = async () => {
   removeResourceLoadingIndicator.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "DELETE",
     },
-  );
+  )
+    .then((_response) => {
+      removeResourceLoadingIndicator.value = false;
 
-  removeResourceLoadingIndicator.value = false;
+      push.success({
+        title: "Resource deleted",
+        message: "Your resource has been deleted",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      navigateTo(
+        `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources`,
+      );
+    })
+    .catch((error) => {
+      removeResourceLoadingIndicator.value = false;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't delete your resource",
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't delete your resource",
+      });
+    })
+    .finally(() => {
+      removeResourceLoadingIndicator.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Resource deleted",
-      message: "Your resource has been deleted",
-    });
-
-    navigateTo(
-      `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources`,
-    );
-  }
 };
 
 const createNewVersion = async () => {

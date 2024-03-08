@@ -179,43 +179,42 @@ const inviteMember = async () => {
 
   inviteLoading.value = true;
 
-  const { data, error } = await useFetch(
+  await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/members/editors`,
     {
       body: JSON.stringify(body),
       headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
-  );
+  )
+    .then((response) => {
+      push.success({
+        title: "Success",
+        message: "This user has been added as an editor to your workspace",
+      });
 
-  inviteLoading.value = false;
+      editAccess.value.push({
+        id: response.editor.user_id,
+        username: response.editor.username || "",
+        name: response.editor.name || "",
+        created: response.editor.created,
+        emailAddress: response.editor.email_address || "",
+        role: "collection-editor",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      userToInvite.value = null;
+    })
+    .catch((error) => {
+      console.log(error);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't invite this user to your workspace",
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't invite this user to your workspace",
+      });
+    })
+    .finally(() => {
+      inviteLoading.value = false;
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "This user has been added as an editor to your workspace",
-    });
-
-    editAccess.value.push({
-      id: data.value.editor.user_id,
-      username: data.value.editor.username || "",
-      name: data.value.editor.name || "",
-      created: data.value.editor.created,
-      emailAddress: data.value.editor.email_address || "",
-      role: "collection-editor",
-    });
-
-    userToInvite.value = null;
-  }
 };
 </script>
 

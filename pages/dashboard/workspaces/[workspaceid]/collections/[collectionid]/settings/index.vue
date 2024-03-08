@@ -41,64 +41,54 @@ const openModal = () => {
 };
 
 const deleteCollection = async () => {
-  const { data, error } = await useFetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "DELETE",
-    },
-  );
+  await $fetch(`/api/workspaces/${workspaceid}/collections/${collectionid}`, {
+    headers: useRequestHeaders(["cookie"]),
+    method: "DELETE",
+  })
+    .then((_res) => {
+      push.success({
+        title: "Success",
+        message: "Your collection has been deleted",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      navigateTo(`/dashboard/workspaces/${workspaceid}`);
+    })
+    .catch((err) => {
+      console.log(err);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't delete your collection",
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't delete your collection",
+      });
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message: "Your collection has been deleted",
-    });
-
-    navigateTo(`/dashboard/workspaces/${workspaceid}`);
-  }
 };
 
 const updateCollectionDetails = async () => {
-  const { data, error } = await useFetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-    {
-      body: JSON.stringify({
-        title: collectionName.value.trim(),
-        description: collectionDescription.value.trim(),
-      }),
-      headers: useRequestHeaders(["cookie"]),
-      method: "PUT",
-    },
-  );
+  await $fetch(`/api/workspaces/${workspaceid}/collections/${collectionid}`, {
+    body: JSON.stringify({
+      title: collectionName.value.trim(),
+      description: collectionDescription.value.trim(),
+    }),
+    headers: useRequestHeaders(["cookie"]),
+    method: "PUT",
+  })
+    .then((_res) => {
+      push.success({
+        title: "Success",
+        message:
+          "Your collection details have been updated. Please wait for a few seconds to see the changes.",
+      });
 
-  if (error.value) {
-    console.log(error.value);
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.log(err);
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't update your collection details",
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't update your collection details",
+      });
     });
-  }
-
-  if (data.value) {
-    push.success({
-      title: "Success",
-      message:
-        "Your collection details have been updated. Please wait for a few seconds to see the changes.",
-    });
-
-    window.location.reload();
-  }
 };
 </script>
 

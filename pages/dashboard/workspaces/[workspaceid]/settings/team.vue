@@ -70,37 +70,35 @@ const inviteMember = () => {
 
       inviteLoading.value = true;
 
-      const { data, error } = await useFetch(
-        `/api/workspaces/${workspaceid}/members`,
-        {
-          body: JSON.stringify(body),
-          headers: useRequestHeaders(["cookie"]),
-          method: "POST",
-        },
-      );
+      await $fetch(`/api/workspaces/${workspaceid}/members`, {
+        body: JSON.stringify(body),
+        headers: useRequestHeaders(["cookie"]),
+        method: "POST",
+      })
+        .then((_res) => {
+          inviteLoading.value = false;
 
-      inviteLoading.value = false;
+          push.success({
+            title: "Member Invited",
+            message:
+              "We've sent an invitation for this user to join your workspace",
+          });
 
-      if (error.value) {
-        console.log(error.value);
+          formValue.user = "";
 
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't invite this user to your workspace",
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err);
+
+          push.error({
+            title: "Something went wrong",
+            message: "We couldn't invite this user to your workspace",
+          });
+        })
+        .finally(() => {
+          inviteLoading.value = false;
         });
-      }
-
-      if (data.value) {
-        push.success({
-          title: "Member Invited",
-          message:
-            "We've sent an invitation for this user to join your workspace",
-        });
-
-        formValue.user = "";
-
-        window.location.reload();
-      }
     } else {
       console.log(errors);
     }
