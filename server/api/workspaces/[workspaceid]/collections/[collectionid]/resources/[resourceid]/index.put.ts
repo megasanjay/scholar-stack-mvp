@@ -8,8 +8,9 @@ export default defineEventHandler(async (event) => {
       title: z.string().min(1),
       description: z.string(),
       icon: z.string().min(1),
-      target: z.string().min(1),
-      type: z.string().min(1),
+      identifier: z.string().min(1),
+      identifierType: z.string().min(1),
+      resourceType: z.string().min(1),
       versionLabel: z.string(),
     })
     .strict();
@@ -71,8 +72,14 @@ export default defineEventHandler(async (event) => {
     resource.action = "update";
   }
 
-  const { title, description, icon, target, type, versionLabel } =
-    parsedBody.data;
+  const {
+    title,
+    description,
+    identifier,
+    identifierType,
+    resourceType,
+    versionLabel,
+  } = parsedBody.data;
 
   const updatedResource = await prisma.resource.update({
     data: {
@@ -80,9 +87,9 @@ export default defineEventHandler(async (event) => {
       action: resource.action || "update",
       description,
       filled_in: true,
-      icon,
-      target,
-      type,
+      identifier,
+      identifier_type: identifierType,
+      resource_type: resourceType,
       version_label: versionLabel,
     },
     where: {

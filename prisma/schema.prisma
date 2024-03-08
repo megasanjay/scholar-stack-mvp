@@ -171,13 +171,13 @@ model Version {
 model Resource {
   id String @id @default(cuid())
 
-  type   String // doi, url, ror, orcid, etc (prefix from identifiers.org)
-  target String // the actual identifier (10.1234/abc)
+  identifier_type String // doi, url, ror, orcid, etc (prefix from identifiers.org)
+  identifier      String // the actual identifier (10.1234/abc)
 
   title       String @default("")
   description String @default("")
 
-  icon String @default("mdi:resource-description-framework")
+  resource_type String @default("other")
 
   back_link     Resource? @relation("NewVersionRelation", fields: [back_link_id], references: [id])
   back_link_id  String?

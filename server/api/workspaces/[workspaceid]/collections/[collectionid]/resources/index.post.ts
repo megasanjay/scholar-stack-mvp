@@ -37,8 +37,8 @@ export default defineEventHandler(async (event) => {
     data: {
       action: "create",
       filled_in: false,
-      target: "",
-      type: "",
+      identifier: "",
+      identifier_type: "",
     },
   });
 

@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
         data: {
           title: updatedResource.title,
           description: updatedResource.description,
-          icon: updatedResource.icon,
+          resource_type: updatedResource.resource_type,
           Version: {
             connect: {
               id: draftVersion.id,

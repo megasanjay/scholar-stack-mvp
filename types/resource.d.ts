@@ -4,11 +4,11 @@ interface ResourceType {
   back_link_id: string | null;
   version_label: string | null;
   description: string;
-  icon: string;
-  type: string | null;
+  resource_type: string;
+  identifier_type: string | null;
   action?: string;
   filled_in?: boolean;
-  target: string;
+  identifier: string;
   created: string;
   updated: string;
 }

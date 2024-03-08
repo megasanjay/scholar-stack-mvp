@@ -1,145 +1,77 @@
 [
   {
+    "label": "GitHub Repository",
+    "value": "gitHubRepository",
+    "icon": "mdi:github"
+  },
+  {
+    "label": "Git Repository",
+    "value": "gitRepository",
+    "icon": "mdi:git"
+  },
+  {
+    "label": "GitLab Repository",
+    "value": "gitLabRepository",
+    "icon": "ri:gitlab-fill"
+  },
+  {
+    "label": "Dataset",
     "value": "dataset",
-    "label": "Dataset"
+    "icon": "material-symbols:dataset"
   },
   {
-    "value": "lesson",
-    "label": "Lesson"
+    "label": "Journal Article",
+    "value": "journalArticle",
+    "icon": "ooui:journal-ltr"
   },
   {
-    "value": "other",
-    "label": "Other"
-  },
-  {
-    "value": "physicalobject",
-    "label": "Physical object"
-  },
-  {
-    "value": "poster",
-    "label": "Poster"
-  },
-  {
+    "label": "Presentation",
     "value": "presentation",
-    "label": "Presentation"
+    "icon": "tabler:presentation"
   },
   {
-    "value": "software",
-    "label": "Software"
+    "label": "Poster",
+    "value": "poster",
+    "icon": "ep:data-board"
   },
   {
-    "value": "video",
-    "label": "Video/Audio"
-  },
-
-  {
-    "label": "Publication",
-    "key": "Publication",
-    "type": "group",
-    "children": [
-      {
-        "value": "publication-annotationcollection",
-        "label": "Annotation collection"
-      },
-      {
-        "value": "publication-book",
-        "label": "Book"
-      },
-      {
-        "value": "publication-section",
-        "label": "Book section"
-      },
-      {
-        "value": "publication-conferencepaper",
-        "label": "Conference paper"
-      },
-      {
-        "value": "publication-datamanagementplan",
-        "label": "Data management plan"
-      },
-      {
-        "value": "publication-article",
-        "label": "Journal article"
-      },
-      {
-        "value": "publication-other",
-        "label": "Other"
-      },
-      {
-        "value": "publication-patent",
-        "label": "Patent"
-      },
-      {
-        "value": "publication-preprint",
-        "label": "Preprint"
-      },
-      {
-        "value": "publication-deliverable",
-        "label": "Project deliverable"
-      },
-      {
-        "value": "publication-milestone",
-        "label": "Project milestone"
-      },
-      {
-        "value": "publication-proposal",
-        "label": "Proposal"
-      },
-      {
-        "value": "publication-report",
-        "label": "Report"
-      },
-      {
-        "value": "publication-softwaredocumentation",
-        "label": "Software documentation"
-      },
-      {
-        "value": "publication-taxonomictreatment",
-        "label": "Taxonomic treatment"
-      },
-      {
-        "value": "publication-technicalnote",
-        "label": "Technical note"
-      },
-      {
-        "value": "publication-thesis",
-        "label": "Thesis"
-      },
-      {
-        "value": "publication-workingpaper",
-        "label": "Working paper"
-      }
-    ]
+    "label": "Genomic Data",
+    "value": "genomicData",
+    "icon": "solar:dna-bold"
   },
   {
-    "label": "Image",
-    "key": "Image",
-    "type": "group",
-    "children": [
-      {
-        "value": "image-diagram",
-        "label": "Diagram"
-      },
-      {
-        "value": "image-drawing",
-        "label": "Drawing"
-      },
-      {
-        "value": "image-figure",
-        "label": "Figure"
-      },
-      {
-        "value": "image-other",
-        "label": "Other"
-      },
-      {
-        "value": "image-photo",
-        "label": "Photo"
-      },
-      {
-        "value": "image-plot",
-        "label": "Plot"
-      }
-    ]
+    "label": "Clinical Data",
+    "value": "clinicalData",
+    "icon": "material-symbols:clinical-notes"
+  },
+  {
+    "label": "Taxonomy",
+    "value": "taxonomy",
+    "icon": "icon-park-twotone:children-pyramid"
+  },
+  {
+    "label": "Amazon Product",
+    "value": "amazonProduct",
+    "icon": "ion:logo-amazon"
+  },
+  {
+    "label": "Antibody",
+    "value": "antibody",
+    "icon": "game-icons:antibody"
+  },
+  {
+    "label": "Adverse Outcome Pathways",
+    "value": "adverseOutcomePathways",
+    "icon": "material-symbols:view-timeline"
+  },
+  {
+    "label": "Peptide",
+    "value": "peptide",
+    "icon": "lets-icons:molecule-light"
+  },
+  {
+    "label": "Other",
+    "value": "",
+    "icon": "mdi:resource-description-framework"
   }
 ]

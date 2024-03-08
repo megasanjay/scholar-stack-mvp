@@ -93,10 +93,10 @@ export default defineEventHandler(async (event) => {
           back_link_id: originalResource.back_link_id, // todo: check if this is correct
           description: originalResource.description,
           filled_in: true,
-          icon: originalResource.icon,
+          identifier: originalResource.identifier,
+          identifier_type: originalResource.identifier_type,
           original_resource_id: originalResource.id,
-          target: originalResource.target,
-          type: originalResource.type,
+          resource_type: originalResource.resource_type,
           Version: {
             connect: {
               id: draftVersion.id,

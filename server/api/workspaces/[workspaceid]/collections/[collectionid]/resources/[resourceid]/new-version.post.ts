@@ -103,9 +103,9 @@ export default defineEventHandler(async (event) => {
       back_link_id: parsedBody.data.back_link_id, // used for front-end
       description: resource.description,
       filled_in: resource.filled_in,
-      icon: resource.icon,
-      target: resource.target,
-      type: resource.type,
+      identifier: resource.identifier,
+      identifier_type: resource.identifier_type,
+      resource_type: resource.resource_type,
       version_label: resource.version_label,
     },
   });

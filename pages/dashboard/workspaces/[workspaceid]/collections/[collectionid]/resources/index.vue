@@ -390,18 +390,18 @@ const addResource = async () => {
             <div class="group w-max">
               <NuxtLink
                 :to="
-                  resource.type !== 'url'
-                    ? `https://identifiers.org/${resource.type}/${resource.target}`
-                    : resource.target
+                  resource.identifier_type !== 'url'
+                    ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
+                    : resource.identifier
                 "
                 class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
                 target="_blank"
                 @click.stop=""
               >
-                {{ resource.target }}
+                {{ resource.identifier }}
 
                 <Icon
-                  v-if="resource.type"
+                  v-if="resource.identifier_type"
                   name="mdi:external-link"
                   size="16"
                   class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"

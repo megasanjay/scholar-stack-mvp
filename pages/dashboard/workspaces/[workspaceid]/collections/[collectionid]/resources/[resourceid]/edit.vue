@@ -46,9 +46,9 @@ const formData = reactive<ResourceType>({
   created: "",
   description: "",
   filled_in: false,
-  icon: "",
-  target: "",
-  type: null,
+  identifier: "",
+  identifier_type: null,
+  resource_type: "",
   updated: "",
   version_label: "",
 });
@@ -96,7 +96,9 @@ const iconOptions = FALLBACK_JSON;
 const typeOptions = PREFIX_JSON;
 
 const selectedIdentifier = computed(() => {
-  return typeOptions.find((prefix) => prefix.value === formData.type);
+  return typeOptions.find(
+    (prefix) => prefix.value === formData.identifier_type,
+  );
 });
 
 const saveResourceLoadingIndicator = ref(false);
@@ -148,9 +150,9 @@ if (resource.value && "action" in resource.value) {
 
   formData.title = resource.value.title || faker.commerce.productName();
   formData.description = resource.value.description || faker.lorem.paragraph();
-  formData.target = resource.value.target || faker.internet.url();
-  formData.type = resource.value.type || "url";
-  formData.icon = resource.value.icon;
+  formData.identifier = resource.value.identifier || faker.internet.url();
+  formData.identifier_type = resource.value.identifier_type || "url";
+  formData.resource_type = resource.value.resource_type;
   formData.version_label = resource.value.version_label || "";
 }
 
@@ -185,9 +187,9 @@ const saveResourceData = () => {
       const body = {
         title: formData.title,
         description: formData.description,
-        icon: formData.icon,
-        target: formData.target,
-        type: formData.type,
+        identifier: formData.identifier,
+        identifier_type: formData.identifier_type,
+        resourceType: formData.resource_type,
         versionLabel: formData.version_label,
       };
 
@@ -272,7 +274,7 @@ const saveResourceData = () => {
         <n-form-item path="type" label="Identifier Type">
           <div class="flex w-full flex-col">
             <n-select
-              v-model:value="formData.type"
+              v-model:value="formData.identifier_type"
               filterable
               placeholder="DOI"
               :disabled="
@@ -296,11 +298,11 @@ const saveResourceData = () => {
         <n-form-item path="target" label="Resource Identifier">
           <div class="flex w-full flex-col">
             <n-input
-              v-model:value="formData.target"
+              v-model:value="formData.identifier"
               :placeholder="selectedIdentifier?.placeholder"
               type="text"
               :disabled="
-                !formData.type ||
+                !formData.identifier ||
                 !!(
                   resource &&
                   'action' in resource &&
@@ -312,7 +314,7 @@ const saveResourceData = () => {
               @keydown.enter.prevent
             />
 
-            <n-collapse-transition :show="!!formData.target">
+            <n-collapse-transition :show="!!formData.identifier">
               <p class="mt-2 text-sm text-slate-500">
                 Click here to see if your linked resource is available and
                 resolves correctly.
@@ -355,7 +357,7 @@ const saveResourceData = () => {
 
         <n-form-item path="icon" label="Icon">
           <n-select
-            v-model:value="formData.icon"
+            v-model:value="formData.resource_type"
             filterable
             :options="iconOptions"
             :render-label="renderLabel"

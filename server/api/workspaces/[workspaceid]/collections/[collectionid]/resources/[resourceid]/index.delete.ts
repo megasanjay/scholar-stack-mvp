@@ -97,8 +97,8 @@ export default defineEventHandler(async (event) => {
           oldVersionOfResourceInCurrentDraft.title ||
         oldPublishedVersionOfResource.description !==
           oldVersionOfResourceInCurrentDraft.description ||
-        oldPublishedVersionOfResource.icon !==
-          oldVersionOfResourceInCurrentDraft.icon ||
+        oldPublishedVersionOfResource.resource_type !==
+          oldVersionOfResourceInCurrentDraft.resource_type ||
         oldPublishedVersionOfResource.version_label !==
           oldVersionOfResourceInCurrentDraft.version_label
       ) {
