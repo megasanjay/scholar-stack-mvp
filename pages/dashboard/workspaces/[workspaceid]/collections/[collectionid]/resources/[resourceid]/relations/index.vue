@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker";
 import { NTag, Icon } from "#components";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
-import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import RESOURCE_TYPE_JSON from "@/assets/json/relation-resource-type.json";
 
 definePageMeta({
   layout: "app-layout",
