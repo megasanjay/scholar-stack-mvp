@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { displayLongDate } from "~/utils/displayDates";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
 definePageMeta({
   layout: "app-layout",
@@ -7,6 +8,8 @@ definePageMeta({
 });
 
 const route = useRoute();
+
+const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
 const newResourceLoading = ref(false);
 const draftVersionLoading = ref(false);
@@ -23,8 +26,6 @@ const { data: collection, error } = await useFetch<CollectionGETAPIResponse>(
   },
 );
 
-console.log(collection.value);
-
 if (error.value) {
   console.log(error.value);
 
@@ -35,6 +36,18 @@ if (error.value) {
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
 }
+
+const selectIcon = (type: string) => {
+  const resourceType = resourceTypeOptions.find(
+    (resourceType) => resourceType.value === type,
+  );
+
+  if (resourceType) {
+    return resourceType.icon;
+  }
+
+  return "mdi:file-question";
+};
 
 const createNewDraftVersion = async () => {
   draftVersionLoading.value = true;
@@ -237,7 +250,7 @@ const addResource = async () => {
         >
           <div class="flex w-full items-center justify-start pb-2">
             <div>
-              <Icon :name="resource.icon" size="35" />
+              <Icon :name="selectIcon(resource.resource_type)" size="35" />
             </div>
 
             <n-divider vertical />
@@ -376,11 +389,11 @@ const addResource = async () => {
 
           <div class="flex w-full items-center space-x-1 border-t pb-4 pt-3">
             <n-tag
-              :type="resource.type ? 'info' : 'error'"
+              :type="resource.identifier_type ? 'info' : 'error'"
               size="small"
               class=""
             >
-              {{ resource.type || "No identifier provided" }}
+              {{ resource.identifier_type || "No identifier provided" }}
             </n-tag>
 
             <div>

@@ -6,7 +6,7 @@ import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
 import { Icon } from "#components";
 
-import FALLBACK_JSON from "@/assets/json/url-doi-icons.json";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 
 import { useLinkStore } from "@/stores/link";
@@ -44,7 +44,7 @@ const formValue: LocalLinkType = reactive({
   type: "",
 });
 
-const iconOptions = FALLBACK_JSON;
+const resourceTypeOptions = RESOURCE_TYPE_JSON;
 const typeOptions = PREFIX_JSON;
 
 const placeholder = computed(() => {
@@ -280,7 +280,7 @@ const addResource = (e: MouseEvent) => {
           <n-select
             v-model:value="formValue.icon"
             filterable
-            :options="iconOptions"
+            :options="resourceTypeOptions"
             :render-label="renderLabel"
           />
         </n-form-item>

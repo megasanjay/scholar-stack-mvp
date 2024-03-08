@@ -67,7 +67,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       callback: "/dashboard",
       cookieRedirect: false,
-      exclude: ["/"],
+      exclude: ["/", "/register"],
       login: "/login",
     },
   },

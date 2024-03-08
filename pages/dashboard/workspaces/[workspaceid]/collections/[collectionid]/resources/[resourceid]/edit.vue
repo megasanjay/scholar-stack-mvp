@@ -5,7 +5,7 @@ import type { VNodeChild } from "vue";
 import { faker } from "@faker-js/faker";
 import { Icon } from "#components";
 
-import FALLBACK_JSON from "@/assets/json/url-doi-icons.json";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 
 definePageMeta({
@@ -64,7 +64,7 @@ const rules = {
     required: true,
     trigger: ["blur", "input"],
   },
-  target: {
+  identifier: {
     required: true,
     trigger: ["blur", "input"],
     validator(rule: FormItemRule, value: string) {
@@ -77,7 +77,7 @@ const rules = {
 
         if (!pattern.test(value)) {
           return new Error(
-            `Please enter a valid ${selectedIdentifier.value.label}`,
+            `Please enter a valid ${selectedIdentifier.value.label} identifier`,
           );
         }
       }
@@ -85,20 +85,27 @@ const rules = {
       return true;
     },
   },
-  type: {
+  identifier_type: {
+    message: "Please enter a type",
+    required: true,
+    trigger: ["blur", "input"],
+  },
+  resource_type: {
     message: "Please enter a type",
     required: true,
     trigger: ["blur", "input"],
   },
 };
 
-const iconOptions = FALLBACK_JSON;
-const typeOptions = PREFIX_JSON;
+const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const identifierTypeOptions = PREFIX_JSON;
 
 const selectedIdentifier = computed(() => {
-  return typeOptions.find(
+  const identifier = identifierTypeOptions.find(
     (prefix) => prefix.value === formData.identifier_type,
   );
+
+  return identifier;
 });
 
 const saveResourceLoadingIndicator = ref(false);
@@ -156,11 +163,23 @@ if (resource.value && "action" in resource.value) {
   formData.version_label = resource.value.version_label || "";
 }
 
+const selectIcon = (type: string) => {
+  const resourceType = resourceTypeOptions.find(
+    (resourceType) => resourceType.value === type,
+  );
+
+  if (resourceType) {
+    return resourceType.icon;
+  }
+
+  return "mdi:file-question";
+};
+
 const renderLabel = (option: SelectOption): VNodeChild => {
   return [
     h(
       Icon,
-      { name: option.value as string, class: "mr-1", size: "20" },
+      { name: selectIcon(option.value as string), class: "mr-1", size: "20" },
       {
         default: () => null,
       },
@@ -169,15 +188,15 @@ const renderLabel = (option: SelectOption): VNodeChild => {
   ];
 };
 
-const selectIcon = (value: string) => {
+const selectResourceType = (value: string) => {
   if (value === "url") {
     return;
   }
 
-  const curi = typeOptions.find((prefix) => prefix.value === value);
+  const curi = identifierTypeOptions.find((prefix) => prefix.value === value);
 
   if (curi) {
-    formData.icon = curi.icon;
+    formData.resource_type = curi.icon;
   }
 };
 
@@ -271,7 +290,7 @@ const saveResourceData = () => {
         :rules="rules"
         size="large"
       >
-        <n-form-item path="type" label="Identifier Type">
+        <n-form-item path="identifier_type" label="Identifier Type">
           <div class="flex w-full flex-col">
             <n-select
               v-model:value="formData.identifier_type"
@@ -285,8 +304,8 @@ const saveResourceData = () => {
                     resource?.action === 'oldVersion')
                 )
               "
-              :options="typeOptions"
-              @update:value="selectIcon"
+              :options="identifierTypeOptions"
+              @update:value="selectResourceType"
             />
 
             <p class="mt-2 text-sm text-slate-500">
@@ -295,7 +314,7 @@ const saveResourceData = () => {
           </div>
         </n-form-item>
 
-        <n-form-item path="target" label="Resource Identifier">
+        <n-form-item path="identifier" label="Resource Identifier">
           <div class="flex w-full flex-col">
             <n-input
               v-model:value="formData.identifier"
@@ -355,11 +374,12 @@ const saveResourceData = () => {
           </div>
         </n-form-item>
 
-        <n-form-item path="icon" label="Icon">
+        <n-form-item path="resource_type" label="Resource Type">
           <n-select
             v-model:value="formData.resource_type"
             filterable
-            :options="iconOptions"
+            clearable
+            :options="resourceTypeOptions"
             :render-label="renderLabel"
           />
         </n-form-item>
