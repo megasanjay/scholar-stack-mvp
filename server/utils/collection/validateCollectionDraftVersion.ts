@@ -36,9 +36,9 @@ export default defineEventHandler(async (event) => {
   const resourceSchema = z.object({
     title: z.string().min(1),
     description: z.string(),
-    icon: z.string().min(1),
-    target: z.string().min(1),
-    type: z.string().min(1),
+    identifier: z.string().min(1),
+    identifier_type: z.string().min(1),
+    resource_type: z.string().min(1),
   });
 
   const resourcesWithErrors = [];

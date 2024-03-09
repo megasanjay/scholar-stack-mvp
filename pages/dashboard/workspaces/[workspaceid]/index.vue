@@ -33,7 +33,7 @@ if (error.value) {
 </script>
 
 <template>
-  <main class="h-full bg-zinc-50 px-4">
+  <main class="grow bg-zinc-50 px-4">
     <div class="flex h-36 items-center border-b border-gray-200 bg-white">
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
@@ -104,9 +104,9 @@ if (error.value) {
           </div>
 
           <div>
-            <span>
+            <p class="line-clamp-4">
               {{ collection.description }}
-            </span>
+            </p>
           </div>
         </NuxtLink>
       </div>

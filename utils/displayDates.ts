@@ -74,4 +74,13 @@ const displayDateDifference = (date: string) => {
   }
 };
 
-export { displayShortDate, displayLongDate, displayDateDifference };
+const displayStandardDate = (date: string) => {
+  return dayjs(date).format("MMMM DD, YYYY");
+};
+
+export {
+  displayShortDate,
+  displayLongDate,
+  displayDateDifference,
+  displayStandardDate,
+};

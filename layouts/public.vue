@@ -130,6 +130,8 @@ const loggedIn = computed(() => user.value);
                   Contact
                 </a>
               </li>
+
+              <NuxtLink to="/view"> Discover </NuxtLink>
             </ul>
           </div>
         </div>
