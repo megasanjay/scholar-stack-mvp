@@ -89,7 +89,7 @@ const signIn = (e: MouseEvent) => {
       await $fetch("/api/user", {
         headers: useRequestHeaders(["cookie"]),
         method: "POST",
-      }).catch((error) => {
+      }).catch(async (error) => {
         console.error(error);
 
         push.error({
@@ -97,10 +97,12 @@ const signIn = (e: MouseEvent) => {
           message: "Could not initialize profile.",
         });
 
+        // sign out the user if the profile creation fails
+        // prevents any unforeseen issues
+        await supabase.auth.signOut();
+
         throw error;
       });
-
-      console.log("success");
 
       // redirect to projects page
       window.location.href = "/dashboard";

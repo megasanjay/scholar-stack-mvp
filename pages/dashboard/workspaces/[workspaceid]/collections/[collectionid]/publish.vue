@@ -62,9 +62,9 @@ const {
 
 const sanitize = (html: string) => sanitizeHtml(html);
 
-const markdownToHtml = computed(() => {
+const markdownToHtml = computed(async () => {
   return sanitize(
-    parse(collection.value?.version?.changelog || "No changelog"),
+    await parse(collection.value?.version?.changelog || "No changelog"),
   );
 });
 

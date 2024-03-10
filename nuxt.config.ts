@@ -27,6 +27,10 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
+  image: {
+    domains: ["api.dicebear.com"],
+  },
+
   imports: {
     dirs: ["stores"],
   },
@@ -49,6 +53,7 @@ export default defineNuxtConfig({
     ],
     "@nuxt/devtools",
     "@bg-dev/nuxt-naiveui",
+    "@nuxt/image",
   ],
 
   naiveui: {
@@ -67,7 +72,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       callback: "/dashboard",
       cookieRedirect: false,
-      exclude: ["/", "/register"],
+      exclude: ["/", "/register", "/view", "/view/*"],
       login: "/login",
     },
   },

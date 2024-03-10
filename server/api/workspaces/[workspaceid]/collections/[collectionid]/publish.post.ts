@@ -70,20 +70,6 @@ export default defineEventHandler(async (event) => {
    * * Map the staging internal relations to internal relations in the new version
    */
 
-  // create a new version
-  // const newVersion = await prisma.version.create({
-  //   data: {
-  //     name: `v${calver.inc(
-  //       "yyyy.ww.minor",
-  //       lastPublishedVersion?.name || "",
-  //       "calendar.minor"
-  //     )}`,
-  //     changelog: draftVersion.changelog,
-  //     collection_id: collectionid,
-  //     identifier: nanoid(),
-  //   },
-  // });
-
   const resources = draftVersion.Resources;
 
   /**
@@ -549,7 +535,7 @@ export default defineEventHandler(async (event) => {
   // publish the the version
   await prisma.version.update({
     data: {
-      name: `v${calver.inc(
+      name: `${calver.inc(
         "yyyy.ww.minor",
         lastPublishedVersion?.name
           ? semverClean(lastPublishedVersion?.name)

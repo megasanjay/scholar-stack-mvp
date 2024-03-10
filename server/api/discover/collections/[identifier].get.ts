@@ -43,6 +43,8 @@ export default defineEventHandler(async (event) => {
   const version = await prisma.version.findUnique({
     include: {
       collection: true,
+      ExternalRelations: true,
+      InternalRelations: true,
       Resources: true,
     },
     where: {
@@ -59,9 +61,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const allVersions = await prisma.version.findMany({
+    orderBy: { created: "desc" },
+    where: {
+      collection: { private: false },
+      collection_id: version.collection_id,
+      published: true,
+    },
+  });
+
   return {
     ...version,
     stars: Math.floor(Math.random() * 500),
+    Versions: allVersions,
     views: Math.floor(Math.random() * 500),
   };
 });
