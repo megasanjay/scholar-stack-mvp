@@ -67,6 +67,19 @@ const main = async () => {
       resourcesData.push(data);
     }
 
+    // sort the resources by name
+    resourcesData.sort((a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
+      }
+
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1;
+      }
+
+      return 0;
+    });
+
     const preExisting = prefixData.find(
       (item: any) => item.value === namespace.prefix,
     );
@@ -82,6 +95,16 @@ const main = async () => {
       type,
       value: namespace.prefix,
     };
+
+    // replace github with GitHub
+    if (data.label === "github") {
+      data.label = "GitHub";
+    }
+
+    // replace dg.nacd default label with AccessClinicalData@NIAID
+    if (data.value === "dg.nacd") {
+      data.label = "AccessClinicalData@NIAID";
+    }
 
     identifiers.push(data);
   }
@@ -99,11 +122,11 @@ const main = async () => {
 
   // sort by label
   identifiers.sort((a, b) => {
-    if (a.label < b.label) {
+    if (a.label.toLowerCase() < b.label.toLowerCase()) {
       return -1;
     }
 
-    if (a.label > b.label) {
+    if (a.label.toLowerCase() > b.label.toLowerCase()) {
       return 1;
     }
 

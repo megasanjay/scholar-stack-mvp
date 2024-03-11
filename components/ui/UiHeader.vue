@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ClientOnly } from "#build/components";
+
 // import { colors } from "@/utils/constants";
 
 const supabase = useSupabaseClient();
@@ -34,53 +36,55 @@ const logout = async () => {
         </NuxtLink>
 
         <div class="flex items-center space-x-3 lg:order-2">
-          <nuxt-link v-if="!loggedIn" to="/login">
-            <n-button size="large">
-              <span> Log in </span>
-            </n-button>
-          </nuxt-link>
+          <ClientOnly>
+            <nuxt-link v-if="!loggedIn" to="/login">
+              <n-button size="large">
+                <span> Log in </span>
+              </n-button>
+            </nuxt-link>
 
-          <nuxt-link v-if="!loggedIn" to="/register">
-            <n-button color="black" size="large"> Get started </n-button>
-          </nuxt-link>
+            <nuxt-link v-if="!loggedIn" to="/register">
+              <n-button color="black" size="large"> Get started </n-button>
+            </nuxt-link>
 
-          <n-popover
-            v-if="loggedIn"
-            trigger="click"
-            content-style="padding: 8px; border-radius: 5px"
-            footer-style="padding: 8px; border-radius: 5px"
-            placement="bottom-end"
-          >
-            <template #trigger>
-              <n-avatar
-                :size="48"
-                :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${user?.email}`"
-                class="hover:cursor-pointer hover:opacity-80"
-              />
-            </template>
+            <n-popover
+              v-if="loggedIn"
+              trigger="click"
+              content-style="padding: 8px; border-radius: 5px"
+              footer-style="padding: 8px; border-radius: 5px"
+              placement="bottom-end"
+            >
+              <template #trigger>
+                <n-avatar
+                  :size="48"
+                  :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${user?.email}`"
+                  class="hover:cursor-pointer hover:opacity-80"
+                />
+              </template>
 
-            <div class="flex flex-col">
-              <nuxt-link to="/profile" class="dropdown-item">
-                <Icon name="mingcute:user-4-fill" size="20" />
+              <div class="flex flex-col">
+                <nuxt-link to="/profile" class="dropdown-item">
+                  <Icon name="mingcute:user-4-fill" size="20" />
 
-                <span> Your profile </span>
-              </nuxt-link>
+                  <span> Your profile </span>
+                </nuxt-link>
 
-              <nuxt-link to="/profile" class="dropdown-item">
-                <Icon name="ic:baseline-settings" size="20" />
+                <nuxt-link to="/profile" class="dropdown-item">
+                  <Icon name="ic:baseline-settings" size="20" />
 
-                <span> Settings </span>
-              </nuxt-link>
-            </div>
-
-            <template #footer>
-              <div class="dropdown-item" @click="logout">
-                <Icon name="majesticons:logout" size="20" />
-
-                <span> Logout </span>
+                  <span> Settings </span>
+                </nuxt-link>
               </div>
-            </template>
-          </n-popover>
+
+              <template #footer>
+                <div class="dropdown-item" @click="logout">
+                  <Icon name="majesticons:logout" size="20" />
+
+                  <span> Logout </span>
+                </div>
+              </template>
+            </n-popover>
+          </ClientOnly>
 
           <button
             data-collapse-toggle="mobile-menu-2"
