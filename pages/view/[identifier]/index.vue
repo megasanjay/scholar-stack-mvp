@@ -78,6 +78,18 @@ const groupedResources = computed(() => {
 
   return grouped;
 });
+
+const selectedVersionIdentifier = computed(() => {
+  // Get the first character of the identifier
+  const type = identifier[0];
+
+  if (type === "c") {
+    // Select the latest version of the collection
+    return data.value?.Versions[0].identifier;
+  }
+
+  return identifier;
+});
 </script>
 
 <template>
@@ -110,7 +122,7 @@ const groupedResources = computed(() => {
 
       <n-divider />
 
-      <n-tabs type="segment" animated>
+      <n-tabs type="segment" animated default-value="versions">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center">
@@ -187,21 +199,6 @@ const groupedResources = computed(() => {
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="versions" tab="Versions">
-          <template #tab>
-            <n-space align="center">
-              <Icon name="system-uicons:versions" size="18" />
-
-              <span class="font-medium"> Versions</span>
-            </n-space>
-          </template>
-
-          <pre>
-          {{ data.Versions }}
-        </pre
-          >
-        </n-tab-pane>
-
         <n-tab-pane name="relations" tab="Relations">
           <template #tab>
             <n-space align="center">
@@ -223,7 +220,84 @@ const groupedResources = computed(() => {
         </pre
           >
         </n-tab-pane>
+
+        <n-tab-pane name="versions" tab="Versions">
+          <template #tab>
+            <n-space align="center">
+              <Icon name="system-uicons:versions" size="18" />
+
+              <span class="font-medium"> Versions</span>
+            </n-space>
+          </template>
+
+          <n-space vertical>
+            <n-alert type="info" show-icon>
+              <p>
+                The latest version of this collection is
+                <strong>{{ data.Versions[0].name }}</strong>
+                . If you want to always link to the latest version, use the
+                <NuxtLink
+                  :to="`/view/${data.collection.identifier}`"
+                  class="text-sky-500 transition-all hover:text-sky-400"
+                >
+                  {{ data.collection.identifier }}</NuxtLink
+                >
+                identifier.
+              </p>
+            </n-alert>
+
+            <n-table :bordered="false" :single-line="false">
+              <thead>
+                <tr>
+                  <th>Name</th>
+
+                  <th>Identifier</th>
+
+                  <th>Published on</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="version in data.Versions" :key="version.id">
+                  <td
+                    :class="{
+                      '!bg-emerald-50':
+                        version.identifier === selectedVersionIdentifier,
+                    }"
+                  >
+                    {{ version.name }}
+                  </td>
+
+                  <td
+                    :class="{
+                      '!bg-emerald-50':
+                        version.identifier === selectedVersionIdentifier,
+                    }"
+                  >
+                    <NuxtLink
+                      :to="`/view/${version.identifier}`"
+                      class="text-sky-500 transition-all hover:text-sky-400"
+                    >
+                      {{ version.identifier }}
+                    </NuxtLink>
+                  </td>
+
+                  <td
+                    :class="{
+                      '!bg-emerald-50':
+                        version.identifier === selectedVersionIdentifier,
+                    }"
+                  >
+                    {{ displayStandardDate(version.published_on) }}
+                  </td>
+                </tr>
+              </tbody>
+            </n-table>
+          </n-space>
+        </n-tab-pane>
       </n-tabs>
     </div>
+
+    <n-back-top />
   </main>
 </template>
