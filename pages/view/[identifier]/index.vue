@@ -98,31 +98,31 @@ const selectedVersionIdentifier = computed(() => {
       <div class="grid grid-cols-12">
         <n-space vertical class="col-span-9 mt-5">
           <n-space align="center">
-            <h1 class="mb-2">{{ data.collection.title }}</h1>
+            <h1 class="mb-2">{{ data?.collection.title }}</h1>
 
             <n-tag type="success" :bordered="false">
-              Version {{ data.name }}
+              Version {{ data?.name }}
             </n-tag>
           </n-space>
 
-          <p class="line-clamp-5">{{ data.collection.description }}</p>
+          <p class="line-clamp-5">{{ data?.collection.description }}</p>
 
           <p class="text-base">
             Published on
-            {{ displayStandardDate(data.published_on) }}
+            {{ displayStandardDate(data?.published_on as string) }}
           </p>
         </n-space>
 
         <NuxtImg
-          :src="data.collection.image"
-          :alt="data.collection.title"
+          :src="data?.collection.image"
+          :alt="data?.collection.title"
           class="col-span-3 h-auto max-h-60 w-full"
         />
       </div>
 
       <n-divider />
 
-      <n-tabs type="segment" animated default-value="versions">
+      <n-tabs type="segment" animated default-value="resources">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center">
@@ -135,9 +135,9 @@ const selectedVersionIdentifier = computed(() => {
           <div v-for="(group, name, index) in groupedResources" :key="index">
             <div class="flex items-center justify-between pb-5 pt-10">
               <n-space align="center">
-                <Icon :name="selectIcon(name).icon" size="35" />
+                <Icon :name="selectIcon(name as string).icon" size="35" />
 
-                <h2>{{ selectIcon(name).name }}</h2>
+                <h2>{{ selectIcon(name as string).name }}</h2>
               </n-space>
             </div>
 
@@ -208,15 +208,17 @@ const selectedVersionIdentifier = computed(() => {
             </n-space>
           </template>
 
+          <FlowRelationsGraph />
+
           Internal Relations
           <pre>
-         {{ data.InternalRelations }}
+         {{ data?.InternalRelations }}
         </pre
           >
 
           External Relations
           <pre>
-         {{ data.ExternalRelations }}
+         {{ data?.ExternalRelations }}
         </pre
           >
         </n-tab-pane>
@@ -234,13 +236,13 @@ const selectedVersionIdentifier = computed(() => {
             <n-alert type="info" show-icon>
               <p>
                 The latest version of this collection is
-                <strong>{{ data.Versions[0].name }}</strong>
+                <strong>{{ data?.Versions[0].name }}</strong>
                 . If you want to always link to the latest version, use the
                 <NuxtLink
-                  :to="`/view/${data.collection.identifier}`"
+                  :to="`/view/${data?.collection.identifier}`"
                   class="text-sky-500 transition-all hover:text-sky-400"
                 >
-                  {{ data.collection.identifier }}</NuxtLink
+                  {{ data?.collection.identifier }}</NuxtLink
                 >
                 identifier.
               </p>
@@ -258,7 +260,7 @@ const selectedVersionIdentifier = computed(() => {
               </thead>
 
               <tbody>
-                <tr v-for="version in data.Versions" :key="version.id">
+                <tr v-for="version in data?.Versions" :key="version.id">
                   <td
                     :class="{
                       '!bg-emerald-50':
@@ -288,7 +290,7 @@ const selectedVersionIdentifier = computed(() => {
                         version.identifier === selectedVersionIdentifier,
                     }"
                   >
-                    {{ displayStandardDate(version.published_on) }}
+                    {{ displayStandardDate(version.published_on as string) }}
                   </td>
                 </tr>
               </tbody>

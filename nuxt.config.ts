@@ -21,6 +21,8 @@ export default defineNuxtConfig({
     "@/assets/css/tailwind.css",
     "notivue/notifications.css",
     "notivue/animations.css",
+    "@vue-flow/core/dist/style.css",
+    "@vue-flow/core/dist/theme-default.css",
   ],
 
   devtools: {
