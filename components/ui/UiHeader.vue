@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ClientOnly } from "#build/components";
-
 // import { colors } from "@/utils/constants";
 
 const supabase = useSupabaseClient();

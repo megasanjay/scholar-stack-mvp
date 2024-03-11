@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+
 definePageMeta({
   layout: "public",
 });
 
 const route = useRoute();
+
+const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
 const { identifier } = route.params as { identifier: string };
 
@@ -21,11 +25,64 @@ if (error.value) {
     title: "Something went wrong",
   });
 }
+
+const selectIcon = (type: string) => {
+  const resourceType = resourceTypeOptions.find(
+    (resourceType) => resourceType.value === type,
+  );
+
+  if (resourceType) {
+    return {
+      name: resourceType.label,
+      icon: resourceType.icon,
+    };
+  }
+
+  return {
+    name: "Unknown",
+    icon: "mdi:file-question",
+  };
+};
+
+const groupedResources = computed(() => {
+  const resources = data.value?.Resources || [];
+  const grouped: { [key: string]: any[] } = {};
+
+  for (const resource of resources) {
+    if (resource.resource_type) {
+      if (resource.resource_type in grouped) {
+        grouped[resource.resource_type].push(resource);
+      } else {
+        grouped[resource.resource_type] = [resource];
+      }
+    }
+  }
+
+  Object.keys(grouped).forEach((key) => {
+    const group = grouped[key];
+
+    if (group) {
+      group.sort((a, b) => {
+        if (a.title.toLowerCase() < b.title.toLowerCase()) {
+          return -1;
+        }
+
+        if (a.title.toLowerCase() > b.title.toLowerCase()) {
+          return 1;
+        }
+
+        return 0;
+      });
+    }
+  });
+
+  return grouped;
+});
 </script>
 
 <template>
   <main class="h-screen w-full grow overflow-auto bg-white px-3 pb-10 pt-5">
-    <div class="mx-auto max-w-screen-xl">
+    <div class="relative mx-auto max-w-screen-xl">
       <div class="grid grid-cols-12">
         <n-space vertical class="col-span-9 mt-5">
           <n-space align="center">
@@ -63,10 +120,71 @@ if (error.value) {
             </n-space>
           </template>
 
-          <pre>
-          {{ data.Resources }}
-        </pre
-          >
+          <div v-for="(group, name, index) in groupedResources" :key="index">
+            <div class="flex items-center justify-between pb-5 pt-10">
+              <n-space align="center">
+                <Icon :name="selectIcon(name).icon" size="35" />
+
+                <h2>{{ selectIcon(name).name }}</h2>
+              </n-space>
+            </div>
+
+            <n-space vertical size="large" class="w-full">
+              <div
+                v-for="(resource, idx) of group || []"
+                :key="idx"
+                class="flex w-full flex-grow flex-col rounded-md border px-6 pt-6 shadow-sm"
+              >
+                <div class="flex w-full items-center justify-start pb-2">
+                  <span class="text-lg font-medium leading-5">
+                    {{ resource.title || "No title provided" }}
+                  </span>
+                </div>
+
+                <p class="border-t border-dashed py-3">
+                  {{ resource.description || "No description provided" }}
+                </p>
+
+                <div
+                  class="flex w-full items-center space-x-1 border-t pb-4 pt-3"
+                >
+                  <n-tag
+                    :type="resource.identifier_type ? 'info' : 'error'"
+                    size="small"
+                    class=""
+                  >
+                    {{ resource.identifier_type || "No identifier provided" }}
+                  </n-tag>
+
+                  <div>
+                    <n-divider vertical />
+                  </div>
+
+                  <div class="group w-max">
+                    <NuxtLink
+                      :to="
+                        resource.identifier_type !== 'url'
+                          ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
+                          : resource.identifier
+                      "
+                      class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                      target="_blank"
+                      @click.stop=""
+                    >
+                      {{ resource.identifier }}
+
+                      <Icon
+                        v-if="resource.identifier_type"
+                        name="mdi:external-link"
+                        size="16"
+                        class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                      />
+                    </NuxtLink>
+                  </div>
+                </div>
+              </div>
+            </n-space>
+          </div>
         </n-tab-pane>
 
         <n-tab-pane name="versions" tab="Versions">
