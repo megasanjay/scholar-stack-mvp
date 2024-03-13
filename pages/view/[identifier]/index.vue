@@ -250,6 +250,7 @@ const selectedVersionIdentifier = computed(() => {
                 (data?.ExternalRelations as unknown as CatalogExternalRelation[]) ||
                 [],
             }"
+            :resources="(data?.Resources as unknown as ResourceType[]) || []"
           />
         </n-tab-pane>
 

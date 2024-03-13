@@ -136,6 +136,8 @@ model Collection {
 
   CollectionAccess CollectionAccess[]
 
+  creators Json @default("[]") // [{"creator_name": "Smith, John", "family_name": "Smith", "given_name": "John", "name_type": "personal", "affliation": "University of California, Berkeley", "identifier": "https://orcid.org/0000-0002-1825-0097", "identifier_type": "orcid"}]
+
   Workspace    Workspace? @relation(fields: [workspace_id], references: [id])
   workspace_id String?
 
@@ -153,6 +155,8 @@ model Version {
   changelog String @default("")
 
   identifier String @unique // might use a link shortener for this (v1234)
+
+  creators Json @default("[]") // [{"creator_name": "Smith, John", "family_name": "Smith", "given_name": "John", "name_type": "personal", "affliation": "University of California, Berkeley", "identifier": "https://orcid.org/0000-0002-1825-0097", "identifier_type": "orcid"}]
 
   created DateTime @default(now())
   updated DateTime @updatedAt

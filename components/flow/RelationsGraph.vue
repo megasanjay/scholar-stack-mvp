@@ -11,6 +11,7 @@ const { layout, previousDirection } = useLayout();
 
 const props = defineProps<{
   relations: CatalogRelations;
+  resources: ResourceType[];
 }>();
 
 const remappedRelations = [];
@@ -18,6 +19,7 @@ const remappedRelations = [];
 for (const relation of props.relations.internal) {
   remappedRelations.push({
     id: relation.id,
+    internal: true,
     label: relation.type,
     source: relation.source_id,
     target: relation.target_id,
@@ -27,6 +29,7 @@ for (const relation of props.relations.internal) {
 for (const relation of props.relations.external) {
   remappedRelations.push({
     id: relation.id,
+    internal: false,
     label: relation.type,
     source: relation.source_id,
     target: `${relation.target_type}:${relation.target}`,
@@ -46,7 +49,10 @@ for (const relation of remappedRelations) {
   if (!sourceNode) {
     nodes.value.push({
       id: relation.source,
-      label: relation.source,
+      label: relation.internal
+        ? props.resources.find((resource) => resource.id === relation.source)
+            ?.title
+        : relation.source,
       position: { x: x * spacing, y: y * spacing },
       type: "input",
     });
@@ -59,7 +65,10 @@ for (const relation of remappedRelations) {
   if (!targetNode) {
     nodes.value.push({
       id: relation.target,
-      label: relation.target,
+      label: relation.internal
+        ? props.resources.find((resource) => resource.id === relation.target)
+            ?.title
+        : relation.target,
       position: { x: x * spacing, y: y * spacing },
       type: "output",
     });
@@ -86,7 +95,9 @@ for (const relation of remappedRelations) {
   });
 }
 
-nodes.value = layout(nodes.value, edges.value, previousDirection.value);
+if (nodes.value.length > 0) {
+  nodes.value = layout(nodes.value, edges.value, previousDirection.value);
+}
 // edges.value = shuffle(nodes.value);
 
 // const nodes = ref<Node[]>([
