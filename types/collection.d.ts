@@ -1,5 +1,3 @@
-import type index from "~/pages/index.vue";
-
 interface CollectionGETAPIResponse {
   id: string;
   title: string;
@@ -38,15 +36,14 @@ interface CollectionAccessUser {
 interface CollectionAccessTeam extends Array<CollectionAccessUser> {}
 
 interface CollectionCreator {
-  creatorName: string;
+  affiliation: string;
   creatorIndex: number;
+  creatorName: string;
   familyName: string;
   givenName: string;
-  nameType: string;
   identifier: string;
-  identifierType: string;
-  index: number;
-  affiliation: string;
+  identifierType: string | null;
+  nameType: string;
 }
 
 interface CollectionCreators extends Array<CollectionCreator> {}

@@ -24,7 +24,6 @@ export default defineEventHandler(async (event) => {
     },
     where: {
       collection_id: collectionid,
-
       published: false,
     },
   });
@@ -48,6 +47,25 @@ export default defineEventHandler(async (event) => {
   // delete the draft version
   await prisma.version.delete({
     where: { id: draftVersion.id },
+  });
+
+  // get the latest released version of the collection to reset the creators
+  const latestReleasedVersion = await prisma.version.findFirst({
+    orderBy: {
+      created_at: "desc",
+    },
+    where: {
+      collection_id: collectionid,
+      published: true,
+    },
+  });
+
+  // reset the creators of the collection to the latest released version
+  await prisma.collection.update({
+    data: {
+      creators: latestReleasedVersion?.creators || [],
+    },
+    where: { id: collectionid },
   });
 
   return {

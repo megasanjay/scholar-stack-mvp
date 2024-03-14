@@ -24,5 +24,11 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return collectionCreators;
+  const creators =
+    (collectionCreators?.creators as unknown as CollectionCreators) || [];
+
+  // sort the creators by creatorIndex in ascending order to ensure that the creators are in the correct order
+  creators.sort((a, b) => a.creatorIndex - b.creatorIndex);
+
+  return creators;
 });

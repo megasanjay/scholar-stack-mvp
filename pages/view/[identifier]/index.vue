@@ -126,6 +126,26 @@ const selectedVersionIdentifier = computed(() => {
             </n-tag>
           </n-space>
 
+          <ul class="mb-1 flex list-none">
+            <li
+              v-for="creator in data?.creators || []"
+              :key="creator.creatorIndex"
+            >
+              <n-popover trigger="hover" placement="bottom">
+                <template #trigger>
+                  <span
+                    class="cursor-help rounded-md p-[2px] text-sm transition-all hover:bg-orange-200/50"
+                    >{{ creator.creatorName }};</span
+                  >
+                </template>
+
+                <span>
+                  {{ creator.affiliation || "No affiliation provided." }}
+                </span>
+              </n-popover>
+            </li>
+          </ul>
+
           <p class="line-clamp-5">
             {{ data?.collection.description || "No description provided." }}
           </p>
@@ -149,7 +169,7 @@ const selectedVersionIdentifier = computed(() => {
 
       <n-divider />
 
-      <n-tabs type="segment" animated default-value="relations">
+      <n-tabs type="segment" animated default-value="resources">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center">

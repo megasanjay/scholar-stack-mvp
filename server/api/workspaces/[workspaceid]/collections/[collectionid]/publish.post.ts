@@ -540,6 +540,7 @@ export default defineEventHandler(async (event) => {
         "calendar.minor",
       )}`,
       collection_id: collectionid,
+      creators: collection.creators,
       published: true,
       published_on: new Date(), // todo: update this as a utc datetime
     },
