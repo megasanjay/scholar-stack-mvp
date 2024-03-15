@@ -721,16 +721,16 @@
   integrity sha512-tAgvZQe/t2mlvpNosA4+CkMiZ2azISW5WPAcdSalZlEjQvUfghHxfQcrCiK/7/CrfAWVxyM88kGFYO82heIGDg==
 
 "@dagrejs/dagre@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@dagrejs/dagre/-/dagre-1.0.4.tgz#16ab98b457dbceccdbd3b23bc96e76bb8b925580"
-  integrity sha512-jrEore+HhW1yg1Rsd9H1PPMcoEOD4bVh0WCXc6GqzyzubnJj4GaWGg8ETOrskTd/3n/g5LOzumGM4CCgpNLJNw==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@dagrejs/dagre/-/dagre-1.1.1.tgz#77c6521864f2996ac5e7a63ff9058d9781a3d9e6"
+  integrity sha512-AQfT6pffEuPE32weFzhS/u3UpX+bRXUARIXL7UqLaxz497cN8pjuBlX6axO4IIECE2gBV8eLFQkGCtKX5sDaUA==
   dependencies:
-    "@dagrejs/graphlib" "2.1.13"
+    "@dagrejs/graphlib" "2.2.1"
 
-"@dagrejs/graphlib@2.1.13":
-  version "2.1.13"
-  resolved "https://registry.yarnpkg.com/@dagrejs/graphlib/-/graphlib-2.1.13.tgz#7d0481966e67226d0a864484524f0db933ffc753"
-  integrity sha512-calbMa7Gcyo+/t23XBaqQqon8LlgE9regey4UVoikoenKBXvUnCUL3s9RP6USCxttfr0XWVICtYUuKMdehKqMw==
+"@dagrejs/graphlib@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@dagrejs/graphlib/-/graphlib-2.2.1.tgz#29b34038335573d312ec972ce5cd59fa2232a3b6"
+  integrity sha512-xJsN1v6OAxXk6jmNdM+OS/bBE8nDCwM0yDNprXR18ZNatL6to9ggod9+l2XtiLhXfLm0NkE7+Er/cpdlM+SkUA==
 
 "@egoist/tailwindcss-icons@^1.7.4":
   version "1.7.4"
