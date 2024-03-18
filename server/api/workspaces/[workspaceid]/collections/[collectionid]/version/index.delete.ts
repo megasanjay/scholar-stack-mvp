@@ -68,6 +68,15 @@ export default defineEventHandler(async (event) => {
     where: { id: collectionid },
   });
 
+  const { statusCode } = await collectionNewVersion(collectionid);
+
+  if (statusCode !== 201) {
+    throw createError({
+      message: "Failed to create collection version",
+      statusCode: 500,
+    });
+  }
+
   return {
     message: "Draft version deleted",
     statusCode: 200,

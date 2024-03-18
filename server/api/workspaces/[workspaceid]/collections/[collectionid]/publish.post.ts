@@ -540,7 +540,7 @@ export default defineEventHandler(async (event) => {
         "calendar.minor",
       )}`,
       collection_id: collectionid,
-      creators: collection.creators,
+      creators: collection.creators || [],
       published: true,
       published_on: new Date(), // todo: update this as a utc datetime
     },
@@ -548,6 +548,15 @@ export default defineEventHandler(async (event) => {
       id: draftVersion.id,
     },
   });
+
+  const { statusCode } = await collectionNewVersion(collectionid);
+
+  if (statusCode !== 201) {
+    throw createError({
+      message: "Failed to create collection version",
+      statusCode: 500,
+    });
+  }
 
   return {
     statusCode: 201,

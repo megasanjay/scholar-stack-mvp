@@ -64,6 +64,17 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const collectionid = collection.id;
+
+  const { statusCode } = await collectionNewVersion(collectionid);
+
+  if (statusCode !== 201) {
+    throw createError({
+      message: "Failed to create collection version",
+      statusCode: 500,
+    });
+  }
+
   return {
     collectionId: collection.id,
     statusCode: 201,
