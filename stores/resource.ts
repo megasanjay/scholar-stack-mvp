@@ -38,6 +38,18 @@ export const useResourceStore = defineStore("Resource", () => {
     sortResources();
   };
 
+  const setResource = (data: ResourceType, id: string) => {
+    const index = resources.value.findIndex((r) => r.id === id);
+
+    if (index === -1) {
+      resources.value.push(data);
+    } else {
+      resources.value[index] = data;
+    }
+
+    sortResources();
+  };
+
   const showNewResourceModal = () => {
     newResourceModalIsOpen.value = true;
   };
@@ -52,6 +64,7 @@ export const useResourceStore = defineStore("Resource", () => {
     newResourceModalIsOpen,
     resource,
     resources,
+    setResource,
     setResources,
     showNewResourceModal,
     sortResources,

@@ -16,26 +16,7 @@ definePageMeta({
 
 const route = useRoute();
 
-const collectionStore = useCollectionStore();
-
-// await collectionStore.getCollection(
-//   route.params.workspaceid as string,
-//   route.params.collectionid as string,
-// );
-
-const currentCollection = computed(() => {
-  return collectionStore.collections.find(
-    (collection) => collection.id === route.params.collectionid,
-  );
-});
-
-watchEffect(() => {
-  if (currentCollection.value?.version?.published) {
-    navigateTo(
-      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources/${route.params.resourceid}`,
-    );
-  }
-});
+const resourceStore = useResourceStore();
 
 const formRef = ref<FormInst | null>(null);
 
@@ -161,6 +142,11 @@ if (resource.value && "action" in resource.value) {
   formData.identifier_type = resource.value.identifier_type || "url";
   formData.resource_type = resource.value.resource_type || "other";
   formData.version_label = resource.value.version_label || "";
+
+  formData.created = resource.value.created || "";
+  formData.updated = resource.value.updated || "";
+  formData.filled_in = resource.value.filled_in || false;
+  formData.back_link_id = resource.value.back_link_id || null;
 }
 
 const selectIcon = (type: string) => {
@@ -230,6 +216,22 @@ const saveResourceData = () => {
               title: "Saved successfully",
               message: "Your resource has been updated",
             });
+
+            const updatedResource: ResourceType = {
+              id: resourceid,
+              title: formData.title,
+              back_link_id: formData.back_link_id,
+              created: formData.created,
+              description: formData.description,
+              filled_in: true,
+              identifier: formData.identifier,
+              identifier_type: formData.identifier_type,
+              resource_type: formData.resource_type,
+              updated: formData.updated,
+              version_label: formData.version_label,
+            };
+
+            resourceStore.setResource(updatedResource, resourceid);
 
             navigateTo(
               `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,

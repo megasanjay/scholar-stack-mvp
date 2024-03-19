@@ -10,19 +10,9 @@ definePageMeta({
 
 const route = useRoute();
 
-const collectionStore = useCollectionStore();
+const resourceStore = useResourceStore();
 
 const devMode = process.env.NODE_ENV === "development";
-
-const currentCollection = computed(() => {
-  return (
-    collectionStore.collection || {
-      version: {
-        published: false,
-      },
-    }
-  );
-});
 
 const removeResourceLoadingIndicator = ref(false);
 const newResourceVersionLoadingIndicator = ref(false);
@@ -190,7 +180,6 @@ const createNewVersion = async () => {
 
             <div class="flex items-center space-x-2">
               <NuxtLink
-                v-if="!currentCollection?.version?.published"
                 :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/edit`"
               >
                 <n-button ghost size="large">
@@ -208,8 +197,7 @@ const createNewVersion = async () => {
                   'original_resource_id' in resource &&
                   resource?.original_resource_id &&
                   'action' in resource &&
-                  resource?.action !== 'newVersion' &&
-                  !currentCollection?.version?.published
+                  resource?.action !== 'newVersion'
                 "
                 ghost
                 size="large"
@@ -224,7 +212,6 @@ const createNewVersion = async () => {
               </n-button>
 
               <n-button
-                v-if="!currentCollection?.version?.published"
                 size="large"
                 type="error"
                 secondary
@@ -316,8 +303,6 @@ const createNewVersion = async () => {
       <p class="text-lg">
         {{ displayLongDate(resource?.updated as string) }}
       </p>
-
-      <pre v-if="devMode" class="pt-10">{{ resource }}</pre>
     </div>
 
     <ModalNewCollection />
