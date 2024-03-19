@@ -11,10 +11,17 @@ definePageMeta({
 const route = useRoute();
 
 const publishLoading = ref(false);
+const markdownToHtml = ref("");
 
 const { collectionid, workspaceid } = route.params as {
   collectionid: string;
   workspaceid: string;
+};
+
+const sanitize = (html: string) => sanitizeHtml(html);
+
+const convertMarkdownToHtml = async (markdown: string = "No changelog") => {
+  return sanitize(await parse(markdown));
 };
 
 const { data: collection, error: collectionError } =
@@ -45,6 +52,8 @@ if (collection.value) {
       `/dashboard/workspaces/${workspaceid}/collections/${collectionid}`,
     );
   }
+
+  markdownToHtml.value = await convertMarkdownToHtml(version?.changelog);
 }
 
 const {
@@ -59,14 +68,6 @@ const {
     server: false,
   },
 );
-
-const sanitize = (html: string) => sanitizeHtml(html);
-
-const markdownToHtml = computed(async () => {
-  return sanitize(
-    await parse(collection.value?.version?.changelog || "No changelog"),
-  );
-});
 
 const publishCollection = async () => {
   publishLoading.value = true;
@@ -114,13 +115,7 @@ const publishCollection = async () => {
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
         <div class="flex w-full items-center justify-between">
-          <n-space align="center">
-            <h1>Publish</h1>
-
-            <n-tag>
-              v.{{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
-            </n-tag>
-          </n-space>
+          <h1 class="mb-2">Publish</h1>
 
           <n-space align="center">
             <n-button
@@ -139,6 +134,20 @@ const publishCollection = async () => {
           </n-space>
         </div>
       </div>
+    </div>
+
+    <div class="mx-auto w-full max-w-screen-xl px-2.5 pt-10 lg:px-20">
+      <n-alert type="warning">
+        You are about to publish the collection
+        <strong>{{ collection?.title }}</strong>
+
+        <br />
+
+        This will make the collection available to the public under the version
+        <n-tag type="success" size="small">
+          {{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
+        </n-tag>
+      </n-alert>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
@@ -194,9 +203,9 @@ const publishCollection = async () => {
             </n-list-item>
           </n-list>
 
-          <n-tag :type="validationResults?.valid ? 'success' : 'error'">{{
-            validationResults?.valid ? "Valid" : "Invalid"
-          }}</n-tag>
+          <n-tag :type="validationResults?.valid ? 'success' : 'error'">
+            {{ validationResults?.valid ? "Valid" : "Invalid" }}
+          </n-tag>
         </n-space>
       </TransitionFade>
 

@@ -4,6 +4,8 @@ const modalIsOpen = ref(false);
 const collectionName = ref("");
 const collectionDescription = ref("");
 
+const discardVersionLoading = ref(false);
+
 const { collectionid, workspaceid } = useRoute().params as {
   collectionid: string;
   workspaceid: string;
@@ -38,6 +40,42 @@ const closeModal = () => {
 
 const openModal = () => {
   modalIsOpen.value = true;
+};
+
+const discardDraftVersion = async () => {
+  discardVersionLoading.value = true;
+
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+      method: "DELETE",
+    },
+  )
+    .then((_res) => {
+      discardVersionLoading.value = false;
+
+      push.success({
+        title: "Success",
+        message: "We discarded the draft version",
+      });
+
+      // refresh the page
+      window.location.reload();
+    })
+    .catch((error) => {
+      discardVersionLoading.value = false;
+
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't discard the draft version",
+      });
+    })
+    .finally(() => {
+      discardVersionLoading.value = false;
+    });
 };
 
 const deleteCollection = async () => {
@@ -144,6 +182,26 @@ const updateCollectionDetails = async () => {
             @click="updateCollectionDetails"
           >
             Save
+          </n-button>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Reset collection to last published version">
+      <p class="my-3 text-sm">
+        Reset your collection to the last published version. This will discard
+        any draft changes you have made. This action is not reversible, so
+        please continue with caution.
+      </p>
+
+      <template #action>
+        <div class="flex items-center justify-end">
+          <n-button
+            type="error"
+            :loading="discardVersionLoading"
+            @click="discardDraftVersion"
+          >
+            Reset collection
           </n-button>
         </div>
       </template>

@@ -11,9 +11,6 @@ const { collectionid, workspaceid } = route.params as {
   workspaceid: string;
 };
 
-const newVersionLoading = ref(false);
-const discardVersionLoading = ref(false);
-
 const { data: collection, error } = await useFetch<CollectionGETAPIResponse>(
   `/api/workspaces/${workspaceid}/collections/${collectionid}`,
   {
@@ -31,78 +28,6 @@ if (error.value) {
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
 }
-
-const createNewDraftVersion = async () => {
-  newVersionLoading.value = true;
-
-  await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "POST",
-    },
-  )
-    .then((_res) => {
-      newVersionLoading.value = false;
-
-      push.success({
-        title: "Success",
-        message: "We created a new draft version",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((error) => {
-      newVersionLoading.value = false;
-
-      console.log(error);
-
-      push.error({
-        title: "Something went wrong",
-        message: "We couldn't create a new draft version",
-      });
-    })
-    .finally(() => {
-      newVersionLoading.value = false;
-    });
-};
-
-const discardDraftVersion = async () => {
-  discardVersionLoading.value = true;
-
-  await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "DELETE",
-    },
-  )
-    .then((_res) => {
-      discardVersionLoading.value = false;
-
-      push.success({
-        title: "Success",
-        message: "We discarded the draft version",
-      });
-
-      // refresh the page
-      window.location.reload();
-    })
-    .catch((error) => {
-      discardVersionLoading.value = false;
-
-      console.log(error);
-
-      push.error({
-        title: "Something went wrong",
-        message: "We couldn't discard the draft version",
-      });
-    })
-    .finally(() => {
-      discardVersionLoading.value = false;
-    });
-};
 </script>
 
 <template>
@@ -115,81 +40,6 @@ const discardDraftVersion = async () => {
           <h1>
             {{ collection?.title || "Untitled Collection" }}
           </h1>
-
-          <n-space align="center">
-            <n-tag
-              v-if="
-                collection &&
-                collection.version &&
-                !collection.version.published
-              "
-              type="info"
-              size="large"
-            >
-              Draft Version
-            </n-tag>
-
-            <n-tag
-              v-if="
-                collection && collection.version && collection.version.published
-              "
-              type="success"
-              size="large"
-            >
-              {{ collection?.version?.name || "" }}
-            </n-tag>
-
-            <div>
-              <n-divider vertical />
-            </div>
-
-            <!-- <NuxtLink
-              :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/publish`"
-              class="hidden"
-            >
-              <n-button
-                v-if="collection?.version && !collection?.version.published"
-                size="large"
-                color="black"
-              >
-                <template #icon>
-                  <Icon name="solar:star-bold" />
-                </template>
-                Publish collection
-              </n-button>
-            </NuxtLink> -->
-
-            <n-button
-              v-if="collection?.version?.published || !collection?.version"
-              size="large"
-              :loading="newVersionLoading"
-              color="black"
-              @click="createNewDraftVersion"
-            >
-              <template #icon>
-                <Icon name="carbon:intent-request-create" />
-              </template>
-              Prepare a draft version
-            </n-button>
-
-            <n-button
-              v-if="
-                collection &&
-                collection.version &&
-                !collection.version.published
-              "
-              size="large"
-              type="error"
-              :loading="discardVersionLoading"
-              secondary
-              @click="discardDraftVersion"
-            >
-              <template #icon>
-                <Icon name="game-icons:card-discard" />
-              </template>
-              Discard draft version
-            </n-button>
-          </n-space>
         </div>
       </div>
     </div>

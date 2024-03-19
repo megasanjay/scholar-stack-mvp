@@ -144,49 +144,6 @@ const addResource = async () => {
         <div class="flex items-center space-x-2">
           <h1>Resources</h1>
         </div>
-
-        <div class="flex items-center space-x-2">
-          <n-tag
-            v-if="
-              collection && collection.version && !collection.version.published
-            "
-            type="info"
-            size="large"
-          >
-            Draft Version
-          </n-tag>
-
-          <n-tag
-            v-if="
-              collection && collection.version && collection.version.published
-            "
-            size="large"
-            type="success"
-          >
-            v.{{ collection?.version?.name || "" }}
-          </n-tag>
-
-          <div v-if="collection?.version?.published || !collection?.version">
-            <n-divider vertical />
-          </div>
-
-          <n-button
-            v-if="collection?.version?.published || !collection?.version"
-            size="large"
-            :loading="draftVersionLoading"
-            color="black"
-            @click="newVersionModalIsOpen = true"
-          >
-            <template #icon>
-              <Icon name="codicon:git-pull-request-draft" />
-            </template>
-            {{
-              collection?.version === null
-                ? "Add a resource"
-                : "Update resources"
-            }}
-          </n-button>
-        </div>
       </div>
     </div>
 
