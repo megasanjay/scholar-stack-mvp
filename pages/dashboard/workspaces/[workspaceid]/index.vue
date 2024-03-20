@@ -9,8 +9,6 @@ definePageMeta({
 const route = useRoute();
 const collectionStore = useCollectionStore();
 
-const gridView = ref(true);
-
 const { workspaceid } = route.params as { workspaceid: string };
 
 const { data: workspace, error } = await useFetch(
@@ -50,21 +48,6 @@ if (error.value) {
           </template>
         </n-input>
 
-        <n-radio-group
-          v-model:value="gridView"
-          name="radiobuttongroup1"
-          size="large"
-          class="bg-white"
-        >
-          <n-radio-button :value="true">
-            <Icon name="mingcute:grid-line" />
-          </n-radio-button>
-
-          <n-radio-button :value="false">
-            <Icon name="cil:list" />
-          </n-radio-button>
-        </n-radio-group>
-
         <n-button
           size="large"
           color="black"
@@ -77,30 +60,31 @@ if (error.value) {
         </n-button>
       </div>
 
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+      <n-flex vertical :size="20">
         <NuxtLink
           v-for="collection in workspace?.collections"
           :key="collection.id"
           :to="`/dashboard/workspaces/${workspaceid}/collections/${collection.id}`"
-          class="flex flex-col space-y-5 rounded-md border bg-white p-6 shadow-sm transition-all hover:shadow-md"
+          class="flex flex-col space-y-3 rounded-lg border border-slate-200 bg-white p-6 shadow-md transition-all hover:shadow-lg"
         >
-          <div class="flex items-center justify-start space-x-2">
-            <n-avatar
-              :size="40"
-              :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${collection.id}`"
-              class="hover:cursor-pointer hover:opacity-80"
-            />
-
+          <div
+            class="flex w-full items-center justify-between gap-x-3 border-b pb-3"
+          >
             <div class="flex flex-col">
-              <span class="text-lg font-medium">
+              <p class="text-lg font-medium leading-tight">
                 {{ collection.title }}
-              </span>
+              </p>
 
-              <span class="text-sm text-slate-500">
-                Created on
-                {{ $dayjs(collection.created).format("MMMM DD, YYYY") }}
+              <span class="mt-1 text-sm text-slate-500">
+                Updated on
+                {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
               </span>
             </div>
+
+            <NuxtImg
+              :src="`https://api.dicebear.com/8.x/adventurer/svg?seed=${collection.id}`"
+              class="mt-1 h-14 w-14 rounded-md"
+            />
           </div>
 
           <div>
@@ -109,7 +93,7 @@ if (error.value) {
             </p>
           </div>
         </NuxtLink>
-      </div>
+      </n-flex>
     </div>
 
     <ModalNewCollection />

@@ -21,6 +21,9 @@ export default defineEventHandler(async (event) => {
         take: 1,
       },
     },
+    orderBy: {
+      updated: "desc",
+    },
     where: { workspace_id: workspaceid },
   });
 
