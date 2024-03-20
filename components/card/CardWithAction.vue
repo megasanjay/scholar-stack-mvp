@@ -4,29 +4,27 @@ defineProps({
     default: "Card Title",
     type: String,
   },
-  bordered: {
-    default: true,
-    type: Boolean,
-  },
-  type: {
-    default: "default",
-    required: false,
-    validator: (value: string) =>
-      ["default", "warning", "success", "error"].includes(value),
-  },
 });
 </script>
 
 <template>
-  <n-card :title="title" class="mb-6 rounded-md">
-    <slot />
+  <div class="rounded-lg border border-slate-200 bg-white shadow-lg">
+    <div
+      class="flex items-center justify-between rounded-t-lg px-6 pb-3 pt-5 transition-all"
+    >
+      <h2 class="text-lg font-medium">{{ title }}</h2>
 
-    <template #header-extra>
-      <slot name="header-extra"></slot>
-    </template>
+      <div class="flex items-center">
+        <slot name="header-extra"></slot>
+      </div>
+    </div>
 
-    <template #action>
+    <div class="px-6 pb-7">
+      <slot></slot>
+    </div>
+
+    <div class="rounded-b-lg border-t bg-slate-50/50 px-6 py-3">
       <slot name="action"></slot>
-    </template>
-  </n-card>
+    </div>
+  </div>
 </template>

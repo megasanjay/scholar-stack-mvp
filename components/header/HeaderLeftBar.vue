@@ -457,7 +457,7 @@ const navigateToResource = (resourceid: string) => {
                     />
 
                     <span
-                      class="text-base font-medium transition-all hover:text-gray-600"
+                      class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
                     >
                       {{ currentCollection?.title }}
                     </span>
@@ -512,7 +512,7 @@ const navigateToResource = (resourceid: string) => {
                       <span
                         :class="[
                           selected ? 'font-medium' : 'font-normal',
-                          'block truncate',
+                          'block max-w-40 truncate',
                         ]"
                         >{{ collection.title }}</span
                       >
