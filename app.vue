@@ -6,7 +6,10 @@
       </NotivueSwipe>
     </Notivue>
 
-    <NuxtLoadingIndicator color="#be185d" :height="5" />
+    <NuxtLoadingIndicator
+      color="linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%)"
+      :height="5"
+    />
 
     <NuxtLayout>
       <NuxtPage />

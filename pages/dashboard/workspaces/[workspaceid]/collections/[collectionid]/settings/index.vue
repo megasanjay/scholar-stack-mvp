@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const modalIsOpen = ref(false);
-
 const collectionName = ref("");
 const collectionDescription = ref("");
+const discardVersionModalIsOpen = ref(false);
 
 const discardVersionLoading = ref(false);
+const saveLoading = ref(false);
 
 const { collectionid, workspaceid } = useRoute().params as {
   collectionid: string;
@@ -34,12 +34,8 @@ if (collection.value) {
   collectionDescription.value = collection.value.description;
 }
 
-const closeModal = () => {
-  modalIsOpen.value = false;
-};
-
-const openModal = () => {
-  modalIsOpen.value = true;
+const openDiscardVersionModal = () => {
+  discardVersionModalIsOpen.value = true;
 };
 
 const discardDraftVersion = async () => {
@@ -102,6 +98,8 @@ const deleteCollection = async () => {
 };
 
 const updateCollectionDetails = async () => {
+  saveLoading.value = true;
+
   await $fetch(`/api/workspaces/${workspaceid}/collections/${collectionid}`, {
     body: JSON.stringify({
       title: collectionName.value.trim(),
@@ -126,16 +124,19 @@ const updateCollectionDetails = async () => {
         title: "Something went wrong",
         message: "We couldn't update your collection details",
       });
+    })
+    .finally(() => {
+      saveLoading.value = false;
     });
 };
 </script>
 
 <template>
   <div class="flex flex-col space-y-4">
-    <CardWithAction title="Collection Name">
+    <CardWithAction title="Title">
       <p class="my-3 text-sm">
-        This is the name of your collection. You can change it to anything you
-        want.
+        This is the title of your collection. The title used here is what will
+        be shown in the public catalog page.
       </p>
 
       <n-input
@@ -150,9 +151,13 @@ const updateCollectionDetails = async () => {
           <n-button
             type="primary"
             color="black"
+            :loading="saveLoading"
             :disabled="collectionName.trim() === ''"
             @click="updateCollectionDetails"
           >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
             Save
           </n-button>
         </div>
@@ -178,9 +183,13 @@ const updateCollectionDetails = async () => {
           <n-button
             type="primary"
             color="black"
+            :loading="saveLoading"
             :disabled="collectionDescription.trim() === ''"
             @click="updateCollectionDetails"
           >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
             Save
           </n-button>
         </div>
@@ -196,16 +205,71 @@ const updateCollectionDetails = async () => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="error"
-            :loading="discardVersionLoading"
-            @click="discardDraftVersion"
-          >
+          <n-button type="warning" @click="openDiscardVersionModal">
+            <template #icon>
+              <Icon name="bx:reset" />
+            </template>
             Reset collection
           </n-button>
         </div>
       </template>
     </CardWithAction>
+
+    <UModal
+      v-model="discardVersionModalIsOpen"
+      :prevent-close="discardVersionLoading"
+    >
+      <UCard>
+        <div class="sm:flex sm:items-start">
+          <div class="size-[50px]">
+            <ClientOnly>
+              <Vue3Lottie
+                animation-link="https://cdn.lottiel.ink/assets/D_t3nuMGrtwzjOGX2UXXI.json"
+                :height="50"
+                :width="50"
+                :loop="1"
+              />
+            </ClientOnly>
+          </div>
+
+          <div class="mt-2 text-center sm:ml-4 sm:text-left">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">
+              Are you sure you want to reset this collection?
+            </h3>
+
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                This will discard any changes you have made. This action is not
+                reversible, so please continue with caution.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex items-center justify-end space-x-2">
+            <n-button @click="discardVersionModalIsOpen = false">
+              <template #icon>
+                <Icon name="material-symbols:cancel-outline" />
+              </template>
+              Cancel
+            </n-button>
+
+            <n-button
+              type="warning"
+              secondary
+              :loading="discardVersionLoading"
+              @click="discardDraftVersion"
+            >
+              <template #icon>
+                <Icon name="bx:reset" />
+              </template>
+              Reset collection
+            </n-button>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
 
     <CardWithAction title="Delete collection">
       <p class="my-3 text-sm">
@@ -220,65 +284,5 @@ const updateCollectionDetails = async () => {
         </div>
       </template>
     </CardWithAction>
-
-    <HeadlessTransitionRoot appear :show="modalIsOpen" as="template">
-      <HeadlessDialog as="div" class="relative z-10" @close="closeModal">
-        <HeadlessTransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="bg-opacity-25 fixed inset-0 bg-white/80" />
-        </HeadlessTransitionChild>
-
-        <div class="fixed inset-0 overflow-y-auto">
-          <div
-            class="flex min-h-full items-center justify-center p-4 text-center"
-          >
-            <HeadlessTransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <HeadlessDialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-              >
-                <HeadlessDialogTitle
-                  as="h3"
-                  class="text-lg font-medium leading-6 text-slate-900"
-                >
-                  Payment successful
-                </HeadlessDialogTitle>
-
-                <div class="mt-2">
-                  <p class="text-sm text-slate-500">
-                    Your payment has been successfully submitted. We’ve sent you
-                    an email with all of the details of your order.
-                  </p>
-                </div>
-
-                <div class="mt-4">
-                  <button
-                    type="button"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    @click="closeModal"
-                  >
-                    Got it, thanks!
-                  </button>
-                </div>
-              </HeadlessDialogPanel>
-            </HeadlessTransitionChild>
-          </div>
-        </div>
-      </HeadlessDialog>
-    </HeadlessTransitionRoot>
   </div>
 </template>

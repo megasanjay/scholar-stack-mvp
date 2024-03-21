@@ -1,8 +1,9 @@
 <script setup lang="ts">
-const modalIsOpen = ref(false);
-
 const workspaceName = ref("");
 const workspaceDescription = ref("");
+const deleteWorkspaceModalIsOpen = ref(false);
+
+const saveLoading = ref(false);
 
 const { workspaceid } = useRoute().params as { workspaceid: string };
 
@@ -33,15 +34,13 @@ const personalWorkspace = computed(() => {
   return workspace.value?.personal;
 });
 
-const closeModal = () => {
-  modalIsOpen.value = false;
-};
-
 const openModal = () => {
-  modalIsOpen.value = true;
+  deleteWorkspaceModalIsOpen.value = true;
 };
 
 const updateWorkspaceDetails = async () => {
+  saveLoading.value = true;
+
   await $fetch(`/api/workspaces/${workspaceid}`, {
     body: JSON.stringify({
       title: workspaceName.value.trim(),
@@ -66,11 +65,20 @@ const updateWorkspaceDetails = async () => {
         title: "Something went wrong",
         message: "We couldn't update your workspace details",
       });
+    })
+    .finally(() => {
+      saveLoading.value = false;
     });
 };
 
 const deleteWorkspace = () => {
-  openModal(); // todo: add a confirmation modal
+  push.error({
+    title: "Not implemented",
+    message: "This feature is not implemented yet",
+  });
+
+  deleteWorkspaceModalIsOpen.value = false;
+  // todo: add a confirmation modal
 
   // const { data, error } = await useFetch(`/api/workspaces/${workspaceid}`, {
   //   headers: useRequestHeaders(["cookie"]),
@@ -99,10 +107,11 @@ const deleteWorkspace = () => {
 
 <template>
   <div class="flex flex-col space-y-4">
-    <CardWithAction title="Workspace Name">
+    <CardWithAction title="Name">
       <p class="my-3 text-sm">
-        This is the name of your workspace. You can change it to anything you
-        want.
+        This is the name of your workspace. A workspace is a place where you can
+        organize your collections as well as invite other users to collaborate
+        on your projects.
       </p>
 
       <n-input
@@ -117,9 +126,14 @@ const deleteWorkspace = () => {
           <n-button
             type="primary"
             color="black"
+            size="large"
+            :loading="saveLoading"
             :disabled="workspaceName.trim() === ''"
             @click="updateWorkspaceDetails"
           >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
             Save
           </n-button>
         </div>
@@ -144,18 +158,23 @@ const deleteWorkspace = () => {
         <div class="flex items-center justify-end">
           <n-button
             type="primary"
+            size="large"
             color="black"
+            :loading="saveLoading"
             :disabled="workspaceName.trim() === ''"
             @click="updateWorkspaceDetails"
           >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
             Save
           </n-button>
         </div>
       </template>
     </CardWithAction>
 
-    <CardWithAction title="Delete workspace" class="bg-red-50">
-      <p class="my-3 font-medium text-red-600">
+    <CardWithAction title="Delete workspace" class="border-red-200">
+      <p class="my-3 font-medium text-red-600/70">
         Permanently remove your workspace. This action is not reversible, so
         please continue with caution. This will not delete your collections and
         resources. You will lose access to those projects.
@@ -165,9 +184,8 @@ const deleteWorkspace = () => {
         <ContainerFlex justify="end">
           <n-button
             type="error"
-            size="large"
             :disabled="personalWorkspace"
-            @click="deleteWorkspace"
+            @click="openModal"
           >
             <template #icon>
               <Icon name="ph:warning-duotone" />
@@ -178,64 +196,53 @@ const deleteWorkspace = () => {
       </template>
     </CardWithAction>
 
-    <HeadlessTransitionRoot appear :show="modalIsOpen" as="template">
-      <HeadlessDialog as="div" class="relative z-10" @close="closeModal">
-        <HeadlessTransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="bg-opacity-25 fixed inset-0 bg-white/80" />
-        </HeadlessTransitionChild>
+    <UModal v-model="deleteWorkspaceModalIsOpen">
+      <UCard>
+        <div class="sm:flex sm:items-start">
+          <div class="size-[50px]">
+            <ClientOnly>
+              <Vue3Lottie
+                animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                :height="50"
+                :width="50"
+                :loop="1"
+              />
+            </ClientOnly>
+          </div>
 
-        <div class="fixed inset-0 overflow-y-auto">
-          <div
-            class="flex min-h-full items-center justify-center p-4 text-center"
-          >
-            <HeadlessTransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <HeadlessDialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-              >
-                <HeadlessDialogTitle
-                  as="h3"
-                  class="text-lg font-medium leading-6 text-slate-900"
-                >
-                  Payment successful
-                </HeadlessDialogTitle>
+          <div class="mt-2 text-center sm:ml-4 sm:text-left">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">
+              Are you sure you want to delete this workspace?
+            </h3>
 
-                <div class="mt-2">
-                  <p class="text-sm text-slate-500">
-                    Your payment has been successfully submitted. We’ve sent you
-                    an email with all of the details of your order.
-                  </p>
-                </div>
-
-                <div class="mt-4">
-                  <button
-                    type="button"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    @click="closeModal"
-                  >
-                    Got it, thanks!
-                  </button>
-                </div>
-              </HeadlessDialogPanel>
-            </HeadlessTransitionChild>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                This action is not reversible, so please continue with caution.
+                This will not delete your collections and resources. You will
+                lose access to those projects.
+              </p>
+            </div>
           </div>
         </div>
-      </HeadlessDialog>
-    </HeadlessTransitionRoot>
+
+        <template #footer>
+          <div class="flex items-center justify-end space-x-2">
+            <n-button @click="deleteWorkspaceModalIsOpen = false">
+              <template #icon>
+                <Icon name="material-symbols:cancel-outline" />
+              </template>
+              Cancel
+            </n-button>
+
+            <n-button type="error" secondary @click="deleteWorkspace">
+              <template #icon>
+                <Icon name="ph:warning-duotone" />
+              </template>
+              I understand, delete this workspace
+            </n-button>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>

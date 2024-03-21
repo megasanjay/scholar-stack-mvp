@@ -17,6 +17,10 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
   },
 
+  colorMode: {
+    preference: "light",
+  },
+
   css: [
     "@/assets/css/tailwind.css",
     "notivue/notifications.css",

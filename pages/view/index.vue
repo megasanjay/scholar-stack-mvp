@@ -3,6 +3,8 @@ definePageMeta({
   layout: "public",
 });
 
+const page = ref(1);
+
 const { data: collections, error } = await useFetch(
   "/api/discover/collections",
   {
@@ -50,7 +52,7 @@ if (error.value) {
               <n-space align="center">
                 <p class="text-base">
                   Published on
-                  {{ displayStandardDate(item.published_on) }}
+                  {{ displayStandardDate(item.published_on!) }}
                 </p>
               </n-space>
 
@@ -75,6 +77,10 @@ if (error.value) {
           </n-space>
         </div>
       </n-space>
+
+      <div class="flex justify-center py-5">
+        <n-pagination v-model:page="page" :page-count="100" size="large" />
+      </div>
     </div>
   </main>
 </template>

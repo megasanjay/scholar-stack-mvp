@@ -128,7 +128,8 @@ model Collection {
 
   identifier String @unique // might use a link shortener for this (c1234)
 
-  private Boolean @default(false)
+  private Boolean @default(false) // used to hide the collection from public view
+  hidden  Boolean @default(false) // used to hide the collection instead of deleting it in the dashboard
 
   random_int Int @default(0) // used to maintain order of collections              
 

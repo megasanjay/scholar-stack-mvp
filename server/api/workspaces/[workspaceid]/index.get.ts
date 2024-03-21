@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     orderBy: {
       updated: "desc",
     },
-    where: { workspace_id: workspaceid },
+    where: { hidden: false, workspace_id: workspaceid },
   });
 
   const responseWorkspace: APIResponseWorkspace = {

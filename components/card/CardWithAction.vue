@@ -23,7 +23,7 @@ defineProps({
       <slot></slot>
     </div>
 
-    <div class="rounded-b-lg border-t bg-slate-50/50 px-6 py-3">
+    <div class="rounded-b-lg border-t bg-slate-50 px-6 py-3">
       <slot name="action"></slot>
     </div>
   </div>

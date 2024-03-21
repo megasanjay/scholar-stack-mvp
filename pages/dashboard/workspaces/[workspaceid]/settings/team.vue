@@ -2,11 +2,11 @@
 import type { FormInst } from "naive-ui";
 
 const user = useSupabaseUser();
+const route = useRoute();
 
 const workspaceStore = useWorkspaceStore();
 
 const formRef = ref<FormInst>();
-
 const formValue = reactive({
   user: "",
 });
@@ -24,7 +24,19 @@ const rules = {
 
 const inviteLoading = ref(false);
 
-const { workspaceid } = useRoute().params as { workspaceid: string };
+const { workspaceid } = route.params as { workspaceid: string };
+
+const currentWorkspace = computed(() => {
+  const allWorkspaces = workspaceStore.workspaces;
+
+  return allWorkspaces.find(
+    (workspace: Workspace) => workspace.id === workspaceid,
+  );
+});
+
+const personalWorkspace = computed(() => {
+  return currentWorkspace.value?.personal;
+});
 
 const { data: members, error } = await useFetch(
   `/api/workspaces/${workspaceid}/members`,
@@ -137,7 +149,7 @@ const inviteMember = () => {
             <n-form-item label="Username or Email Address" path="user">
               <n-input
                 v-model:value="formValue.user"
-                :disabled="workspaceStore.workspace?.personal"
+                :disabled="personalWorkspace"
                 placeholder="hi@sciconnect.io"
               />
             </n-form-item>
@@ -148,22 +160,20 @@ const inviteMember = () => {
       <div
         class="flex items-center justify-between rounded-lg bg-slate-50 px-6 py-3"
       >
-        <p
-          v-if="workspaceStore.workspace?.personal"
-          class="text-sm text-red-400"
-        >
+        <p v-if="personalWorkspace" class="text-sm font-medium text-red-400">
           You cannot invite members to your personal workspace.
         </p>
 
-        <p v-else class="text-sm">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+        <p v-else class="text-sm font-medium text-stone-500">
+          An invited user who already has an account on SciConnect will be
+          automatically added to your workspace.
         </p>
 
         <n-button
           color="black"
           size="large"
           :loading="inviteLoading"
-          :disabled="workspaceStore.workspace?.personal"
+          :disabled="personalWorkspace"
           @click="inviteMember"
         >
           <template #icon>
@@ -231,10 +241,7 @@ const inviteMember = () => {
                   :options="generateManageOptions(member.id)"
                   @select="manageMember"
                 >
-                  <n-button
-                    secondary
-                    :disabled="workspaceStore.workspace?.personal"
-                  >
+                  <n-button secondary :disabled="personalWorkspace">
                     <template #icon>
                       <Icon name="iconamoon:menu-kebab-vertical-bold" />
                     </template>
@@ -245,7 +252,11 @@ const inviteMember = () => {
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="pendingInvitations" tab="Pending Invitations">
+        <n-tab-pane
+          name="pendingInvitations"
+          tab="Pending Invitations"
+          :disabled="personalWorkspace"
+        >
           <div class="flex flex-col">
             <div class="flex items-center justify-between space-x-4 pb-4 pt-2">
               <n-input placeholder="Filter..." size="large">
@@ -288,7 +299,7 @@ const inviteMember = () => {
                   :options="generateManageOptions(member.id)"
                   @select="manageMember"
                 >
-                  <n-button secondary>
+                  <n-button secondary :disabled="personalWorkspace">
                     <template #icon>
                       <Icon name="iconamoon:menu-kebab-vertical-bold" />
                     </template>
