@@ -1,10 +1,24 @@
 <script setup lang="ts">
+import sanitizeHtml from "sanitize-html";
+import { MdEditor, config } from "md-editor-v3";
+
+import TargetBlankExtension from "@/utils/TargetBlankExtension";
+
+config({
+  markdownItConfig(md) {
+    md.use(TargetBlankExtension);
+  },
+});
+
 const collectionName = ref("");
 const collectionDescription = ref("");
+const collectionDetailedDescription = ref("");
 const discardVersionModalIsOpen = ref(false);
 
 const discardVersionLoading = ref(false);
 const saveLoading = ref(false);
+
+const sanitize = (html: string) => sanitizeHtml(html);
 
 const { collectionid, workspaceid } = useRoute().params as {
   collectionid: string;
@@ -32,6 +46,7 @@ if (error.value) {
 if (collection.value) {
   collectionName.value = collection.value.title;
   collectionDescription.value = collection.value.description;
+  collectionDetailedDescription.value = collection.value.detailedDescription;
 }
 
 const openDiscardVersionModal = () => {
@@ -104,6 +119,7 @@ const updateCollectionDetails = async () => {
     body: JSON.stringify({
       title: collectionName.value.trim(),
       description: collectionDescription.value.trim(),
+      detailedDescription: collectionDetailedDescription.value.trim(),
     }),
     headers: useRequestHeaders(["cookie"]),
     method: "PUT",
@@ -166,8 +182,9 @@ const updateCollectionDetails = async () => {
 
     <CardWithAction title="Description">
       <p class="my-3 text-sm">
-        This is the description of your collection. You can change it to
-        anything you want.
+        This is a short description of your collection. If a detailed
+        description is not needed, you can use this field to describe your
+        collection.
       </p>
 
       <n-input
@@ -176,6 +193,8 @@ const updateCollectionDetails = async () => {
         class="w-full"
         type="textarea"
         size="large"
+        show-count
+        :maxlength="350"
       />
 
       <template #action>
@@ -185,6 +204,41 @@ const updateCollectionDetails = async () => {
             color="black"
             :loading="saveLoading"
             :disabled="collectionDescription.trim() === ''"
+            @click="updateCollectionDetails"
+          >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
+            Save
+          </n-button>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Detailed Description">
+      <p class="my-3 text-sm">
+        If you need to provide a detailed description of your collection, you
+        can use this field. This description will be shown instead of the short
+        description in the public catalog page.
+      </p>
+
+      <MdEditor
+        v-model="collectionDetailedDescription"
+        class="mt-0"
+        language="en-US"
+        preview-theme="github"
+        :show-code-row-number="true"
+        :sanitize="sanitize"
+        :max-length="5000"
+      />
+
+      <template #action>
+        <div class="flex items-center justify-end">
+          <n-button
+            type="primary"
+            color="black"
+            :loading="saveLoading"
+            :disabled="collectionDetailedDescription.trim() === ''"
             @click="updateCollectionDetails"
           >
             <template #icon>

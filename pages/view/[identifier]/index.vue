@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import sanitizeHtml from "sanitize-html";
+import { parse } from "marked";
+import dayjs from "dayjs";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
 definePageMeta({
@@ -8,6 +11,16 @@ definePageMeta({
 const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+
+const markdownToHtml = ref("");
+
+const sanitize = (html: string) => sanitizeHtml(html);
+
+const convertMarkdownToHtml = async (
+  markdown: string = "No content provided",
+) => {
+  return sanitize(await parse(markdown));
+};
 
 const { identifier } = route.params as { identifier: string };
 
@@ -24,6 +37,12 @@ if (error.value) {
   push.error({
     title: "Something went wrong",
   });
+}
+
+if (data.value) {
+  markdownToHtml.value = await convertMarkdownToHtml(
+    data.value.collection.detailed_description || "",
+  );
 }
 
 const selectIcon = (type: string) => {
@@ -112,23 +131,59 @@ const selectedVersionIdentifier = computed(() => {
 </script>
 
 <template>
-  <main class="h-screen w-full grow overflow-auto bg-white px-6 pb-10 pt-5">
-    <div class="relative mx-auto max-w-screen-xl">
+  <main class="w-full grow overflow-auto px-6 pb-10 pt-5">
+    <div
+      class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+      aria-hidden="true"
+    >
+      <div
+        class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-red-100 to-orange-200 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+        style="
+          clip-path: polygon(
+            74.1% 44.1%,
+            100% 61.6%,
+            97.5% 26.9%,
+            85.5% 0.1%,
+            80.7% 2%,
+            72.5% 32.5%,
+            60.2% 62.4%,
+            52.4% 68.1%,
+            47.5% 58.3%,
+            45.2% 34.5%,
+            27.5% 76.7%,
+            0.1% 64.9%,
+            17.9% 100%,
+            27.6% 76.8%,
+            76.1% 97.7%,
+            74.1% 44.1%
+          );
+        "
+      />
+    </div>
+
+    <div class="relative mx-auto max-w-screen-2xl">
       <div class="grid grid-cols-12">
         <n-space vertical class="col-span-9 mt-5">
-          <n-space align="center">
+          <n-space align="start" vertical>
+            <n-flex justify="space-between" align="center">
+              <n-tag type="success" :bordered="false">
+                Version {{ data?.name || "N/A" }}
+              </n-tag>
+
+              <n-tag type="info" :bordered="false">
+                {{ dayjs(data?.published_on).format("MMMM DD, YYYY") || "N/A" }}
+              </n-tag>
+            </n-flex>
+
             <h1 class="mb-2">
               {{ data?.collection.title || "Collection Title Unavailable" }}
             </h1>
-
-            <n-tag type="success" :bordered="false">
-              Version {{ data?.name || "N/A" }}
-            </n-tag>
           </n-space>
 
           <ul class="mb-1 flex list-none">
             <li
-              v-for="creator in data?.creators || []"
+              v-for="creator in (data?.creators as unknown as CollectionCreators) ||
+              []"
               :key="creator.creatorIndex"
             >
               <n-popover trigger="hover" placement="bottom">
@@ -146,7 +201,15 @@ const selectedVersionIdentifier = computed(() => {
             </li>
           </ul>
 
-          <p class="line-clamp-5">
+          <!-- eslint-disable vue/no-v-html -->
+          <div
+            v-if="data?.collection.detailed_description"
+            class="prose max-w-none border-t pt-2"
+            v-html="markdownToHtml"
+          />
+          <!-- eslint-enable vue/no-v-html -->
+
+          <p v-else>
             {{ data?.collection.description || "No description provided." }}
           </p>
 
@@ -179,7 +242,7 @@ const selectedVersionIdentifier = computed(() => {
             </n-space>
           </template>
 
-          <div class="flex flex-col divide-y">
+          <div class="flex flex-col">
             <div
               v-for="(group, name, index) in groupedResources"
               :key="index"
@@ -189,18 +252,21 @@ const selectedVersionIdentifier = computed(() => {
                 <n-space align="center">
                   <Icon :name="selectIcon(name as string).icon" size="35" />
 
-                  <h2>{{ selectIcon(name as string).name }}</h2>
+                  <h2>
+                    {{ selectIcon(name as string).name }}
+                    <span> ({{ group.length }}) </span>
+                  </h2>
                 </n-space>
               </div>
 
-              <n-space vertical size="large" class="w-full">
+              <n-space vertical class="w-full">
                 <div
                   v-for="(resource, idx) of group || []"
                   :key="idx"
-                  class="flex w-full flex-grow flex-col rounded-md border px-6 pt-6 shadow-sm"
+                  class="flex w-full flex-grow flex-col rounded-md border border-slate-200 bg-white px-6 pt-4"
                 >
                   <div class="flex w-full items-center justify-start pb-2">
-                    <span class="text-lg font-medium leading-5">
+                    <span class="text-lg font-medium">
                       {{ resource.title || "No title provided" }}
                     </span>
                   </div>
@@ -262,6 +328,7 @@ const selectedVersionIdentifier = computed(() => {
           </template>
 
           <FlowRelationsGraph
+            class="backdrop-blur-xl backdrop-grayscale"
             :relations="{
               internal:
                 (data?.InternalRelations as unknown as CatalogInternalRelation[]) ||
@@ -284,7 +351,7 @@ const selectedVersionIdentifier = computed(() => {
           </template>
 
           <n-space vertical>
-            <n-alert type="info" show-icon>
+            <n-alert type="info" show-icon class="mb-3">
               <p>
                 The latest version of this collection is
                 <strong>{{ data?.Versions[0].name }}</strong>
@@ -299,7 +366,7 @@ const selectedVersionIdentifier = computed(() => {
               </p>
             </n-alert>
 
-            <n-table :bordered="false" :single-line="false">
+            <n-table :bordered="true" :single-line="false" class="bg-white">
               <thead>
                 <tr>
                   <th>Name</th>

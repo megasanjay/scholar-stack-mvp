@@ -7,7 +7,8 @@ export default defineEventHandler(async (event) => {
   const bodySchema = z
     .object({
       title: z.string().min(1),
-      description: z.string(),
+      description: z.string().max(350),
+      detailedDescription: z.string().max(5000),
     })
     .strict();
 
@@ -49,12 +50,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { title, description } = parsedBody.data;
+  const { title, description, detailedDescription } = parsedBody.data;
 
   const updatedCollection = await prisma.collection.update({
     data: {
       title,
       description,
+      detailed_description: detailedDescription,
     },
     where: { id: collectionid },
   });

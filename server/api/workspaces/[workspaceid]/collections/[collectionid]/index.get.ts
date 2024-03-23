@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
     title: collection.title,
     created: collection.created,
     description: collection.description,
+    detailedDescription: collection.detailed_description,
     identifier: collection.identifier,
     image: collection.image,
     private: collection.private,

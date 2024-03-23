@@ -4,6 +4,7 @@ interface CollectionGETAPIResponse {
   created: string;
   updated: string;
   description: string;
+  detailedDescription: string;
   identifier: string;
   image: string;
   private: boolean;
@@ -17,6 +18,7 @@ interface Collection {
   created: string;
   updated: string;
   description: string;
+  detailedDescription: string;
   identifier: string;
   image: string;
   version: Version | null;

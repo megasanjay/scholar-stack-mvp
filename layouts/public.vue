@@ -10,7 +10,7 @@ const devMode = process.env.NODE_ENV === "development";
     <header>
       <nav class="border-b border-gray-200 bg-white px-4 py-2.5 lg:px-6">
         <div
-          class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between"
+          class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between"
         >
           <NuxtLink
             to="/"

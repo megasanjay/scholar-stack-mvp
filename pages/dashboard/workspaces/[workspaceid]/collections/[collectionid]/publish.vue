@@ -13,15 +13,15 @@ const route = useRoute();
 const publishLoading = ref(false);
 const markdownToHtml = ref("");
 
-const { collectionid, workspaceid } = route.params as {
-  collectionid: string;
-  workspaceid: string;
-};
-
 const sanitize = (html: string) => sanitizeHtml(html);
 
 const convertMarkdownToHtml = async (markdown: string = "No changelog") => {
   return sanitize(await parse(markdown));
+};
+
+const { collectionid, workspaceid } = route.params as {
+  collectionid: string;
+  workspaceid: string;
 };
 
 const { data: collection, error: collectionError } =

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const bodySchema = z
     .object({
       title: z.string().min(1),
-      description: z.string(),
+      description: z.string().max(350),
     })
     .strict();
 

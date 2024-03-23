@@ -119,9 +119,11 @@ model CollectionAccess {
 model Collection {
   id String @id @default(cuid())
 
-  title       String @default("")
-  description String @default("")
-  image       String @default("https://api.dicebear.com/6.x/shapes/svg")
+  title                String @default("")
+  description          String @default("")
+  detailed_description String @default("")
+
+  image String @default("https://api.dicebear.com/6.x/shapes/svg")
 
   created DateTime @default(now())
   updated DateTime @updatedAt

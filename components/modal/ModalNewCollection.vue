@@ -145,6 +145,9 @@ const createCollection = () => {
                       v-model:value="formValue.description"
                       placeholder="This is my awesome collection!"
                       type="textarea"
+                      :maxlength="350"
+                      :rows="7"
+                      show-count
                     />
                   </n-form-item>
                 </n-form>
