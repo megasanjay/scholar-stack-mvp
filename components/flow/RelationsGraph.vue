@@ -137,7 +137,7 @@ onConnect((params) => {
         fit-view-on-init
         aria-roledescription="interactive node graph"
       >
-        <Background pattern-color="#aaa" :gap="8" />
+        <Background pattern-color="#aaa" :gap="15" />
 
         <MiniMap />
 

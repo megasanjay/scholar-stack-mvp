@@ -237,12 +237,8 @@ const selectedVersionIdentifier = computed(() => {
 
           <n-divider />
 
-          <n-tabs type="card" animated default-value="resources">
-            <n-tab-pane
-              name="resources"
-              tab="Resources"
-              display-directive="show:lazy"
-            >
+          <n-tabs type="line" animated default-value="resources">
+            <n-tab-pane name="resources" tab="Resources">
               <template #tab>
                 <n-space align="center">
                   <Icon
@@ -346,7 +342,7 @@ const selectedVersionIdentifier = computed(() => {
               </template>
 
               <FlowRelationsGraph
-                class="backdrop-blur-xl backdrop-grayscale"
+                class="vbackdrop-blur-xl vbackdrop-grayscale py-10"
                 :relations="{
                   internal:
                     (data?.InternalRelations as unknown as CatalogInternalRelation[]) ||
@@ -377,6 +373,26 @@ const selectedVersionIdentifier = computed(() => {
               <!-- eslint-disable vue/no-v-html -->
               <div class="prose max-w-none pt-2" v-html="changeLog" />
               <!-- eslint-enable vue/no-v-html -->
+            </n-tab-pane>
+
+            <n-tab-pane name="analytics" tab="Analytics">
+              <template #tab>
+                <n-space align="center">
+                  <Icon name="bi:bar-chart-fill" size="18" />
+
+                  <span class="font-medium"> Analytics</span>
+                </n-space>
+              </template>
+
+              <DiscoverCollectionViewsChart
+                class="py-5"
+                :collection-identifier="data?.collection.identifier || ''"
+              />
+
+              <DiscoverVersionResolutionsChart
+                class="py-5"
+                :version-identifier="data?.identifier || ''"
+              />
             </n-tab-pane>
           </n-tabs>
         </div>

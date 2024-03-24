@@ -261,10 +261,14 @@ model ExternalRelation {
 }
 
 model Analytics {
-  id String @id @default(cuid())
+  id Int @id @default(autoincrement())
 
   identifier String
   type       String // collection, version, link, etc
 
+  event String @default("") // view, click, etc
+
   created DateTime @default(now())
+
+  @@index([identifier])
 }

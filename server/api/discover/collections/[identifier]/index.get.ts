@@ -70,6 +70,24 @@ export default defineEventHandler(async (event) => {
     },
   });
 
+  const collectionIdentifier = version.collection.identifier;
+
+  await prisma.analytics.create({
+    data: {
+      event: "view",
+      identifier: collectionIdentifier,
+      type: "collection",
+    },
+  });
+
+  await prisma.analytics.create({
+    data: {
+      event: "resolve",
+      identifier: version.identifier,
+      type: "version",
+    },
+  });
+
   return {
     ...version,
     stars: Math.floor(Math.random() * 500),

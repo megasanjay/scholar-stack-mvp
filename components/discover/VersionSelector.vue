@@ -19,13 +19,13 @@ defineProps({
   <div class="my-5 rounded-md border">
     <h3 class="mb-3 mt-4 px-3">Versions</h3>
 
-    <div class="flex max-h-[300px] flex-col divide-y overflow-auto border-y">
+    <div class="flex max-h-[291px] flex-col divide-y overflow-auto">
       <div
         v-for="version in versions"
         :key="version.id"
         class="px-3 py-3"
         :class="{
-          '!bg-purple-50': version.identifier === selectedVersionIdentifier,
+          '!bg-sky-100': version.identifier === selectedVersionIdentifier,
         }"
       >
         <n-flex justify="space-between">
@@ -51,6 +51,8 @@ defineProps({
         </n-flex>
       </div>
     </div>
+
+    <UDivider label="or" />
 
     <div class="py-2 pl-3">
       <p class="text-sm">
