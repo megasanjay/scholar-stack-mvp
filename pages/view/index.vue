@@ -3,17 +3,23 @@ definePageMeta({
   layout: "public",
 });
 
-const queryParameters = useRoute().query;
+const route = useRoute();
+const queryParameters = route.query;
 
 const page = ref(
-  queryParameters.page ? parseInt(queryParameters.page as string) : 0,
+  queryParameters.page ? parseInt(queryParameters.page as string) : 1,
 );
 
-const { data, error } = await useFetch(
+const { data, error, refresh } = await useFetch(
   `/api/discover/collections?page=${page.value - 1}`,
   {
     headers: useRequestHeaders(["cookie"]),
   },
+);
+
+watch(
+  () => route.fullPath,
+  () => refresh(),
 );
 
 if (error.value) {
@@ -27,13 +33,18 @@ if (error.value) {
 }
 
 const requestNewPage = (newPage: number) => {
+  console.log(newPage);
   if (newPage < 1) {
+    page.value = 1;
     window.location.href = `/view`;
+    return;
   }
-  if (newPage === 1) {
-    window.location.href = `/view`;
-  }
+
+  page.value = newPage;
   window.location.href = `/view?page=${newPage}`;
+
+  // window.location.href = `/view?page=${newPage}`;
+  // window.location.reload();
 };
 </script>
 
