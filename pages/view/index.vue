@@ -11,7 +11,7 @@ const queryParams = computed(() => {
   };
 });
 
-const { data, error, refresh } = await useFetch(`/api/discover/collections`, {
+const { data, error } = await useFetch(`/api/discover/collections`, {
   headers: useRequestHeaders(["cookie"]),
   key: page.value.toString(),
   query: queryParams,

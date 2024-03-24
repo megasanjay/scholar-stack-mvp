@@ -32,6 +32,7 @@ model User {
   Notification     Notification[]
   WorkspaceMember  WorkspaceMember[]
   CollectionAccess CollectionAccess[]
+  Starred          Starred[]
 
   @@index([email_address, username])
 }
@@ -143,6 +144,7 @@ model Collection {
 
   Workspace    Workspace? @relation(fields: [workspace_id], references: [id])
   workspace_id String?
+  Starred      Starred[]
 
   @@index([identifier])
 }
@@ -271,4 +273,16 @@ model Analytics {
   created DateTime @default(now())
 
   @@index([identifier])
+}
+
+model Starred {
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String
+
+  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  collection_id String
+
+  created DateTime @default(now())
+
+  @@id([user_id, collection_id])
 }

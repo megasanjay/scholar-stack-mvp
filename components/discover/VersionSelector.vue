@@ -16,10 +16,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="my-5 rounded-md border">
+  <div class="my-5 rounded-md border bg-white shadow-sm">
     <h3 class="mb-3 mt-4 px-3">Versions</h3>
 
-    <div class="flex max-h-[291px] flex-col divide-y overflow-auto">
+    <div class="flex max-h-[291px] flex-col divide-y overflow-auto border-t">
       <div
         v-for="version in versions"
         :key="version.id"
@@ -54,8 +54,8 @@ defineProps({
 
     <UDivider label="or" />
 
-    <div class="py-2 pl-3">
-      <p class="text-sm">
+    <div class="py-2 pl-3 pr-2">
+      <p class="text-xs">
         If you want to always link to the latest version, use the
         <NuxtLink
           :to="`/view/${collectionIdentifier}`"

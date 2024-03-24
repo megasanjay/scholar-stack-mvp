@@ -9,6 +9,13 @@ definePageMeta({
 });
 
 const route = useRoute();
+const user = useSupabaseUser();
+
+const loggedIn = computed(() => user.value);
+
+const starLoading = ref(false);
+const starredStatus = ref(false);
+const starCount = ref(0);
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
@@ -131,6 +138,84 @@ const selectedVersionIdentifier = computed(() => {
 
   return identifier;
 });
+
+const { data: starStatusData, error: starStatusError } = await useFetch(
+  `/api/discover/collections/${data.value?.collection.identifier}/star`,
+  {
+    headers: useRequestHeaders(["cookie"]),
+  },
+);
+
+if (starStatusError.value) {
+  console.error(starStatusError.value);
+}
+
+if (starStatusData.value) {
+  console.log(starStatusData.value);
+
+  starredStatus.value = starStatusData.value.starred;
+  starCount.value = starStatusData.value.starCount;
+}
+
+const starCollection = async () => {
+  starLoading.value = true;
+
+  await $fetch(
+    `/api/discover/collections/${data.value?.collection.identifier}/star`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+      method: "POST",
+    },
+  )
+    .then(() => {
+      push.success({
+        title: "Collection starred",
+      });
+
+      starredStatus.value = true;
+      starCount.value += 1;
+    })
+    .catch((error) => {
+      console.error(error);
+
+      push.error({
+        title: "Something went wrong",
+      });
+    })
+    .finally(() => {
+      starLoading.value = false;
+    });
+};
+
+const removeCollectionStar = async () => {
+  starLoading.value = true;
+
+  await $fetch(
+    `/api/discover/collections/${data.value?.collection.identifier}/star`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+      method: "DELETE",
+    },
+  )
+    .then(() => {
+      push.success({
+        title: "Collection unstarred",
+      });
+
+      starredStatus.value = false;
+      starCount.value -= 1;
+    })
+    .catch((error) => {
+      console.error(error);
+
+      push.error({
+        title: "Something went wrong",
+      });
+    })
+    .finally(() => {
+      starLoading.value = false;
+    });
+};
 </script>
 
 <template>
@@ -168,8 +253,8 @@ const selectedVersionIdentifier = computed(() => {
       <div class="grid grid-cols-12 gap-10 px-5">
         <div class="col-span-9">
           <n-space vertical class="mt-5">
-            <n-space align="start" vertical>
-              <n-flex justify="space-between" align="center">
+            <div class="flex items-center justify-between">
+              <n-flex align="center">
                 <n-tag type="success" :bordered="false">
                   Version {{ data?.name || "N/A" }}
                 </n-tag>
@@ -181,10 +266,43 @@ const selectedVersionIdentifier = computed(() => {
                 </n-tag>
               </n-flex>
 
-              <h1 class="mb-2">
-                {{ data?.collection.title || "Collection Title Unavailable" }}
-              </h1>
-            </n-space>
+              <n-popover trigger="hover" :disabled="!!loggedIn">
+                <template #trigger>
+                  <n-button
+                    color="black"
+                    :disabled="!loggedIn"
+                    :loading="starLoading"
+                    @click="
+                      starredStatus ? removeCollectionStar() : starCollection()
+                    "
+                  >
+                    <template #icon>
+                      <Icon
+                        name="bi:star"
+                        size="18"
+                        :class="{
+                          'text-yellow-400': starredStatus,
+                        }"
+                      />
+                    </template>
+
+                    <div class="flex items-center gap-1 divide-x pl-1">
+                      <span>
+                        {{ starredStatus ? "Starred" : "Star" }}
+                      </span>
+
+                      <span class="pl-1"> {{ starCount }} </span>
+                    </div>
+                  </n-button>
+                </template>
+
+                <span> You must be logged in to star this collection. </span>
+              </n-popover>
+            </div>
+
+            <h1 class="mb-2">
+              {{ data?.collection.title || "Collection Title Unavailable" }}
+            </h1>
 
             <ul
               v-if="

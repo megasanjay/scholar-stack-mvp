@@ -20,20 +20,27 @@ export default defineEventHandler(async (event) => {
   const response = publishedVersions.map((version) => {
     return {
       ...version,
-      stars: Math.floor(Math.random() * 500),
+      stars: 0,
       views: 0,
     };
   });
 
   // This needs to go on dragonflydb
   for (const version of response) {
-    const count = await prisma.analytics.count({
+    const viewCount = await prisma.analytics.count({
       where: {
         identifier: version.collection.identifier,
       },
     });
 
-    version.views = count;
+    const starCount = await prisma.starred.count({
+      where: {
+        collection_id: version.collection.id,
+      },
+    });
+
+    version.views = viewCount;
+    version.stars = starCount;
   }
 
   // Get the total number of published collections
@@ -45,7 +52,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     collections: response || [],
-    nTotal: total,
     total: totalPages,
   };
 });
