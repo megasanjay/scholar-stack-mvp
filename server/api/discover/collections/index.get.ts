@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     collections: response || [],
+    nTotal: total,
     total: totalPages,
   };
 });
