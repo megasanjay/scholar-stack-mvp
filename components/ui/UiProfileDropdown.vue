@@ -2,7 +2,14 @@
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 
+const theme = ref("light");
 const loggedIn = computed(() => user.value);
+
+const themeOptions = [
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "System", value: "system" },
+];
 
 const logout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -55,77 +62,72 @@ const logout = async () => {
         >
           <div class="px-1 py-1">
             <HeadlessMenuItem v-slot="{ active }">
-              <button
-                :class="[
-                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                ]"
+              <NuxtLink
+                to="/dashboard"
+                :class="{
+                  'bg-orange-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
               >
-                <Icon name="uil:edit" class="mr-2 h-5 w-5" aria-hidden="true" />
-
-                Edit
-              </button>
+                <Icon
+                  name="uil:dashboard"
+                  class="mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Dashboard
+              </NuxtLink>
             </HeadlessMenuItem>
 
             <HeadlessMenuItem v-slot="{ active }">
-              <button
-                :class="[
-                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                ]"
+              <NuxtLink
+                to="/account"
+                :class="{
+                  'bg-teal-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
               >
-                <Icon name="uil:copy" class="mr-2 h-5 w-5" aria-hidden="true" />
-                Duplicate
-              </button>
+                <Icon
+                  name="ic:baseline-settings"
+                  class="mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Settings
+              </NuxtLink>
             </HeadlessMenuItem>
           </div>
 
           <div class="px-1 py-1">
             <HeadlessMenuItem v-slot="{ active }">
-              <button
-                :class="[
-                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                ]"
+              <NuxtLink
+                to="/settings"
+                :class="{
+                  'bg-green-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
               >
                 <Icon
-                  name="uil:archive"
+                  name="solar:home-bold"
                   class="mr-2 h-5 w-5"
                   aria-hidden="true"
                 />
-                Archive
-              </button>
+                Home
+              </NuxtLink>
             </HeadlessMenuItem>
 
             <HeadlessMenuItem v-slot="{ active }">
               <button
-                :class="[
-                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                ]"
-              >
-                <Icon
-                  name="uil:folder-plus"
-                  class="mr-2 h-5 w-5"
-                  aria-hidden="true"
-                />
-
-                Move
-              </button>
-            </HeadlessMenuItem>
-          </div>
-
-          <div class="px-1 py-1">
-            <HeadlessMenuItem v-slot="{ active }">
-              <button
-                :class="[
-                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                ]"
+                :class="{
+                  'bg-sky-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
                 @click="logout"
               >
                 <Icon
-                  name="line-md:chevron-right-circle"
+                  name="majesticons:logout"
                   class="mr-2 h-5 w-5"
                   aria-hidden="true"
                 />
