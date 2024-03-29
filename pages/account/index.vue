@@ -7,6 +7,8 @@ const userId = ref("");
 const avatarPath = ref("");
 const saveLoading = ref(false);
 
+const loading = ref(false);
+
 const { data: user, error } = await useFetch(`/api/user`, {
   headers: useRequestHeaders(["cookie"]),
 });
@@ -30,6 +32,11 @@ if (user.value) {
   userId.value = user.value.id;
   avatarPath.value = `${userId.value}/avatar`;
 }
+
+const updateProfile = async () => {
+  // reload window
+  window.location.reload();
+};
 </script>
 
 <template>
