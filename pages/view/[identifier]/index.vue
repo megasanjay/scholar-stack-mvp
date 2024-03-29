@@ -251,7 +251,7 @@ const removeCollectionStar = async () => {
       </div>
 
       <div class="grid grid-cols-12 gap-10 px-5">
-        <div class="col-span-9">
+        <div class="col-span-8">
           <n-space vertical class="mt-5">
             <div class="flex items-center justify-between">
               <n-flex align="center">
@@ -358,7 +358,7 @@ const removeCollectionStar = async () => {
           <n-tabs type="line" animated default-value="resources">
             <n-tab-pane name="resources" tab="Resources">
               <template #tab>
-                <n-space align="center">
+                <n-space align="center" class="px-2">
                   <Icon
                     name="fluent:text-bullet-list-square-16-filled"
                     size="18"
@@ -452,7 +452,7 @@ const removeCollectionStar = async () => {
               display-directive="show:lazy"
             >
               <template #tab>
-                <n-space align="center">
+                <n-space align="center" class="px-2">
                   <Icon name="tabler:circles-relation" size="18" />
 
                   <span class="font-medium"> Relations</span>
@@ -481,7 +481,7 @@ const removeCollectionStar = async () => {
               display-directive="show:lazy"
             >
               <template #tab>
-                <n-space align="center">
+                <n-space align="center" class="px-2">
                   <Icon name="fluent:history-24-filled" size="18" />
 
                   <span class="font-medium"> Changelog</span>
@@ -495,7 +495,7 @@ const removeCollectionStar = async () => {
 
             <n-tab-pane name="analytics" tab="Analytics">
               <template #tab>
-                <n-space align="center">
+                <n-space align="center" class="px-2">
                   <Icon name="bi:bar-chart-fill" size="18" />
 
                   <span class="font-medium"> Analytics</span>
@@ -515,7 +515,7 @@ const removeCollectionStar = async () => {
           </n-tabs>
         </div>
 
-        <div class="relative col-span-3">
+        <div class="relative col-span-4">
           <n-space vertical>
             <NuxtImg
               :src="data?.collection.image"

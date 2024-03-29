@@ -1,22 +1,12 @@
 <script setup lang="ts">
-import { useCollectionStore } from "@/stores/collection";
-
 definePageMeta({
-  layout: "app-layout",
+  layout: "dashboard-root",
   middleware: ["auth"],
 });
 
-const route = useRoute();
-const collectionStore = useCollectionStore();
-
-const { workspaceid } = route.params as { workspaceid: string };
-
-const { data: workspace, error } = await useFetch(
-  `/api/workspaces/${workspaceid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
-);
+const { data: collections, error } = await useFetch("/api/user/stars", {
+  headers: useRequestHeaders(["cookie"]),
+});
 
 if (error.value) {
   console.log(error.value);
@@ -36,7 +26,7 @@ if (error.value) {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <h1>Collections</h1>
+        <h1>Your starred collections</h1>
       </div>
     </div>
 
@@ -47,24 +37,13 @@ if (error.value) {
             <Icon name="iconamoon:search-duotone" size="20" class="mr-2" />
           </template>
         </n-input>
-
-        <n-button
-          size="large"
-          color="black"
-          @click="collectionStore.showNewCollectionModal"
-        >
-          <template #icon>
-            <Icon name="mdi:plus" />
-          </template>
-          Create a new collection
-        </n-button>
       </div>
 
       <n-flex vertical :size="20">
         <NuxtLink
-          v-for="collection in workspace?.collections"
-          :key="collection.id"
-          :to="`/dashboard/workspaces/${workspaceid}/collections/${collection.id}`"
+          v-for="item in collections"
+          :key="item.collection_id"
+          :to="`/view/${item.collection.identifier}`"
           class="flex flex-col space-y-3 rounded-lg border border-slate-200 bg-white p-6 shadow-md transition-all hover:shadow-lg"
         >
           <div
@@ -72,24 +51,24 @@ if (error.value) {
           >
             <div class="flex flex-col">
               <p class="text-lg font-medium leading-tight">
-                {{ collection.title }}
+                {{ item.collection.title }}
               </p>
 
               <span class="mt-1 text-sm text-slate-500">
                 Updated on
-                {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
+                {{ $dayjs(item.collection.updated).format("MMMM DD, YYYY") }}
               </span>
             </div>
 
             <NuxtImg
-              :src="`https://api.dicebear.com/8.x/adventurer/svg?seed=${collection.id}`"
+              :src="`https://api.dicebear.com/8.x/adventurer/svg?seed=${item.collection.id}`"
               class="mt-1 h-14 w-14 rounded-md"
             />
           </div>
 
           <div>
             <p class="line-clamp-4">
-              {{ collection.description }}
+              {{ item.collection.description }}
             </p>
           </div>
         </NuxtLink>

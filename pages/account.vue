@@ -19,7 +19,7 @@ definePageMeta({
       <div class="flex w-full items-start justify-start space-x-12">
         <aside class="flex w-40 flex-col">
           <NuxtLink
-            :to="`/account/settings`"
+            :to="`/account`"
             class="w-full justify-start rounded-md px-2 py-2 text-left text-slate-500 transition-all hover:bg-slate-100"
             exact-active-class="text-slate-800 font-medium"
           >

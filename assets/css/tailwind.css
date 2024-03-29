@@ -5,11 +5,11 @@
 html,
 body {
   width: 100%;
-  height: 10vh;
+  height: 100vh;
   margin: 0px;
   padding: 0px;
-  overflow: auto @apply bg-slate-50;
-  @apply bg-slate-50 text-slate-700;
+  overflow: auto;
+  @apply text-slate-700;
 }
 
 @layer base {

@@ -96,12 +96,30 @@ const logout = async () => {
                 Settings
               </NuxtLink>
             </HeadlessMenuItem>
+
+            <HeadlessMenuItem v-slot="{ active }">
+              <NuxtLink
+                to="/starred"
+                :class="{
+                  'bg-teal-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+              >
+                <Icon
+                  name="heroicons-solid:star"
+                  class="mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Starred
+              </NuxtLink>
+            </HeadlessMenuItem>
           </div>
 
           <div class="px-1 py-1">
             <HeadlessMenuItem v-slot="{ active }">
               <NuxtLink
-                to="/settings"
+                to="/"
                 :class="{
                   'bg-green-500 text-white': active,
                   'text-gray-900': !active,

@@ -1,11 +1,7 @@
-<script setup lang="ts">
-const user = useSupabaseUser();
-
-const loggedIn = computed(() => user.value);
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div class="relative mx-auto flex h-screen w-full flex-col">
+  <div class="relative mx-auto flex h-screen w-full flex-col bg-slate-50">
     <header>
       <nav class="border-b border-gray-200 bg-white px-4 py-2.5 lg:px-6">
         <div
@@ -68,5 +64,3 @@ const loggedIn = computed(() => user.value);
     <slot />
   </div>
 </template>
-
-<style scoped></style>
