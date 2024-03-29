@@ -4,7 +4,7 @@ const affiliation = ref("");
 const username = ref("");
 const contactEmail = ref("");
 const userId = ref("");
-
+const avatarPath = ref("");
 const saveLoading = ref(false);
 
 const { data: user, error } = await useFetch(`/api/user`, {
@@ -28,11 +28,14 @@ if (user.value) {
   username.value = user.value.username;
   contactEmail.value = user.value.contact_email_address;
   userId.value = user.value.id;
+  avatarPath.value = `${userId.value}/avatar`;
 }
 </script>
 
 <template>
   <div class="flex flex-col space-y-4">
+    <UiAvatar v-model:path="avatarPath" @upload="updateProfile" />
+
     <CardWithAction title="Avatar">
       <div class="flex items-start justify-between">
         <p class="my-3 text-sm">
