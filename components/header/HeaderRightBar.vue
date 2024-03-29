@@ -28,6 +28,8 @@
       <Icon name="mdi:bell-outline" />
     </n-button>
 
+    <UiColorModeToggle />
+
     <UiProfileDropdown />
 
     <button

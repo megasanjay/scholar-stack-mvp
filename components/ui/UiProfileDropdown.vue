@@ -2,14 +2,7 @@
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 
-const theme = ref("light");
 const loggedIn = computed(() => user.value);
-
-const themeOptions = [
-  { label: "Light", value: "light" },
-  { label: "Dark", value: "dark" },
-  { label: "System", value: "system" },
-];
 
 const logout = async () => {
   const { error } = await supabase.auth.signOut();

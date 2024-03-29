@@ -17,7 +17,9 @@
           </NuxtLink>
 
           <div class="lg:order-2">
-            <div class="flex items-center space-x-3 lg:order-2">
+            <div class="flex items-center gap-3 lg:order-2">
+              <UiColorModeToggle />
+
               <UiProfileDropdown />
 
               <button

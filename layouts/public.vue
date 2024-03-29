@@ -24,7 +24,9 @@ const devMode = process.env.NODE_ENV === "development";
             <span class="text-xl font-bold"> SciConnect </span>
           </NuxtLink>
 
-          <div class="flex items-center space-x-3 lg:order-2">
+          <div class="flex items-center gap-3 lg:order-2">
+            <UiColorModeToggle />
+
             <nuxt-link v-if="loggedIn" to="/dashboard">
               <n-button color="black" size="large"> Dashboard </n-button>
             </nuxt-link>

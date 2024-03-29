@@ -38,7 +38,9 @@ const logout = async () => {
             <span class="text-xl font-bold"> SciConnect </span>
           </NuxtLink>
 
-          <div class="flex items-center space-x-3 lg:order-2">
+          <div class="flex items-center gap-3 lg:order-2">
+            <UiColorModeToggle />
+
             <nuxt-link v-if="!loggedIn" to="/login">
               <n-button size="large">
                 <span> Log in </span>
