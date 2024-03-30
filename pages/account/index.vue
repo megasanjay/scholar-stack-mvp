@@ -4,10 +4,8 @@ const affiliation = ref("");
 const username = ref("");
 const contactEmail = ref("");
 const userId = ref("");
-const avatarPath = ref("");
-const saveLoading = ref(false);
 
-const loading = ref(false);
+const saveLoading = ref(false);
 
 const { data: user, error } = await useFetch(`/api/user`, {
   headers: useRequestHeaders(["cookie"]),
@@ -30,52 +28,27 @@ if (user.value) {
   username.value = user.value.username;
   contactEmail.value = user.value.contact_email_address;
   userId.value = user.value.id;
-  avatarPath.value = `${userId.value}/avatar`;
 }
-
-const updateProfile = async () => {
-  // reload window
-  window.location.reload();
-};
 </script>
 
 <template>
   <div class="flex flex-col space-y-4">
-    <UiAvatar v-model:path="avatarPath" @upload="updateProfile" />
-
     <CardWithAction title="Avatar">
       <div class="flex items-start justify-between">
         <p class="my-3 text-sm">
-          This is your avatar. You can change it by clicking on the image.
+          This is your avatar.
+          <br />
+          Click on the avatar to upload a custom one from your device.
         </p>
 
-        <n-avatar
-          :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${userId}`"
-          alt="User Avatar"
-          :size="75"
-          round
-          class="mr-5"
-        />
+        <UiEditAvatar class="mr-5" />
       </div>
 
       <template #action>
-        <div class="flex items-center justify-between">
+        <div class="flex h-full items-center justify-between">
           <p class="text-sm text-slate-600">
             An avatar is optional but strongly recommended.
           </p>
-
-          <n-button
-            type="primary"
-            color="black"
-            size="large"
-            :loading="saveLoading"
-            @click="console.log('Save clicked')"
-          >
-            <template #icon>
-              <Icon name="ic:round-upload" />
-            </template>
-            Upload
-          </n-button>
         </div>
       </template>
     </CardWithAction>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FormInst } from "naive-ui";
+import { nanoid } from "nanoid";
 
 import isEmail from "validator/es/lib/isEmail";
 
@@ -62,6 +63,11 @@ const signIn = (e: MouseEvent) => {
       try {
         const { error } = await supabase.auth.signUp({
           email: registerForm.emailAddress,
+          options: {
+            data: {
+              avatar_url: `https://api.dicebear.com/6.x/thumbs/svg?seed=${nanoid()}`,
+            },
+          },
           password: registerForm.password,
         });
 
@@ -73,6 +79,11 @@ const signIn = (e: MouseEvent) => {
 
           throw error;
         }
+
+        push.success({
+          title: "Success",
+          message: "Account created successfully",
+        });
       } catch (error) {
         loading.value = false;
 
