@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
       },
       description,
       identifier: `c${nanoid(8)}`,
-      image: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
+      image_url: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
       workspace_id: workspaceid,
     },
   });

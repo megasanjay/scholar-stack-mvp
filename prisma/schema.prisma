@@ -124,7 +124,7 @@ model Collection {
   description          String @default("")
   detailed_description String @default("")
 
-  image String @default("https://api.dicebear.com/6.x/shapes/svg")
+  image_url String @default("https://api.dicebear.com/6.x/shapes/svg")
 
   created DateTime @default(now())
   updated DateTime @updatedAt

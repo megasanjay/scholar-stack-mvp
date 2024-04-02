@@ -427,7 +427,7 @@ const navigateToResource = (resourceid: string) => {
                   >
                     <n-avatar
                       :size="20"
-                      :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${selectedCollection}`"
+                      :src="currentCollection?.image_url"
                       class="border"
                       round
                     />
@@ -480,7 +480,7 @@ const navigateToResource = (resourceid: string) => {
                     <div class="flex items-center justify-start space-x-2 pr-4">
                       <n-avatar
                         :size="20"
-                        :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${collection.id}`"
+                        :src="collection.image_url"
                         class="border hover:cursor-pointer hover:opacity-80"
                         round
                       />

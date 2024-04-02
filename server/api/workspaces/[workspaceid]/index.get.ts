@@ -35,8 +35,9 @@ export default defineEventHandler(async (event) => {
       title: collection.title,
       created: collection.created.toISOString(),
       description: collection.description,
+      detailedDescription: collection.detailed_description,
       identifier: collection.identifier,
-      image: collection.image,
+      image_url: collection.image_url,
       updated: collection.updated.toISOString(),
       version: collection.Versions[0]
         ? {

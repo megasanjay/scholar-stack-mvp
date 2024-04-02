@@ -1,8 +1,8 @@
 import { z } from "zod";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 import { serverSupabaseUser } from "#supabase/server";
-// eslint-disable-next-line import/no-named-as-default-member
-const { sign } = jwt;
+
+// const { sign } = jwt;
 
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();
@@ -61,20 +61,20 @@ export default defineEventHandler(async (event) => {
 
   // token expires in 5 seconds
   // this should be long enough to send out the request to upload the file
-  const token = sign(
-    {
-      data,
-    },
-    runtimeConfig.UPLOAD_TOKEN_SECRET,
-    {
-      expiresIn: "5s",
-    },
-  );
+  // const token = sign(
+  //   {
+  //     data,
+  //   },
+  //   runtimeConfig.UPLOAD_TOKEN_SECRET,
+  //   {
+  //     expiresIn: "5s",
+  //   },
+  // );
 
-  const url = `https://upload.sciconnect.io/avatar?token=${token}`;
+  // const url = `https://upload.sciconnect.io/avatar?token=${token}`;
 
   return {
-    signedUrl: url,
+    // signedUrl: url,
     statusCode: 200,
   };
 });

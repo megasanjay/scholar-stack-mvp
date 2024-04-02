@@ -61,7 +61,7 @@ const logout = async () => {
                   'bg-orange-500 text-white': active,
                   'text-gray-900': !active,
                 }"
-                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
               >
                 <Icon
                   name="uil:dashboard"
@@ -79,7 +79,7 @@ const logout = async () => {
                   'bg-teal-500 text-white': active,
                   'text-gray-900': !active,
                 }"
-                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
               >
                 <Icon
                   name="ic:baseline-settings"
@@ -97,7 +97,7 @@ const logout = async () => {
                   'bg-teal-500 text-white': active,
                   'text-gray-900': !active,
                 }"
-                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
               >
                 <Icon
                   name="heroicons-solid:star"
@@ -117,7 +117,7 @@ const logout = async () => {
                   'bg-green-500 text-white': active,
                   'text-gray-900': !active,
                 }"
-                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
               >
                 <Icon
                   name="solar:home-bold"
@@ -134,7 +134,7 @@ const logout = async () => {
                   'bg-sky-500 text-white': active,
                   'text-gray-900': !active,
                 }"
-                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
                 @click="logout"
               >
                 <Icon

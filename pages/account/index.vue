@@ -41,7 +41,7 @@ if (user.value) {
           Click on the avatar to upload a custom one from your device.
         </p>
 
-        <UiEditAvatar class="mr-5" />
+        <!-- <UiEditAvatar class="mr-5" /> -->
       </div>
 
       <template #action>
@@ -241,9 +241,5 @@ if (user.value) {
         </div>
       </template>
     </CardWithAction>
-
-    <pre>
-      {{ user }}
-    </pre>
   </div>
 </template>

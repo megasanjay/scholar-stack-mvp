@@ -82,7 +82,7 @@ if (error.value) {
             </div>
 
             <NuxtImg
-              :src="`https://api.dicebear.com/8.x/adventurer/svg?seed=${collection.id}`"
+              :src="collection.image_url"
               class="mt-1 h-14 w-14 rounded-md"
             />
           </div>

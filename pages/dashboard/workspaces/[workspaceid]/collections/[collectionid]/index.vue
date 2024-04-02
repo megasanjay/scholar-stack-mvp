@@ -76,9 +76,8 @@ if (error.value) {
       <h3 class="pb-2 pt-5">Image</h3>
 
       <n-image
-        v-if="collection?.image"
-        :src="collection.image"
-        :alt="collection.title"
+        :src="collection?.image_url"
+        :alt="collection?.title"
         width="100"
         height="100"
       />

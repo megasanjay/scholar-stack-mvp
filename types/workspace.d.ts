@@ -4,7 +4,7 @@ interface APIResponseWorkspaceCollectionItem {
   title: string;
   description: string;
   detailedDescription: string;
-  image: string;
+  image_url: string;
 
   created: string;
   updated: string;

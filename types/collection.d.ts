@@ -6,7 +6,7 @@ interface CollectionGETAPIResponse {
   description: string;
   detailedDescription: string;
   identifier: string;
-  image: string;
+  image_url: string;
   private: boolean;
   resources: ResourceType[];
   version: Version | null;
@@ -20,7 +20,7 @@ interface Collection {
   description: string;
   detailedDescription: string;
   identifier: string;
-  image: string;
+  image_url: string;
   version: Version | null;
 }
 

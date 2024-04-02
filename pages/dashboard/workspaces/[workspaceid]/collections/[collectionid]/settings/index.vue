@@ -10,12 +10,16 @@ config({
   },
 });
 
+const files = ref();
+
+const collectionImage = ref("");
 const collectionName = ref("");
 const collectionDescription = ref("");
 const collectionDetailedDescription = ref("");
 const discardVersionModalIsOpen = ref(false);
 
 const discardVersionLoading = ref(false);
+const thumbnailLoading = ref(false);
 const saveLoading = ref(false);
 
 const sanitize = (html: string) => sanitizeHtml(html);
@@ -47,6 +51,7 @@ if (collection.value) {
   collectionName.value = collection.value.title;
   collectionDescription.value = collection.value.description;
   collectionDetailedDescription.value = collection.value.detailedDescription;
+  collectionImage.value = `${collection.value.image_url}?t=${Date.now()}`;
 }
 
 const openDiscardVersionModal = () => {
@@ -145,10 +150,128 @@ const updateCollectionDetails = async () => {
       saveLoading.value = false;
     });
 };
+
+const updateThumbnail = async (evt: any) => {
+  files.value = evt.target.files;
+
+  try {
+    thumbnailLoading.value = true;
+
+    if (!files.value || files.value.length === 0) {
+      throw new Error("You must select an image to upload.");
+    }
+
+    const file = files.value[0];
+    // const fileName = collectionid;
+    // const fileExt = file.name.split(".").pop();
+    const fileSize = file.size;
+    const fileType = file.type;
+
+    // Limit file size to 2MB
+    if (fileSize > 2 * 1024 * 1024) {
+      push.error({
+        title: "Error",
+        message: "File size must be less than 2MB",
+      });
+
+      throw new Error("File size must be less than 2MB");
+    }
+
+    // Check if the file is an image
+    if (!fileType.startsWith("image/")) {
+      push.error({
+        title: "Error",
+        message: "You must select an image file",
+      });
+
+      throw new Error("You must select an image file");
+    }
+
+    const formData = new FormData();
+
+    formData.append("image", file);
+
+    await $fetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/thumbnail`,
+      {
+        body: formData,
+        headers: useRequestHeaders(["cookie"]),
+        method: "PUT",
+      },
+    )
+      .then(() => {
+        push.success({
+          title: "Success",
+          message: "Your collection thumbnail has been updated",
+        });
+
+        // const newFileName = `${fileName}.${fileExt}`;
+
+        // collectionImage.value = `https://sciconnect-test.b-cdn.net/collection/${newFileName}?t=${Date.now()}`;
+
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Error uploading image: ", error.message);
+        push.error({
+          title: "Error",
+          message: "Could not upload image. Please try again",
+        });
+      });
+  } catch (error) {
+    push.error({
+      title: "Error",
+      message: "Something went wrong. Please try again.",
+    });
+  } finally {
+    thumbnailLoading.value = false;
+  }
+};
 </script>
 
 <template>
   <div class="flex flex-col space-y-4">
+    <CardWithAction title="Thumbnail">
+      <div class="flex items-start justify-between">
+        <p class="my-3 text-sm">
+          This is the thumbnail of your collection.
+          <br />
+          Click on the thumbnail to upload a custom one from your device.
+        </p>
+
+        <n-spin :show="thumbnailLoading">
+          <div class="relative">
+            <label class="" for="single">
+              <n-avatar
+                :src="collectionImage"
+                :size="100"
+                alt="Collection Thumbnail"
+                class="cursor-pointer transition-all hover:opacity-70"
+              />
+            </label>
+
+            <input
+              id="single"
+              style="position: absolute; visibility: hidden"
+              type="file"
+              accept="image/*"
+              class="absolute inset-0 hidden"
+              :disabled="thumbnailLoading"
+              @change="updateThumbnail"
+            />
+          </div>
+        </n-spin>
+      </div>
+
+      <template #action>
+        <div class="flex h-full items-center justify-between">
+          <p class="text-sm text-slate-600">
+            A thumbnail is optional but strongly recommended.
+          </p>
+        </div>
+      </template>
+    </CardWithAction>
+
     <CardWithAction title="Title">
       <p class="my-3 text-sm">
         This is the title of your collection. The title used here is what will
@@ -224,7 +347,7 @@ const updateCollectionDetails = async () => {
 
       <MdEditor
         v-model="collectionDetailedDescription"
-        class="mt-0"
+        class="mt-0 w-full max-w-screen-md"
         language="en-US"
         preview-theme="github"
         :show-code-row-number="true"
