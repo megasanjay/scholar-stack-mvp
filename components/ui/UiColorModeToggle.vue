@@ -22,7 +22,6 @@ const isDark = computed({
 
     <template #fallback>
       <!-- this will be rendered on server side -->
-
       <div class="h-8 w-8 rounded-full"></div>
     </template>
   </ClientOnly>

@@ -35,7 +35,7 @@ definePageMeta({
           </NuxtLink>
         </aside>
 
-        <div>
+        <div class="flex-1">
           <NuxtPage />
         </div>
       </div>
