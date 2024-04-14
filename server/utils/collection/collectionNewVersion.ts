@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { createId } from "@paralleldrive/cuid2";
 
 /**
  * Create a new unpublished draft version of a collection
@@ -7,6 +8,11 @@ import { nanoid } from "nanoid";
 const createNewVersion = async (collectionid: string) => {
   // get the latest version of the collection
   const latestVersion = await prisma.version.findFirst({
+    include: {
+      ExternalRelations: true,
+      InternalRelations: true,
+      Resources: true,
+    },
     orderBy: { created: "desc" },
     where: { collection_id: collectionid },
   });
@@ -54,6 +60,50 @@ const createNewVersion = async (collectionid: string) => {
     });
 
     // Get all the resources in the latest version
+    const orignalResources = latestVersion.Resources;
+    const originalExternalRelations = latestVersion.ExternalRelations;
+    const originalInternalRelations = latestVersion.InternalRelations;
+
+    // clone each resource;
+    const resourcesData = orignalResources.map((resource) => {
+      return {
+        id: createId(),
+        title: resource.title,
+        action: "clone",
+        back_link_id: resource.back_link_id, // todo: check if this is correct
+        description: resource.description,
+        filled_in: true,
+        identifier: resource.identifier,
+        identifier_type: resource.identifier_type,
+        original_resource_id: resource.id,
+        resource_type: resource.resource_type,
+        version_label: resource.version_label,
+      };
+    });
+
+    // create the resources
+    const newResources = await prisma.resource.createMany({
+      data: resourcesData,
+    });
+
+    // clone the external relations
+    const externalRelationsData = originalExternalRelations.map(
+      (externalRelation) => {
+        return {
+          id: createId(),
+          action: "clone",
+          original_relation_id: externalRelation.id,
+          resource_type: externalRelation.resource_type || null,
+          source_id: resourcesData.find(
+            (resource) =>
+              resource.original_resource_id === externalRelation.source_id,
+          ).id,
+          target: externalRelation.target,
+          target_type: externalRelation.target_type,
+          type: externalRelation.type,
+        };
+      },
+    );
 
     const originalResources = await prisma.resource.findMany({
       where: {
