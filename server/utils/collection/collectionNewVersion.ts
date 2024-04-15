@@ -86,24 +86,78 @@ const createNewVersion = async (collectionid: string) => {
       data: resourcesData,
     });
 
+    // Connect the resources to the draft version
+    await prisma.resource.updateMany({
+      data: {
+        Version: {
+          connect: {
+            id: draftVersion.id,
+          },
+        },
+      },
+      where: {
+        id: {
+          in: newResources.map((resource) => resource.id),
+        },
+      },
+    });
+
     // clone the external relations
     const externalRelationsData = originalExternalRelations.map(
       (externalRelation) => {
+        const externalRelationClonedSourceResource = resourcesData.find(
+          (resource) =>
+            resource.original_resource_id === externalRelation.source_id,
+        );
+
+        // todo: what to do if this is not found?
+        // This should never happen but we probably need some thing here regardless
+        const externalRelationClonedSourceResourceId =
+          externalRelationClonedSourceResource?.id as string;
+
         return {
           id: createId(),
           action: "clone",
           original_relation_id: externalRelation.id,
           resource_type: externalRelation.resource_type || null,
-          source_id: resourcesData.find(
-            (resource) =>
-              resource.original_resource_id === externalRelation.source_id,
-          ).id,
+          source_id: externalRelationClonedSourceResourceId,
           target: externalRelation.target,
           target_type: externalRelation.target_type,
           type: externalRelation.type,
         };
       },
     );
+
+    const newExternalRelations = await prisma.externalRelation.createMany({
+      data: externalRelationsData,
+    });
+
+    const internalRelationsData = await originalInternalRelations.map(
+      (internalRelation) => {
+        const internalRelationClonedSourceResource = resourcesData.find(
+          (resource) =>
+            resource.original_resource_id === internalRelation.source_id,
+        );
+
+        const internalRelationClonedSourceResourceId =
+          internalRelationClonedSourceResource?.id as string;
+
+        return {
+          id: createId(),
+          action: "clone",
+          mirror: internalRelation.mirror,
+          original_relation_id: internalRelation.id,
+          resource_type: internalRelation.resource_type,
+          source_id: internalRelationClonedSourceResourceId,
+          target_id: internalRelation.target_id,
+          type: internalRelation.type,
+        };
+      },
+    );
+
+    const newInternalRelations = await prisma.internalRelation.createMany({
+      data: internalRelationsData,
+    });
 
     const originalResources = await prisma.resource.findMany({
       where: {
