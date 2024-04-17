@@ -12,6 +12,7 @@ config({
 
 const files = ref();
 
+const versionId = ref("");
 const collectionImage = ref("");
 const collectionName = ref("");
 const collectionDescription = ref("");
@@ -52,6 +53,8 @@ if (collection.value) {
   collectionDescription.value = collection.value.description;
   collectionDetailedDescription.value = collection.value.detailedDescription;
   collectionImage.value = `${collection.value.image_url}?t=${Date.now()}`;
+
+  versionId.value = collection.value.version?.id || "N/A";
 }
 
 const openDiscardVersionModal = () => {
@@ -369,6 +372,64 @@ const updateThumbnail = async (evt: any) => {
             </template>
             Save
           </n-button>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Collection ID">
+      <p class="my-3 text-sm">
+        This is your collection's unique ID within the platform.
+      </p>
+
+      <n-input-group>
+        <n-input
+          v-model:value="collectionid"
+          size="large"
+          :style="{ width: '50%' }"
+          disabled
+        />
+
+        <n-button type="info" secondary size="large">
+          <template #icon>
+            <Icon name="ic:round-content-copy" />
+          </template>
+        </n-button>
+      </n-input-group>
+
+      <template #action>
+        <div class="flex h-full items-center justify-start">
+          <p class="my-auto text-sm text-slate-600">
+            This ID is unique and cannot be changed.
+          </p>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Version ID">
+      <p class="my-3 text-sm">
+        This is your collection's version ID within the platform.
+      </p>
+
+      <n-input-group>
+        <n-input
+          v-model:value="versionId"
+          size="large"
+          :style="{ width: '50%' }"
+          disabled
+        />
+
+        <n-button type="info" secondary size="large">
+          <template #icon>
+            <Icon name="ic:round-content-copy" />
+          </template>
+        </n-button>
+      </n-input-group>
+
+      <template #action>
+        <div class="flex h-full items-center justify-start">
+          <p class="my-auto text-sm text-slate-600">
+            This ID is unique and cannot be changed.
+          </p>
         </div>
       </template>
     </CardWithAction>

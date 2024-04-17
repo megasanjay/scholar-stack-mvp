@@ -28,26 +28,26 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!draftVersion) {
-    throw createError({
-      message: "Draft version not found",
-      statusCode: 404,
+  if (draftVersion) {
+    // throw createError({
+    //   message: "Draft version not found",
+    //   statusCode: 404,
+    // });
+
+    const resources = draftVersion.Resources;
+
+    // remove all resources from the draft version
+    for (const resource of resources) {
+      await prisma.resource.delete({
+        where: { id: resource.id },
+      });
+    }
+
+    // delete the draft version
+    await prisma.version.delete({
+      where: { id: draftVersion.id },
     });
   }
-
-  const resources = draftVersion.Resources;
-
-  // remove all resources from the draft version
-  for (const resource of resources) {
-    await prisma.resource.delete({
-      where: { id: resource.id },
-    });
-  }
-
-  // delete the draft version
-  await prisma.version.delete({
-    where: { id: draftVersion.id },
-  });
 
   // get the latest released version of the collection to reset the creators
   const latestReleasedVersion = await prisma.version.findFirst({
