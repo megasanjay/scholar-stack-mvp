@@ -310,6 +310,10 @@ const createNewVersion = async () => {
       <p class="text-lg">
         {{ displayLongDate(resource?.updated as string) }}
       </p>
+
+      <h3 class="pb-2 pt-5">Internal ID</h3>
+
+      <p class="text-lg">{{ resource?.id }}</p>
     </div>
 
     <ModalNewCollection />
