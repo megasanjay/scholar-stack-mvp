@@ -50,22 +50,13 @@ const createNewVersion = async (collectionid: string) => {
       });
     }
 
-    const draftVersion = await prisma.version.create({
-      data: {
-        name: "Draft",
-        changelog: "xxx",
-        collection_id: collectionid,
-        identifier: `v${nanoid(8)}`,
-      },
-    });
-
     // Get all the resources in the latest version
     const orignalResources = latestVersion.Resources;
     const originalExternalRelations = latestVersion.ExternalRelations;
     const originalInternalRelations = latestVersion.InternalRelations;
 
     // clone each resource;
-    const resourcesData = orignalResources.map((resource) => {
+    const clonedResources = orignalResources.map((resource) => {
       return {
         id: createId(),
         title: resource.title,
@@ -81,30 +72,9 @@ const createNewVersion = async (collectionid: string) => {
       };
     });
 
-    // create the resources
-    await prisma.resource.createMany({
-      data: resourcesData,
-    });
-
-    // Connect the resources to the draft version
-    // Will have to do this manually as prisma does not support nested createMany
-
-    const connectedRecordsCount =
-      await prisma.$executeRaw`INSERT INTO "_ResourceToVersion" ("A", "B") VALUES ${resourcesData.map(
-        (resource) => [resource.id, draftVersion.id],
-      )}`;
-
-    if (connectedRecordsCount !== resourcesData.length) {
-      throw createError({
-        message: "Failed to connect resources to the new version",
-        statusCode: 500,
-      });
-    }
-
-    // clone the external relations
-    const externalRelationsData = originalExternalRelations.map(
+    const clonedExternalRelations = originalExternalRelations.map(
       (externalRelation) => {
-        const externalRelationClonedSourceResource = resourcesData.find(
+        const externalRelationClonedSourceResource = clonedResources.find(
           (resource) =>
             resource.original_resource_id === externalRelation.source_id,
         );
@@ -127,28 +97,9 @@ const createNewVersion = async (collectionid: string) => {
       },
     );
 
-    // create the external relations
-    await prisma.externalRelation.createMany({
-      data: externalRelationsData,
-    });
-
-    // Connect the external relations to the draft version
-
-    const connectedExternalRelationsCount =
-      await prisma.$executeRaw`INSERT INTO "_ExternalRelationToVersion" ("A", "B") VALUES ${externalRelationsData.map(
-        (externalRelation) => [externalRelation.id, draftVersion.id],
-      )}`;
-
-    if (connectedExternalRelationsCount !== externalRelationsData.length) {
-      throw createError({
-        message: "Failed to connect external relations to the new version",
-        statusCode: 500,
-      });
-    }
-
-    const internalRelationsData = await originalInternalRelations.map(
+    const clonedInternalRelations = originalInternalRelations.map(
       (internalRelation) => {
-        const internalRelationClonedSourceResource = resourcesData.find(
+        const internalRelationClonedSourceResource = clonedResources.find(
           (resource) =>
             resource.original_resource_id === internalRelation.source_id,
         );
@@ -169,23 +120,147 @@ const createNewVersion = async (collectionid: string) => {
       },
     );
 
-    await prisma.internalRelation.createMany({
-      data: internalRelationsData,
+    const draftVersion = await prisma.version.create({
+      data: {
+        name: "Draft",
+        changelog: "xxx",
+        collection_id: collectionid,
+
+        identifier: `v${nanoid(8)}`,
+
+        Resources: {
+          create: clonedResources.map((resource) => {
+            return {
+              ...resource,
+            };
+          }),
+        },
+      },
     });
+
+    const updatedDraftVersion = await prisma.version.update({
+      data: {
+        ExternalRelations: {
+          create: clonedExternalRelations.map((externalRelation) => {
+            return {
+              ...externalRelation,
+            };
+          }),
+        },
+        InternalRelations: {
+          create: clonedInternalRelations.map((internalRelation) => {
+            return {
+              ...internalRelation,
+            };
+          }),
+        },
+      },
+      where: {
+        id: draftVersion.id,
+      },
+    });
+
+    console.log("updatedDraftVersion", updatedDraftVersion);
+
+    // Connect the resources to the draft version
+    // Will have to do this manually as prisma does not support nested createMany
+
+    // const connectedRecordsCount =
+    //   await prisma.$executeRaw`INSERT INTO "_ResourceToVersion" ("A", "B") VALUES ${resourcesData.map(
+    //     (resource) => [resource.id, draftVersion.id],
+    //   )}`;
+
+    // if (connectedRecordsCount !== resourcesData.length) {
+    //   throw createError({
+    //     message: "Failed to connect resources to the new version",
+    //     statusCode: 500,
+    //   });
+    // }
+
+    // clone the external relations
+    // const externalRelationsData = originalExternalRelations.map(
+    //   (externalRelation) => {
+    //     const externalRelationClonedSourceResource = clonedResources.find(
+    //       (resource) =>
+    //         resource.original_resource_id === externalRelation.source_id,
+
+    //     // todo: what to do if this is not found?
+    //     // This should never happen but we probably need some thing here regardless
+    //     const externalRelationClonedSourceResourceId =
+    //       externalRelationClonedSourceResource?.id as string;
+
+    //     return {
+    //       id: createId(),
+    //       action: "clone",
+    //       original_relation_id: externalRelation.id,
+    //       resource_type: externalRelation.resource_type || null,
+    //       source_id: externalRelationClonedSourceResourceId,
+    //       target: externalRelation.target,
+    //       target_type: externalRelation.target_type,
+    //       type: externalRelation.type,
+    //     };
+    //   },
+    // );
+
+    // create the external relations
+    // await prisma.externalRelation.createMany({
+    //   data: externalRelationsData,
+    // });
+
+    // Connect the external relations to the draft version
+
+    // const connectedExternalRelationsCount =
+    //   await prisma.$executeRaw`INSERT INTO "_ExternalRelationToVersion" ("A", "B") VALUES ${externalRelationsData.map(
+    //     (externalRelation) => [externalRelation.id, draftVersion.id],
+    //   )}`;
+
+    // if (connectedExternalRelationsCount !== externalRelationsData.length) {
+    //   throw createError({
+    //     message: "Failed to connect external relations to the new version",
+    //     statusCode: 500,
+    //   });
+    // }
+
+    // const internalRelationsData = await originalInternalRelations.map(
+    //   (internalRelation) => {
+    //     const internalRelationClonedSourceResource = resourcesData.find(
+    //       (resource) =>
+    //         resource.original_resource_id === internalRelation.source_id,
+    //     );
+
+    //     const internalRelationClonedSourceResourceId =
+    //       internalRelationClonedSourceResource?.id as string;
+
+    //     return {
+    //       id: createId(),
+    //       action: "clone",
+    //       mirror: internalRelation.mirror,
+    //       original_relation_id: internalRelation.id,
+    //       resource_type: internalRelation.resource_type,
+    //       source_id: internalRelationClonedSourceResourceId,
+    //       target_id: internalRelation.target_id,
+    //       type: internalRelation.type,
+    //     };
+    //   },
+    // );
+
+    // await prisma.internalRelation.createMany({
+    //   data: internalRelationsData,
+    // });
 
     // Connect the internal relations to the draft version
 
-    const connectedInternalRelationsCount =
-      await prisma.$executeRaw`INSERT INTO "_InternalRelationToVersion" ("A", "B") VALUES ${internalRelationsData.map(
-        (internalRelation) => [internalRelation.id, draftVersion.id],
-      )}`;
+    // const connectedInternalRelationsCount =
+    //   await prisma.$executeRaw`INSERT INTO "_InternalRelationToVersion" ("A", "B") VALUES ${internalRelationsData.map(
+    //     (internalRelation) => [internalRelation.id, draftVersion.id],
+    //   )}`;
 
-    if (connectedInternalRelationsCount !== internalRelationsData.length) {
-      throw createError({
-        message: "Failed to connect internal relations to the new version",
-        statusCode: 500,
-      });
-    }
+    // if (connectedInternalRelationsCount !== internalRelationsData.length) {
+    //   throw createError({
+    //     message: "Failed to connect internal relations to the new version",
+    //     statusCode: 500,
+    //   });
+    // }
 
     return {
       statusCode: 201,
