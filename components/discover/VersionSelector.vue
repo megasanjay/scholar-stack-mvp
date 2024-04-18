@@ -34,6 +34,7 @@ const handleDownloadQRCode = () => {
 };
 
 const copyToClipboard = (input: string) => {
+  console.log("Copying to clipboard", input);
   const source = input;
 
   const { copied, copy, isSupported } = useClipboard({ source });
@@ -52,7 +53,7 @@ const copyToClipboard = (input: string) => {
 
 <template>
   <div>
-    <n-alert type="info" class="mb-5 mt-3">
+    <n-alert type="info" class="mb-5 mt-3" title="Info">
       <div class="flex items-center justify-between gap-5">
         <p class="text-base">
           If you want to always link to the latest version, use the
@@ -70,6 +71,7 @@ const copyToClipboard = (input: string) => {
             <template #trigger>
               <n-button
                 color="black"
+                class="dark:text-white"
                 @click="showCollectionIdentifierQRCodeModal = true"
               >
                 <template #icon>
@@ -83,7 +85,15 @@ const copyToClipboard = (input: string) => {
 
           <n-popover trigger="hover">
             <template #trigger>
-              <n-button color="black">
+              <n-button
+                color="black"
+                class="dark:text-white"
+                @click="
+                  copyToClipboard(
+                    `https://scholarstack.io/view/${collectionIdentifier}`,
+                  )
+                "
+              >
                 <template #icon>
                   <Icon name="solar:copy-bold" size="18" />
                 </template>
@@ -146,6 +156,7 @@ const copyToClipboard = (input: string) => {
                 <template #trigger>
                   <n-button
                     size="small"
+                    class="text-blue-500"
                     text
                     @click="
                       copyToClipboard(
@@ -165,14 +176,28 @@ const copyToClipboard = (input: string) => {
 
             <NuxtLink
               :to="`/view/${version.identifier}`"
-              class="text-sm text-slate-500 transition-all hover:text-slate-400 hover:underline"
+              class="text-sm transition-all hover:text-slate-400 hover:underline"
+              :class="{
+                'text-stone-600':
+                  version.identifier === selectedVersionIdentifier,
+                'text-stone-50':
+                  version.identifier !== selectedVersionIdentifier,
+              }"
             >
               {{ version.identifier }}
             </NuxtLink>
           </n-flex>
 
           <n-flex vertical size="small">
-            <time class="text-sm">
+            <time
+              class="text-sm"
+              :class="{
+                'text-stone-900':
+                  version.identifier === selectedVersionIdentifier,
+                'text-stone-5 0':
+                  version.identifier !== selectedVersionIdentifier,
+              }"
+            >
               {{ displayStandardDate(version.published_on as string) }}
             </time>
           </n-flex>

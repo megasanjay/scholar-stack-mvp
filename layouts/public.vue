@@ -32,7 +32,9 @@ const devMode = process.env.NODE_ENV === "development";
             <UiColorModeToggle />
 
             <nuxt-link v-if="loggedIn" to="/dashboard">
-              <n-button color="black" size="large"> Dashboard </n-button>
+              <n-button color="black" class="dark:text-white" size="large">
+                Dashboard
+              </n-button>
             </nuxt-link>
 
             <UiProfileDropdown />

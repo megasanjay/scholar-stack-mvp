@@ -1,5 +1,9 @@
+import { serverSupabaseUser } from "#supabase/server";
+
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
+
+  const user = await serverSupabaseUser(event);
 
   const { workspaceid } = event.context.params as { workspaceid: string };
 
@@ -16,6 +20,7 @@ export default defineEventHandler(async (event) => {
 
   const collections = await prisma.collection.findMany({
     include: {
+      CollectionAccess: true,
       Versions: {
         orderBy: { created: "desc" },
         take: 1,
@@ -24,13 +29,32 @@ export default defineEventHandler(async (event) => {
     orderBy: {
       updated: "desc",
     },
-    where: { hidden: false, workspace_id: workspaceid },
+    where: {
+      workspace_id: workspaceid,
+    },
+  });
+
+  // Remove collections that the user has hidden
+  const visibleCollections = collections.filter((collection) => {
+    const collectionAccess = collection.CollectionAccess.find(
+      (access) => access.user_id === user?.id,
+    );
+
+    return !collectionAccess?.hidden;
+  });
+
+  const hiddenCollections = collections.filter((collection) => {
+    const collectionAccess = collection.CollectionAccess.find(
+      (access) => access.user_id === user?.id,
+    );
+
+    return collectionAccess?.hidden;
   });
 
   const responseWorkspace: APIResponseWorkspace = {
     id: workspace.id,
     title: workspace.title,
-    collections: collections.map((collection) => ({
+    collections: visibleCollections.map((collection) => ({
       id: collection.id,
       title: collection.title,
       created: collection.created.toISOString(),
@@ -56,6 +80,7 @@ export default defineEventHandler(async (event) => {
         : null,
     })),
     description: workspace.description,
+    hiddenCollectionsCount: hiddenCollections.length || 0,
     personal: workspace.personal,
   };
 

@@ -244,6 +244,7 @@ const removeCollectionStar = async () => {
           <template #trigger>
             <n-button
               color="black"
+              class="dark:text-white"
               :disabled="!loggedIn"
               :loading="starLoading"
               @click="starredStatus ? removeCollectionStar() : starCollection()"

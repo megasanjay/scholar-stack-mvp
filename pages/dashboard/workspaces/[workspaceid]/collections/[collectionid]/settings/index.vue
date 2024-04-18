@@ -97,6 +97,32 @@ const discardDraftVersion = async () => {
     });
 };
 
+const hideCollection = async () => {
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/hide`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+      method: "PUT",
+    },
+  )
+    .then((_res) => {
+      push.success({
+        title: "Success",
+        message: "Your collection has been hidden",
+      });
+
+      navigateTo(`/dashboard/workspaces/${workspaceid}`);
+    })
+    .catch((err) => {
+      console.error(err);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't hide your collection",
+      });
+    });
+};
+
 const deleteCollection = async () => {
   await $fetch(`/api/workspaces/${workspaceid}/collections/${collectionid}`, {
     headers: useRequestHeaders(["cookie"]),
@@ -509,6 +535,24 @@ const updateThumbnail = async (evt: any) => {
       </UCard>
     </UModal>
 
+    <CardWithAction title="Hide collection">
+      <p class="my-3 text-sm">
+        Collections cannot be deleted after they have been created. However, you
+        may hide this collection from your dashboard. This action is reversible.
+      </p>
+
+      <template #action>
+        <div class="flex items-center justify-end">
+          <n-button type="error" @click="hideCollection">
+            <template #icon>
+              <Icon name="mdi:hide" />
+            </template>
+            Hide
+          </n-button>
+        </div>
+      </template>
+    </CardWithAction>
+
     <CardWithAction title="Delete collection">
       <p class="my-3 text-sm">
         Permanently remove your collection and all of its contents from the
@@ -518,7 +562,12 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button type="error" @click="deleteCollection"> Delete </n-button>
+          <n-button type="error" @click="deleteCollection">
+            <template #icon>
+              <Icon name="ic:round-delete" />
+            </template>
+            Delete
+          </n-button>
         </div>
       </template>
     </CardWithAction>

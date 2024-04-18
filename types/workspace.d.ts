@@ -22,6 +22,8 @@ interface APIResponseWorkspace {
   personal: boolean;
 
   collections: APIResponseWorkspaceCollectionItem[];
+
+  hiddenCollectionsCount: number;
 }
 
 interface Workspace {

@@ -9,33 +9,33 @@ export default defineEventHandler(async (event) => {
 
   const workspaceId = nanoid();
 
-  const workspaces = await prisma.workspaceMember.findMany({
-    select: {
-      workspace: {
-        select: {
-          id: true,
-          title: true,
-          created: true,
-          description: true,
-          personal: true,
-          type: true,
+  return await prisma.$transaction(async (tx) => {
+    // Get the user's workspaces
+
+    const workspaces = await tx.workspaceMember.findMany({
+      select: {
+        workspace: {
+          select: {
+            id: true,
+            title: true,
+            created: true,
+            description: true,
+            personal: true,
+            type: true,
+          },
         },
       },
-    },
-    where: {
-      user_id: user?.id,
-    },
-  });
+      where: {
+        user_id: user?.id,
+      },
+    });
 
-  /**
-   * todo: potential race condition here. If two requests come in at the same time, they could both create a personal workspace.
-   * to fix this we could use a transaction to check if the user has a personal workspace before creating one.
-   * or native sql https://stackoverflow.com/questions/11467925/execute-insert-statement-only-if-a-certain-condition-is-met
-   */
+    if (workspaces && workspaces.length > 0) {
+      return workspaces.map((workspace) => workspace.workspace);
+    }
 
-  // Create a personal workspace if the user doesn't have any
-  if (!workspaces || workspaces.length === 0) {
-    const personalWorkspace = await prisma.workspace.create({
+    // Create a personal workspace
+    const personalWorkspace = await tx.workspace.create({
       data: {
         id: workspaceId,
         title: "My workspace",
@@ -53,7 +53,5 @@ export default defineEventHandler(async (event) => {
     });
 
     return [personalWorkspace];
-  }
-
-  return workspaces.map((workspace) => workspace.workspace);
+  });
 });

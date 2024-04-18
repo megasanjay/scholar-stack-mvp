@@ -94,6 +94,22 @@ if (error.value) {
           </div>
         </NuxtLink>
       </n-flex>
+
+      <n-divider
+        v-if="
+          workspace?.hiddenCollectionsCount &&
+          workspace?.hiddenCollectionsCount > 0
+        "
+        dashed
+      >
+        <NuxtLink
+          :to="`/dashboard/workspaces/${workspaceid}/settings/hidden-collections`"
+          class="text-xs text-slate-300 transition-all hover:text-slate-400"
+        >
+          This workspace has {{ workspace?.hiddenCollectionsCount }} hidden
+          collection{{ workspace?.hiddenCollectionsCount > 1 ? "s" : "" }}.
+        </NuxtLink>
+      </n-divider>
     </div>
 
     <ModalNewCollection />
