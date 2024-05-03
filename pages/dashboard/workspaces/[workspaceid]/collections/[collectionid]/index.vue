@@ -42,7 +42,7 @@ if (error.value) {
           </h1>
 
           <NuxtLink :to="`/view/${collection?.identifier}`" target="__blank">
-            <n-button size="large">
+            <n-button size="large" color="black">
               <template #icon>
                 <Icon name="mdi:open-in-new" size="20" />
               </template>
@@ -57,16 +57,6 @@ if (error.value) {
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
       <div class="flex items-center justify-between pb-5 pt-10">
         <h2>About</h2>
-
-        <NuxtLink :to="`/view/${collection?.identifier}`" target="__blank">
-          <n-button color="black">
-            <template #icon>
-              <Icon name="mdi:open-in-new" size="20" />
-            </template>
-
-            View catalog page
-          </n-button>
-        </NuxtLink>
       </div>
 
       <h3 class="pb-2 pt-5">Overview</h3>

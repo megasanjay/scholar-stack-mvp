@@ -269,7 +269,7 @@ const createNewVersion = async () => {
           "
           target="_blank"
         >
-          <n-button color="black" size="large">
+          <n-button size="large">
             <template #icon>
               <Icon name="iconoir:internet" />
             </template>
