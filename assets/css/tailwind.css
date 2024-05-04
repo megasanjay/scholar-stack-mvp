@@ -27,32 +27,32 @@ body {
 
   /* #region  /**=========== Typography =========== */
   .h0 {
-    @apply font-primary text-3xl font-bold md:text-4xl;
+    @apply font-primary text-3xl font-bold md:text-4xl dark:text-white;
   }
 
   h1,
   .h1 {
-    @apply font-primary text-2xl font-bold md:text-3xl;
+    @apply font-primary text-2xl font-bold md:text-3xl dark:text-white;
   }
 
   h2,
   .h2 {
-    @apply font-primary text-xl font-bold md:text-2xl;
+    @apply font-primary text-xl font-bold md:text-2xl dark:text-white;
   }
 
   h3,
   .h3 {
-    @apply font-primary text-lg font-bold md:text-xl;
+    @apply font-primary text-lg font-bold md:text-xl dark:text-white;
   }
 
   h4,
   .h4 {
-    @apply font-primary text-base font-bold md:text-lg;
+    @apply font-primary text-base font-bold md:text-lg dark:text-white;
   }
 
   body,
   p {
-    @apply font-primary text-sm md:text-base;
+    @apply font-primary text-sm md:text-base dark:text-white;
   }
 
   pre {
