@@ -59,52 +59,45 @@ if (error.value) {
         <h2>About</h2>
       </div>
 
-      <h3 class="pb-2 pt-5">Overview</h3>
-
-      <p class="text-lg">
-        {{ collection?.description || "No description provided" }}
-      </p>
-
-      <h3 class="pb-2 pt-7">Detailed Description</h3>
-
-      <MarkdownRender
-        v-if="collection?.detailedDescription"
-        :content="collection?.detailedDescription || ''"
+      <DataDisplay
+        title="Overview"
+        :content="collection?.description || 'No description provided'"
       />
 
-      <p v-else class="text-lg">No detailed description provided</p>
+      <DataDisplay title="Detailed Description">
+        <MarkdownRender
+          v-if="collection?.detailedDescription"
+          :content="collection?.detailedDescription || ''"
+        />
 
-      <h3 class="pb-2 pt-7">Identifer</h3>
+        <p v-else class="text-lg">No detailed description provided</p>
+      </DataDisplay>
 
-      <p class="text-lg">
-        {{ collection?.identifier }}
-      </p>
+      <DataDisplay title="Identifier" :content="collection?.identifier" />
 
-      <h3 class="pb-2 pt-7">Visibility</h3>
+      <DataDisplay title="Visibility">
+        <n-tag v-if="collection?.private" type="warning"> Private </n-tag>
 
-      <n-tag v-if="collection?.private" type="warning"> Private </n-tag>
+        <n-tag v-else type="success"> Public </n-tag>
+      </DataDisplay>
 
-      <n-tag v-else type="success"> Public </n-tag>
-
-      <h3 class="pb-2 pt-7">Created on</h3>
-
-      <p class="text-lg">
-        {{ displayLongDate(collection?.created as string) }}
-      </p>
-
-      <h3 class="pb-2 pt-7">Last updated</h3>
-
-      <p class="text-lg">
-        {{ displayLongDate(collection?.updated as string) }}
-      </p>
-
-      <h3 class="pb-3 pt-7">Image</h3>
-
-      <n-image
-        :src="`${collection?.image_url}?t=${collection?.updated}`"
-        :alt="collection?.title"
-        class="h-[200px] w-auto"
+      <DataDisplay
+        title="Created on"
+        :content="displayLongDate(collection?.created as string)"
       />
+
+      <DataDisplay
+        title="Last updated"
+        :content="displayLongDate(collection?.updated as string)"
+      />
+
+      <DataDisplay title="Image">
+        <n-image
+          :src="`${collection?.image_url}?t=${collection?.updated}`"
+          :alt="collection?.title"
+          class="h-[200px] w-auto"
+        />
+      </DataDisplay>
     </div>
 
     <ModalNewCollection />
