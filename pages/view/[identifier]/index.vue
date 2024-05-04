@@ -243,7 +243,6 @@ const removeCollectionStar = async () => {
         <n-popover trigger="hover" :disabled="!!loggedIn">
           <template #trigger>
             <n-button
-              color="black"
               class="dark:text-white"
               :disabled="!loggedIn"
               :loading="starLoading"

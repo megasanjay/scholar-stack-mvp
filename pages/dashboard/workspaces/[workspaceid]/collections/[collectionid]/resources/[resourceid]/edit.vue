@@ -191,7 +191,7 @@ const selectResourceType = (value: string) => {
 
   const curi = identifierTypeOptions.find((prefix) => prefix.value === value);
 
-  if (curi) {
+  if (curi && curi.type !== "other") {
     formData.resource_type = curi.type;
   }
 };

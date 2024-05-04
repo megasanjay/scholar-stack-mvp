@@ -34,7 +34,7 @@
         "urlPattern": "https://data.4dnucleome.org/{$id}"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "4dn"
   },
   {
@@ -53,7 +53,7 @@
         "urlPattern": "http://genome.crg.es/datasets/abs2005/entries/{$id}.html"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "abs"
   },
   {
@@ -110,7 +110,7 @@
         "urlPattern": "https://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/av.cgi?db=worm&c=Gene&l={$id}"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "aceview.worm"
   },
   {
@@ -148,7 +148,7 @@
         "urlPattern": "http://addgene.org/{$id}"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "addgene"
   },
   {
@@ -176,7 +176,7 @@
         "urlPattern": "http://cu.affymetrix.bio2rdf.org/describe/?url=http://bio2rdf.org/affymetrix:{$id}"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "affy.probeset"
   },
   {
@@ -271,7 +271,7 @@
         "urlPattern": "https://amoebadb.org/amoeba/app/record/gene/{$id}"
       }
     ],
-    "type": "genomicData",
+    "type": "other",
     "value": "amoebadb"
   },
   {
@@ -328,7 +328,7 @@
         "urlPattern": "https://animaldiversity.org/accounts/{$id}/"
       }
     ],
-    "type": "taxonomy",
+    "type": "other",
     "value": "adw"
   },
   {
@@ -480,7 +480,7 @@
         "urlPattern": "http://antibodyregistry.org/AB_{$id}"
       }
     ],
-    "type": "antibody",
+    "type": "other",
     "value": "antibodyregistry"
   },
   {
@@ -499,7 +499,7 @@
         "urlPattern": "http://www.antweb.org/specimen.do?name={$id}"
       }
     ],
-    "type": "taxonomy",
+    "type": "other",
     "value": "antweb"
   },
   {
@@ -556,7 +556,7 @@
         "urlPattern": "https://aopwiki.org/aops/{$id}"
       }
     ],
-    "type": "adverseOutcomePathways",
+    "type": "other",
     "value": "aop"
   },
   {
@@ -575,7 +575,7 @@
         "urlPattern": "https://aopwiki.org/relationships/{$id}"
       }
     ],
-    "type": "adverseOutcomePathways",
+    "type": "other",
     "value": "aop.relationships"
   },
   {
@@ -594,7 +594,7 @@
         "urlPattern": "https://aopwiki.org/events/{$id}"
       }
     ],
-    "type": "adverseOutcomePathways",
+    "type": "other",
     "value": "aop.events"
   },
   {
@@ -613,7 +613,7 @@
         "urlPattern": "https://aopwiki.org/stressors/{$id}"
       }
     ],
-    "type": "adverseOutcomePathways",
+    "type": "other",
     "value": "aop.stressor"
   },
   {
@@ -632,7 +632,7 @@
         "urlPattern": "http://aps.unmc.edu/AP/database/query_output.php?ID={$id}"
       }
     ],
-    "type": "peptide",
+    "type": "other",
     "value": "apd"
   },
   {
@@ -5937,7 +5937,7 @@
         "urlPattern": "https://github.com/{$id}"
       }
     ],
-    "type": "gitHubRepository",
+    "type": "other",
     "value": "github"
   },
   {
@@ -5956,7 +5956,7 @@
         "urlPattern": "https://gitlab.com/{$id}"
       }
     ],
-    "type": "gitLabRepository",
+    "type": "other",
     "value": "gitlab"
   },
   {
@@ -8207,7 +8207,7 @@
         "urlPattern": "https://jcoin.datacommons.io/ga4gh/drs/v1/objects/{$id}"
       }
     ],
-    "type": "clinicalData",
+    "type": "other",
     "value": "6vts"
   },
   {
