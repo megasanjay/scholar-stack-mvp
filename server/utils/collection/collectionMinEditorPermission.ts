@@ -7,10 +7,17 @@ export default defineEventHandler(async (event) => {
   // Check if the collection exists in the workspace
   const collectionid = await collectionExists(event);
 
-  // workspace admins also have collection admin permission by default
-  const workspaceAdmin = await workspaceMinAdminPermission(event);
+  const { workspaceid } = event.context.params as {
+    workspaceid: string;
+  };
 
-  if (workspaceAdmin) {
+  // workspace admins also have collection admin permission by default
+  const { permission } = await workspacePermission(
+    workspaceid,
+    user?.id as string,
+  );
+
+  if (permission === "admin" || permission === "owner") {
     return true;
   }
 
@@ -21,6 +28,13 @@ export default defineEventHandler(async (event) => {
       user_id: userid,
     },
   });
+
+  if (!collectionAccess) {
+    throw createError({
+      message: "Unauthorized - No collection access found",
+      statusCode: 401,
+    });
+  }
 
   // Check if the user has at least admin permisison
   if (

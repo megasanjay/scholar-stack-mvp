@@ -61,7 +61,7 @@ workspaceStore.setWorkspaces(workspaces.value || []);
           v-for="workspace in workspaces"
           :key="workspace.id"
           :to="`/dashboard/workspaces/${workspace.id}`"
-          class="flex w-full flex-col space-y-4 rounded-md border bg-white p-6 shadow-sm transition-all hover:shadow-md"
+          class="flex w-full flex-col space-y-4 rounded-md border bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md"
         >
           <div class="flex w-full items-center justify-start space-x-2">
             <n-avatar

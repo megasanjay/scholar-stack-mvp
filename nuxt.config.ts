@@ -33,6 +33,8 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
+  experimental: {},
+
   image: {
     domains: ["api.dicebear.com"],
   },

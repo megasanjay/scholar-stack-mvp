@@ -89,22 +89,35 @@ export default defineEventHandler(async (event) => {
     (resource) => resource.action === "clone",
   );
 
-  for (const clonedResource of clonedResources) {
-    if (clonedResource.original_resource_id) {
-      await prisma.version.update({
-        data: {
-          Resources: {
-            connect: {
-              id: clonedResource.original_resource_id,
-            },
-          },
-        },
-        where: {
-          id: draftVersion.id,
-        },
-      });
-    }
-  }
+  await prisma.version.update({
+    data: {
+      Resources: {
+        connect: clonedResources.map((clonedResource) => ({
+          id: clonedResource.original_resource_id as string,
+        })),
+      },
+    },
+    where: {
+      id: draftVersion.id,
+    },
+  });
+
+  // for (const clonedResource of clonedResources) {
+  //   if (clonedResource.original_resource_id) {
+  //     await prisma.version.update({
+  //       data: {
+  //         Resources: {
+  //           connect: {
+  //             id: clonedResource.original_resource_id,
+  //           },
+  //         },
+  //       },
+  //       where: {
+  //         id: draftVersion.id,
+  //       },
+  //     });
+  //   }
+  // }
 
   const updatedResources = resources.filter(
     (resource) => resource.action === "update",
@@ -135,14 +148,22 @@ export default defineEventHandler(async (event) => {
     (resource) => resource.action === "delete",
   );
 
-  for (const deletedResource of deletedResources) {
-    // remove the deleted staging resource
-    await prisma.resource.delete({
-      where: {
-        id: deletedResource.id,
+  await prisma.resource.deleteMany({
+    where: {
+      id: {
+        in: deletedResources.map((resource) => resource.id),
       },
-    });
-  }
+    },
+  });
+
+  // for (const deletedResource of deletedResources) {
+  //   // remove the deleted staging resource
+  //   await prisma.resource.delete({
+  //     where: {
+  //       id: deletedResource.id,
+  //     },
+  //   });
+  // }
 
   const newVersionResources = resources.filter(
     (resource) => resource.action === "newVersion",
@@ -174,31 +195,52 @@ export default defineEventHandler(async (event) => {
     (resource) => resource.action === "oldVersion",
   );
 
-  for (const oldVersionResource of oldVersionResources) {
-    // remove the old version staging resource
-    await prisma.resource.delete({
-      where: {
-        id: oldVersionResource.id,
+  await prisma.resource.deleteMany({
+    where: {
+      id: {
+        in: oldVersionResources.map((resource) => resource.id),
       },
-    });
-  }
+    },
+  });
+
+  // for (const oldVersionResource of oldVersionResources) {
+  //   // remove the old version staging resource
+  //   await prisma.resource.delete({
+  //     where: {
+  //       id: oldVersionResource.id,
+  //     },
+  //   });
+  // }
 
   const newResources = resources.filter(
     (resource) => resource.action === "create",
   );
 
-  for (const newResource of newResources) {
-    await prisma.resource.update({
-      data: {
-        action: null,
-        filled_in: true,
-        original_resource_id: null,
+  await prisma.resource.updateMany({
+    data: {
+      action: null,
+      filled_in: true,
+      original_resource_id: null,
+    },
+    where: {
+      id: {
+        in: newResources.map((resource) => resource.id),
       },
-      where: {
-        id: newResource.id,
-      },
-    });
-  }
+    },
+  });
+
+  // for (const newResource of newResources) {
+  //   await prisma.resource.update({
+  //     data: {
+  //       action: null,
+  //       filled_in: true,
+  //       original_resource_id: null,
+  //     },
+  //     where: {
+  //       id: newResource.id,
+  //     },
+  //   });
+  // }
 
   const updatedDraftVersion = await prisma.version.findFirst({
     include: {

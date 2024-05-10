@@ -32,9 +32,6 @@ if (error.value) {
   });
 }
 
-const { collectionPermission, collectionPermissionGetLoading } =
-  await useCollectionPermission(workspaceid, collectionid);
-
 const parseMembers = (members: any) => {
   for (const member of members) {
     if (member.role === "collection-admin") {
@@ -54,17 +51,30 @@ if (members.value) {
   parseMembers(members.value);
 }
 
-const manageOptions = [
-  {
-    disabled: members.value?.length === 1,
-    key: "makeWorkspaceOwner",
-    label: "Make Workspace Owner",
-  },
-  {
-    key: "leaveWorkspace",
-    label: "Leave Workspace",
-  },
-];
+const { collectionPermission, collectionPermissionGetLoading } =
+  await useCollectionPermission(workspaceid, collectionid);
+
+const { workspacePermission, workspacePermissionGetLoading } =
+  await useWorkspacePermission(workspaceid);
+
+const generatePublisherDropdownOptions = (memberid: string) => {
+  return [
+    {
+      disabled: workspacePermission.value !== "owner",
+      key: "removePublisher",
+      label: "Remove publisher",
+      show: memberid !== user.value?.id,
+    },
+    {
+      disabled:
+        workspacePermission.value === "owner" ||
+        workspacePermission.value === "admin",
+      key: "giveUpPublisherAccess",
+      label: "Give up publisher access",
+      show: memberid === user.value?.id,
+    },
+  ];
+};
 
 const generateEditorDropdownOptions = (memberid: string) => {
   return [
@@ -86,8 +96,48 @@ const generateEditorDropdownOptions = (memberid: string) => {
   ];
 };
 
-const manageMember = (key: string | number) => {
-  console.log(key);
+const manageMember = async (userid: string | number) => {
+  const body = {
+    userid,
+  };
+
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/members/admin`,
+    {
+      body: JSON.stringify(body),
+      headers: useRequestHeaders(["cookie"]),
+      method: "PUT",
+    },
+  )
+    .then((response) => {
+      push.success({
+        title: "Success",
+        message: "This editor has been assigned as an administrator",
+      });
+
+      // Add the member to the publish access list
+      publishAccess.value.push({
+        id: response.admin.id || "",
+        username: response.admin.username || "",
+        name: response.admin.name || "",
+        created: new Date().toDateString(),
+        emailAddress: response.admin.email_address || "",
+        role: "collection-admin",
+      });
+
+      // Remove the member from the edit access list
+      editAccess.value = editAccess.value.filter(
+        (member) => member.id !== userid,
+      );
+    })
+    .catch((error) => {
+      console.log(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't assign this editor as an administrator",
+      });
+    });
 };
 
 const {
@@ -272,7 +322,7 @@ const inviteMember = async () => {
           <n-dropdown
             trigger="click"
             placement="bottom-end"
-            :options="manageOptions"
+            :options="generatePublisherDropdownOptions(member.id)"
             @select="manageMember"
           >
             <n-button secondary>
@@ -323,7 +373,7 @@ const inviteMember = async () => {
             trigger="click"
             placement="bottom-end"
             :options="generateEditorDropdownOptions(member.id)"
-            @select="manageMember"
+            @select="manageMember(member.id)"
           >
             <n-button secondary :loading="collectionPermissionGetLoading">
               <template #icon>

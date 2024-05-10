@@ -4,6 +4,7 @@ export default async function getCollectionPermission(
 ) {
   const collectionPermissionGetLoading = ref(true);
   const collectionPermission = ref("");
+  const collectionPermissionAbility = ref<string[]>([]);
 
   collectionPermissionGetLoading.value = true;
 
@@ -18,6 +19,20 @@ export default async function getCollectionPermission(
 
       if (data) {
         collectionPermission.value = data.permission;
+
+        switch (data.permission) {
+          case "viewer":
+            collectionPermissionAbility.value = ["view"];
+            break;
+          case "editor":
+            collectionPermissionAbility.value = ["view", "edit"];
+            break;
+          case "admin":
+            collectionPermissionAbility.value = ["view", "edit", "publish"];
+            break;
+          default:
+            break;
+        }
       }
     })
     .catch((error) => {
@@ -27,5 +42,9 @@ export default async function getCollectionPermission(
       collectionPermissionGetLoading.value = false;
     });
 
-  return { collectionPermission, collectionPermissionGetLoading };
+  return {
+    collectionPermission,
+    collectionPermissionAbility,
+    collectionPermissionGetLoading,
+  };
 }

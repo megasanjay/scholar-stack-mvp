@@ -90,7 +90,6 @@
     "icon": "ri:article-line"
   },
   { "label": "video", "value": "video", "icon": "mdi:video" },
-
   {
     "label": "Other",
     "value": "other",

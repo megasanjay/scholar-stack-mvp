@@ -8,6 +8,9 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  /**
+   * todo: the admin read order is backwards here. The workspace admin should be checked first, then the collection admin, then the collection editor. Can do later.
+   */
   const collectionAcessTeam = [];
 
   const collectionAdmins = await prisma.collectionAccess.findMany({
@@ -45,6 +48,14 @@ export default defineEventHandler(async (event) => {
         emailAddress: workspaceAdmin.user.email_address,
         role: "workspace-admin",
       });
+    } else {
+      const record = collectionAcessTeam.find(
+        (member) => member.id === workspaceAdmin.user_id,
+      );
+
+      if (record) {
+        record.role = "workspace-admin";
+      }
     }
   }
 
@@ -64,6 +75,14 @@ export default defineEventHandler(async (event) => {
       emailAddress: workspaceOwner?.user.email_address,
       role: "workspace-owner",
     });
+  } else {
+    const record = collectionAcessTeam.find(
+      (member) => member.id === workspaceOwner?.user_id,
+    );
+
+    if (record) {
+      record.role = "workspace-owner";
+    }
   }
 
   const collectionEditors = await prisma.collectionAccess.findMany({

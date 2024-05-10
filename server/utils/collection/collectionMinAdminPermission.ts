@@ -8,10 +8,17 @@ export default defineEventHandler(async (event) => {
   // Check if the collection exists in the workspace
   const collectionid = await collectionExists(event);
 
-  // workspace admins also have collection admin permission by default
-  const workspaceAdmin = await workspaceMinAdminPermission(event);
+  const { workspaceid } = event.context.params as {
+    workspaceid: string;
+  };
 
-  if (workspaceAdmin) {
+  // workspace admins also have collection admin permission by default
+  const { permission } = await workspacePermission(
+    workspaceid,
+    user?.id as string,
+  );
+
+  if (permission === "admin" || permission === "owner") {
     return {
       admin: true,
       type: "workspace",

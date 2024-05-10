@@ -34,5 +34,5 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  return collections;
+  return collections || [];
 });

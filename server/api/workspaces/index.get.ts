@@ -30,8 +30,29 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    if (workspaces && workspaces.length > 0) {
-      return workspaces.map((workspace) => workspace.workspace);
+    // Check if a personal workspace already exists
+    const personalWorkspaceExists = workspaces.some(
+      (workspace) => workspace.workspace.personal,
+    );
+
+    if (workspaces && workspaces.length > 0 && personalWorkspaceExists) {
+      const foundWorkspaces = workspaces.map(
+        (workspace) => workspace.workspace,
+      );
+
+      // Move the personal workspace to the top
+      const personalWorkspace = foundWorkspaces.find(
+        (workspace) => workspace.personal,
+      );
+
+      if (personalWorkspace) {
+        const personalWorkspaceIndex =
+          foundWorkspaces.indexOf(personalWorkspace);
+        foundWorkspaces.splice(personalWorkspaceIndex, 1);
+        foundWorkspaces.unshift(personalWorkspace);
+      }
+
+      return foundWorkspaces;
     }
 
     // Create a personal workspace

@@ -52,7 +52,7 @@ if (collection.value) {
   collectionName.value = collection.value.title;
   collectionDescription.value = collection.value.description;
   collectionDetailedDescription.value = collection.value.detailedDescription;
-  collectionImage.value = `${collection.value.image_url}?t=${Date.now()}`;
+  collectionImage.value = `${collection.value.image_url}?t=${collection.value.updated}`;
 
   versionId.value = collection.value.version?.id || "N/A";
 }
@@ -512,7 +512,7 @@ const updateThumbnail = async (evt: any) => {
 
         <template #footer>
           <div class="flex items-center justify-end space-x-2">
-            <n-button @click="discardVersionModalIsOpen = false">
+            <n-button secondary @click="discardVersionModalIsOpen = false">
               <template #icon>
                 <Icon name="material-symbols:cancel-outline" />
               </template>
@@ -521,7 +521,6 @@ const updateThumbnail = async (evt: any) => {
 
             <n-button
               type="warning"
-              secondary
               :loading="discardVersionLoading"
               @click="discardDraftVersion"
             >
@@ -543,7 +542,7 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button type="error" @click="hideCollection">
+          <n-button type="error" secondary @click="hideCollection">
             <template #icon>
               <Icon name="mdi:hide" />
             </template>

@@ -427,7 +427,7 @@ const navigateToResource = (resourceid: string) => {
                   >
                     <n-avatar
                       :size="20"
-                      :src="currentCollection?.image_url"
+                      :src="`${currentCollection?.image_url}?t=${currentCollection?.updated}`"
                       class="border"
                       round
                     />
@@ -480,7 +480,7 @@ const navigateToResource = (resourceid: string) => {
                     <div class="flex items-center justify-start space-x-2 pr-4">
                       <n-avatar
                         :size="20"
-                        :src="collection.image_url"
+                        :src="`${collection?.image_url}?t=${collection?.updated}`"
                         class="border hover:cursor-pointer hover:opacity-80"
                         round
                       />

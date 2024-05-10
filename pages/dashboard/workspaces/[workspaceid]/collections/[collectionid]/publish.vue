@@ -46,6 +46,9 @@ if (collection.value) {
   }
 }
 
+const { collectionPermissionAbility, collectionPermissionGetLoading } =
+  await useCollectionPermission(workspaceid, collectionid);
+
 const {
   data: validationResults,
   error: _validationError,
@@ -117,13 +120,19 @@ const publishCollection = async () => {
               size="large"
               color="black"
               :loading="validationPending || publishCollectionLoading"
-              :disabled="validationPending || !validationResults?.valid"
+              :disabled="
+                validationPending ||
+                !validationResults?.valid ||
+                collectionPermissionGetLoading ||
+                collectionPermissionAbility.includes('publish')
+              "
               @click="openPublishCollectionModal"
             >
               <template #icon>
                 <Icon name="entypo:publish" />
               </template>
-              Publish collection
+
+              Publish
             </n-button>
           </n-space>
         </div>

@@ -1,4 +1,5 @@
 import { serverSupabaseUser } from "#supabase/server";
+import workspacePermission from "~/server/utils/workspace/workspacePermission";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
@@ -11,22 +12,5 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
-  const workspaceMember = await prisma.workspaceMember.findFirst({
-    where: { user_id: user?.id, workspace_id: workspaceid },
-  });
-
-  if (!workspaceMember) {
-    throw createError({
-      message: "Not a member of this workspace",
-      statusCode: 403,
-    });
-  }
-
-  if (workspaceMember.admin) {
-    return { permission: "admin", statusCode: 200 };
-  } else if (workspaceMember.owner) {
-    return { permission: "owner", statusCode: 200 };
-  } else {
-    return { permission: "viewer", statusCode: 200 };
-  }
+  return await workspacePermission(workspaceid, user?.id as string);
 });

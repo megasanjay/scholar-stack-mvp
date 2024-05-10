@@ -61,6 +61,16 @@ if (resource.value && "action" in resource.value) {
   }
 }
 
+const { collectionPermissionAbility, collectionPermissionGetLoading } =
+  await useCollectionPermission(workspaceid, collectionid);
+
+const disableEditing = computed(() => {
+  return (
+    collectionPermissionGetLoading.value ||
+    !collectionPermissionAbility.value.includes("edit")
+  );
+});
+
 const resourceType = computed(() => {
   if (!resource.value) {
     return "Unknown";
@@ -191,6 +201,7 @@ const createNewVersion = async () => {
                 type="error"
                 secondary
                 :loading="removeResourceLoadingIndicator"
+                :disabled="disableEditing"
                 @click="openRemoveResourceModal"
               >
                 <template #icon>
@@ -210,6 +221,7 @@ const createNewVersion = async () => {
                 "
                 ghost
                 size="large"
+                :disabled="disableEditing"
                 :loading="newResourceVersionLoadingIndicator"
                 @click="openNewResourceVersionModal"
               >
@@ -223,7 +235,7 @@ const createNewVersion = async () => {
               <NuxtLink
                 :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/edit`"
               >
-                <n-button color="black" size="large">
+                <n-button color="black" size="large" :disabled="disableEditing">
                   <template #icon>
                     <Icon name="tabler:edit" />
                   </template>
@@ -257,7 +269,7 @@ const createNewVersion = async () => {
           "
           target="_blank"
         >
-          <n-button color="black" size="large">
+          <n-button size="large">
             <template #icon>
               <Icon name="iconoir:internet" />
             </template>
@@ -267,53 +279,46 @@ const createNewVersion = async () => {
         </NuxtLink>
       </div>
 
-      <h3 class="pb-2 pt-5">Title</h3>
+      <DataDisplay
+        title="Title"
+        :content="resource?.title || 'No title provided'"
+      />
 
-      <p class="text-lg">{{ resource?.title || "No title provided" }}</p>
+      <DataDisplay
+        title="Description"
+        :content="resource?.description || 'No description available'"
+      />
 
-      <h3 class="pb-2 pt-5">Description</h3>
+      <DataDisplay title="Type" :content="resourceType" />
 
-      <p class="text-lg">
-        {{ resource?.description || "No description available" }}
-      </p>
+      <DataDisplay
+        title="Identifier"
+        :content="resource?.identifier || 'No identifier provided'"
+      />
 
-      <h3 class="pb-2 pt-5">Type</h3>
+      <DataDisplay
+        v-if="resource?.back_link_id"
+        title="Derived from"
+        :content="resource?.back_link_id"
+      />
 
-      <p class="text-lg">{{ resourceType }}</p>
+      <DataDisplay
+        v-if="resource?.version_label"
+        title="Version"
+        :content="resource?.version_label"
+      />
 
-      <h3 class="pb-2 pt-5">Identifier</h3>
+      <DataDisplay
+        title="Created on"
+        :content="displayLongDate(resource?.created as string)"
+      />
 
-      <p class="text-lg">
-        {{ resource?.identifier || "No identifier provided" }}
-      </p>
+      <DataDisplay
+        title="Last updated on"
+        :content="displayLongDate(resource?.updated as string)"
+      />
 
-      <h3 v-if="resource?.back_link_id" class="pb-2 pt-5">Derived from</h3>
-
-      <p v-if="resource?.back_link_id" class="text-lg">
-        {{ resource?.back_link_id }}
-      </p>
-
-      <h3 v-if="resource?.version_label" class="pb-2 pt-5">Version</h3>
-
-      <p v-if="resource?.version_label" class="text-lg">
-        {{ resource?.version_label }}
-      </p>
-
-      <h3 class="pb-2 pt-5">Created on</h3>
-
-      <p class="text-lg">
-        {{ displayLongDate(resource?.created as string) }}
-      </p>
-
-      <h3 class="pb-2 pt-5">Last updated on</h3>
-
-      <p class="text-lg">
-        {{ displayLongDate(resource?.updated as string) }}
-      </p>
-
-      <h3 class="pb-2 pt-5">Internal ID</h3>
-
-      <p class="text-lg">{{ resource?.id }}</p>
+      <DataDisplay title="Internal ID" :content="resource?.id" />
     </div>
 
     <ModalNewCollection />

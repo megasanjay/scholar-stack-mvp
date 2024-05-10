@@ -605,7 +605,14 @@ const restoreRelation = async (relationid: string) => {
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <n-space vertical size="large" class="w-full">
+      <n-empty
+        v-if="Object.keys(groupedRelations).length === 0"
+        description="No relations for this resource"
+        class="py-4"
+      >
+      </n-empty>
+
+      <n-space v-else vertical size="large" class="w-full">
         <div v-for="(gr, name, index) in groupedRelations" :key="index">
           <div flex class="flex items-center justify-between pb-5 pt-10">
             <h2>{{ getRelationName(name as string) }}</h2>
