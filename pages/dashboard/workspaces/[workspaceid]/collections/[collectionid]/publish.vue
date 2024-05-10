@@ -124,7 +124,7 @@ const publishCollection = async () => {
                 validationPending ||
                 !validationResults?.valid ||
                 collectionPermissionGetLoading ||
-                collectionPermissionAbility.includes('publish')
+                !collectionPermissionAbility.includes('publish')
               "
               @click="openPublishCollectionModal"
             >
