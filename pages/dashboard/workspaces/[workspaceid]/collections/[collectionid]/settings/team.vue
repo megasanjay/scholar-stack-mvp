@@ -8,6 +8,8 @@ const userToInvite = ref<string | null>(null);
 
 const inviteLoading = ref(false);
 
+const permissionChangeLoading = ref("");
+
 const publishAccess = ref<CollectionAccessTeam>([]);
 const editAccess = ref<CollectionAccessTeam>([]);
 
@@ -98,57 +100,137 @@ const generateEditorDropdownOptions = (memberid: string) => {
   ];
 };
 
-const publisherManageMember = (key: string) => {
-  console.log(selectedMember.value, key);
+const publisherManageMember = async (key: string) => {
   if (key === "removePublisher") {
-    console.log("Remove publisher");
+    const member = publishAccess.value.find(
+      (member) => member.id === selectedMember.value,
+    );
+
+    if (!member) {
+      throw new Error("Member not found");
+    }
+
+    if (
+      !workspacePermission.value &&
+      (workspacePermission.value === "owner" ||
+        workspacePermission.value === "admin")
+    ) {
+      push.error({
+        title: "Something went wrong",
+        message: "You don't have permission to remove this publisher",
+      });
+
+      return;
+    }
+
+    permissionChangeLoading.value = member.id;
+
+    const body = {
+      userid: member.id,
+    };
+
+    await $fetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/members/publisher`,
+      {
+        body: JSON.stringify(body),
+        headers: useRequestHeaders(["cookie"]),
+        method: "DELETE",
+      },
+    )
+      .then(() => {
+        push.success({
+          title: "Success",
+          message: "The publisher permission has been removed from this user",
+        });
+
+        // Remove the member from the publish access list
+        publishAccess.value = publishAccess.value.filter(
+          (member) => member.id !== selectedMember.value,
+        );
+
+        // Add the member to the edit access list
+        editAccess.value.push({
+          id: member.id,
+          username: member.username || "",
+          name: member.name || "",
+          created: member.created,
+          emailAddress: member.emailAddress || "",
+          role: "collection-editor",
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't remove the publisher permission from this user",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
+      });
   } else if (key === "giveUpPublisherAccess") {
     console.log("Give up publisher access");
   }
 };
 
-const manageMember = async (userid: string | number) => {
-  const body = {
-    userid,
-  };
+const editorManageMember = async (key: string) => {
+  if (key === "makeAdmin") {
+    const member = editAccess.value.find(
+      (member) => member.id === selectedMember.value,
+    );
 
-  await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/members/admin`,
-    {
-      body: JSON.stringify(body),
-      headers: useRequestHeaders(["cookie"]),
-      method: "PUT",
-    },
-  )
-    .then((response) => {
-      push.success({
-        title: "Success",
-        message: "This editor has been assigned as an administrator",
+    if (!member) {
+      throw new Error("Member not found");
+    }
+
+    permissionChangeLoading.value = member.id;
+
+    const body = {
+      userid: member.id,
+    };
+
+    await $fetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/members/admin`,
+      {
+        body: JSON.stringify(body),
+        headers: useRequestHeaders(["cookie"]),
+        method: "PUT",
+      },
+    )
+      .then((response) => {
+        push.success({
+          title: "Success",
+          message: "This editor has been assigned as an administrator",
+        });
+
+        // Add the member to the publish access list
+        publishAccess.value.push({
+          id: response.admin.id || "",
+          username: response.admin.username || "",
+          name: response.admin.name || "",
+          created: new Date().toDateString(),
+          emailAddress: response.admin.email_address || "",
+          role: "collection-admin",
+        });
+
+        // Remove the member from the edit access list
+        editAccess.value = editAccess.value.filter(
+          (entry) => entry.id !== member.id,
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't assign this editor as an administrator",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
       });
-
-      // Add the member to the publish access list
-      publishAccess.value.push({
-        id: response.admin.id || "",
-        username: response.admin.username || "",
-        name: response.admin.name || "",
-        created: new Date().toDateString(),
-        emailAddress: response.admin.email_address || "",
-        role: "collection-admin",
-      });
-
-      // Remove the member from the edit access list
-      editAccess.value = editAccess.value.filter(
-        (member) => member.id !== userid,
-      );
-    })
-    .catch((error) => {
-      console.log(error);
-
-      push.error({
-        title: "Something went wrong",
-        message: "We couldn't assign this editor as an administrator",
-      });
-    });
+  }
 };
 
 const {
@@ -284,7 +366,7 @@ const inviteMember = async () => {
     <h2 class="text-xl">Publish Access</h2>
 
     <pre>
-      {{ selectedMember }}
+      {{ selectedMember }} {{ workspacePermission }}
     </pre>
 
     <p class="mb-6 pt-1 text-slate-700">
@@ -340,7 +422,14 @@ const inviteMember = async () => {
             :options="generatePublisherDropdownOptions(member.id)"
             @select="publisherManageMember"
           >
-            <n-button secondary @click="selectedMember = member.id">
+            <n-button
+              secondary
+              :loading="
+                collectionPermissionGetLoading ||
+                permissionChangeLoading === member.id
+              "
+              @click="selectedMember = member.id"
+            >
               <template #icon>
                 <Icon name="iconamoon:menu-kebab-vertical-bold" />
               </template>
@@ -388,11 +477,14 @@ const inviteMember = async () => {
             trigger="click"
             placement="bottom-end"
             :options="generateEditorDropdownOptions(member.id)"
-            @select="manageMember(member.id)"
+            @select="editorManageMember"
           >
             <n-button
               secondary
-              :loading="collectionPermissionGetLoading"
+              :loading="
+                collectionPermissionGetLoading ||
+                permissionChangeLoading === member.id
+              "
               @click="selectedMember = member.id"
             >
               <template #icon>

@@ -28,7 +28,14 @@ const themeConfig: ThemeConfig = {
   light: {}, // Theme options applied on light mode
   mobile: {}, // Theme options applied on mobile only
   mobileOrTablet: {}, // Theme options applied on mobile and tablet
-  shared: {}, // Common theme options
+  shared: {
+    common: {
+      primaryColor: "#ec4899",
+      primaryColorHover: "#db2777",
+      primaryColorPressed: "#e11d48",
+      primaryColorSuppl: "#db2777",
+    },
+  }, // Common theme options
 };
 
 useHead({
