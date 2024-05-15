@@ -185,7 +185,12 @@ const inviteMember = () => {
             <n-form-item label="Username or Email Address" path="user">
               <n-input
                 v-model:value="formValue.user"
-                :disabled="personalWorkspace"
+                :disabled="
+                  personalWorkspace ||
+                  inviteLoading ||
+                  (workspacePermission !== 'owner' &&
+                    workspacePermission !== 'admin')
+                "
                 placeholder="hi@sciconnect.io"
               />
             </n-form-item>
@@ -209,7 +214,10 @@ const inviteMember = () => {
           color="black"
           size="large"
           :loading="inviteLoading"
-          :disabled="personalWorkspace"
+          :disabled="
+            personalWorkspace ||
+            (workspacePermission !== 'owner' && workspacePermission !== 'admin')
+          "
           @click="inviteMember"
         >
           <template #icon>

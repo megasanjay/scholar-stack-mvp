@@ -11,6 +11,8 @@ const inviteLoading = ref(false);
 const publishAccess = ref<CollectionAccessTeam>([]);
 const editAccess = ref<CollectionAccessTeam>([]);
 
+const selectedMember = ref<string | null>(null);
+
 const { collectionid, workspaceid } = useRoute().params as {
   collectionid: string;
   workspaceid: string;
@@ -94,6 +96,15 @@ const generateEditorDropdownOptions = (memberid: string) => {
       show: memberid === user.value?.id,
     },
   ];
+};
+
+const publisherManageMember = (key: string) => {
+  console.log(selectedMember.value, key);
+  if (key === "removePublisher") {
+    console.log("Remove publisher");
+  } else if (key === "giveUpPublisherAccess") {
+    console.log("Give up publisher access");
+  }
 };
 
 const manageMember = async (userid: string | number) => {
@@ -272,6 +283,10 @@ const inviteMember = async () => {
   <div class="flex flex-col">
     <h2 class="text-xl">Publish Access</h2>
 
+    <pre>
+      {{ selectedMember }}
+    </pre>
+
     <p class="mb-6 pt-1 text-slate-700">
       The following members can publish this collection to the public. They can
       also edit the collection and manage its settings.
@@ -323,9 +338,9 @@ const inviteMember = async () => {
             trigger="click"
             placement="bottom-end"
             :options="generatePublisherDropdownOptions(member.id)"
-            @select="manageMember"
+            @select="publisherManageMember"
           >
-            <n-button secondary>
+            <n-button secondary @click="selectedMember = member.id">
               <template #icon>
                 <Icon name="iconamoon:menu-kebab-vertical-bold" />
               </template>
@@ -375,7 +390,11 @@ const inviteMember = async () => {
             :options="generateEditorDropdownOptions(member.id)"
             @select="manageMember(member.id)"
           >
-            <n-button secondary :loading="collectionPermissionGetLoading">
+            <n-button
+              secondary
+              :loading="collectionPermissionGetLoading"
+              @click="selectedMember = member.id"
+            >
               <template #icon>
                 <Icon name="iconamoon:menu-kebab-vertical-bold" />
               </template>

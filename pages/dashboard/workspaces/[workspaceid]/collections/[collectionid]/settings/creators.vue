@@ -79,6 +79,9 @@ if (data.value) {
   creators.value = normalizeCreators(data.value);
 }
 
+const { collectionPermissionAbility, collectionPermissionGetLoading } =
+  await useCollectionPermission(workspaceid, collectionid);
+
 const openAddCreatorDrawer = () => {
   selectedCreator.value = {
     affiliation: "",
@@ -302,7 +305,11 @@ const confirmEdits = (e: MouseEvent) => {
                   <n-button
                     type="info"
                     size="small"
-                    :disabled="loading"
+                    :disabled="
+                      loading ||
+                      collectionPermissionGetLoading ||
+                      !collectionPermissionAbility.includes('edit')
+                    "
                     @click="openEditCreatorDrawer(element.creatorIndex)"
                   >
                     <template #icon>
@@ -314,7 +321,11 @@ const confirmEdits = (e: MouseEvent) => {
                   <n-button
                     type="error"
                     size="small"
-                    :disabled="loading"
+                    :disabled="
+                      loading ||
+                      collectionPermissionGetLoading ||
+                      !collectionPermissionAbility.includes('edit')
+                    "
                     @click="deleteCreator(element.creatorIndex)"
                   >
                     <template #icon>
@@ -338,7 +349,11 @@ const confirmEdits = (e: MouseEvent) => {
         color="black"
         size="large"
         class="mt-4 w-max"
-        :disabled="loading"
+        :disabled="
+          loading ||
+          collectionPermissionGetLoading ||
+          !collectionPermissionAbility.includes('edit')
+        "
         @click="openAddCreatorDrawer"
       >
         <template #icon>
