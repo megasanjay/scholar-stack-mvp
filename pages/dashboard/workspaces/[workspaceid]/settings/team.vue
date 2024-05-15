@@ -54,23 +54,59 @@ if (error.value) {
   });
 }
 
+const { workspacePermission, workspacePermissionGetLoading } =
+  await useWorkspacePermission(workspaceid);
+
 const generateManageOptions = (memberId: string) => {
+  // me
+  const currentMember = members.value?.members.find(
+    (member) => member.id === user.value?.id,
+  );
+
+  // target member
+  const selectedMember = members.value?.members.find(
+    (member) => member.id === memberId,
+  );
+
+  if (!selectedMember || !currentMember) {
+    return [];
+  }
+
   return [
     {
-      disabled: members.value?.members.length === 1,
+      disabled:
+        members.value?.members.length === 1 || user.value?.id === memberId,
       key: "makeWorkspaceAdmin",
       label: "Assign as Administrator",
+      show:
+        workspacePermission.value === "owner" ||
+        workspacePermission.value === "admin",
     },
     {
-      disabled: user.value?.id !== memberId,
       key: "leaveWorkspace",
       label: "Leave Workspace",
+      show: selectedMember.id === currentMember.id,
+    },
+    {
+      key: "removeMember",
+      label: "Remove from Workspace",
+      show: selectedMember.id !== currentMember.id,
     },
   ];
 };
 
-const manageMember = (key: string | number) => {
+const manageMember = (key: string) => {
   console.log(key);
+
+  if (key === "makeWorkspaceAdmin") {
+    console.log("Assign as Administrator");
+  } else if (key === "leaveWorkspace") {
+    console.log("Leave Workspace");
+  }
+};
+
+const cancelInvitation = (memberId: string) => {
+  console.log(memberId);
 };
 
 const inviteMember = () => {
@@ -241,7 +277,15 @@ const inviteMember = () => {
                   :options="generateManageOptions(member.id)"
                   @select="manageMember"
                 >
-                  <n-button secondary :disabled="personalWorkspace">
+                  <n-button
+                    secondary
+                    :disabled="
+                      personalWorkspace ||
+                      (member.id !== user?.id &&
+                        workspacePermission !== 'owner' &&
+                        workspacePermission !== 'admin')
+                    "
+                  >
                     <template #icon>
                       <Icon name="iconamoon:menu-kebab-vertical-bold" />
                     </template>
@@ -293,18 +337,20 @@ const inviteMember = () => {
               </div>
 
               <div class="relative flex items-center space-x-6">
-                <n-dropdown
-                  trigger="click"
-                  placement="bottom-end"
-                  :options="generateManageOptions(member.id)"
-                  @select="manageMember"
+                <n-button
+                  v-if="
+                    workspacePermission === 'owner' ||
+                    workspacePermission === 'admin'
+                  "
+                  secondary
+                  type="error"
+                  :disabled="personalWorkspace"
                 >
-                  <n-button secondary :disabled="personalWorkspace">
-                    <template #icon>
-                      <Icon name="iconamoon:menu-kebab-vertical-bold" />
-                    </template>
-                  </n-button>
-                </n-dropdown>
+                  <template #icon>
+                    <Icon name="hugeicons:user-remove-01" />
+                  </template>
+                  Cancel Invitation
+                </n-button>
               </div>
             </div>
           </div>

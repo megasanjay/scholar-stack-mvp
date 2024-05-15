@@ -32,27 +32,28 @@ const unhideCollection = async (collectionId: string) => {
       headers: useRequestHeaders(["cookie"]),
       method: "PUT",
     },
-  ).then(() => {
-    push.success({
-      title: "Collection Unhidden",
-      message: "The collection has been unhidden from your workspace",
-    });
-
-    navigateTo(
-      `/dashboard/workspaces/${workspaceid}/collections/${collectionId}`,
-    )
-      .catch((error) => {
-        console.error(error);
-
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't navigate to the collection. Please try again",
-        });
-      })
-      .finally(() => {
-        loadingId.value = "";
+  )
+    .then(() => {
+      push.success({
+        title: "Collection Unhidden",
+        message: "The collection has been unhidden from your workspace",
       });
-  });
+
+      navigateTo(
+        `/dashboard/workspaces/${workspaceid}/collections/${collectionId}`,
+      );
+    })
+    .catch((error) => {
+      console.error(error);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't navigate to the collection. Please try again",
+      });
+    })
+    .finally(() => {
+      loadingId.value = "";
+    });
 };
 </script>
 
@@ -75,16 +76,23 @@ const unhideCollection = async (collectionId: string) => {
         <div
           class="flex w-full items-center justify-between gap-x-3 border-b pb-3"
         >
-          <div class="flex flex-col">
-            <p class="text-lg font-medium leading-tight">
-              {{ collection.title }}
-            </p>
+          <n-flex>
+            <NuxtImg
+              :src="`${collection.image_url}?t=${collection.updated}`"
+              class="mt-1 h-14 w-14 rounded-md"
+            />
 
-            <span class="mt-1 text-sm text-slate-500">
-              Updated on
-              {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
-            </span>
-          </div>
+            <div class="flex flex-col">
+              <p class="text-lg font-medium leading-tight">
+                {{ collection.title }}
+              </p>
+
+              <span class="mt-1 text-sm text-slate-500">
+                Updated on
+                {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
+              </span>
+            </div>
+          </n-flex>
 
           <n-button
             type="info"

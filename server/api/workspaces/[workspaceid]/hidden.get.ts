@@ -15,18 +15,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const collections = await prisma.collection.findMany({
-    include: {
-      Versions: {
-        orderBy: { created: "desc" },
-        take: 1,
-      },
-    },
     orderBy: {
       updated: "desc",
     },
     where: {
       CollectionAccess: {
-        every: {
+        some: {
           hidden: true,
         },
       },

@@ -12,6 +12,8 @@ export default async function getWorkspacePermission(workspaceid: string) {
 
       if (data) {
         workspacePermission.value = data.permission;
+
+        console.log(data.permission);
       }
     })
     .catch((error) => {
