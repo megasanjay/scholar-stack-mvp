@@ -24,6 +24,8 @@ const rules = {
 
 const inviteLoading = ref(false);
 
+const selectedMember = ref<string | null>(null);
+
 const { workspaceid } = route.params as { workspaceid: string };
 
 const currentWorkspace = computed(() => {
@@ -188,6 +190,7 @@ const inviteMember = () => {
                 :disabled="
                   personalWorkspace ||
                   inviteLoading ||
+                  workspacePermissionGetLoading ||
                   (workspacePermission !== 'owner' &&
                     workspacePermission !== 'admin')
                 "
@@ -213,7 +216,7 @@ const inviteMember = () => {
         <n-button
           color="black"
           size="large"
-          :loading="inviteLoading"
+          :loading="inviteLoading || workspacePermissionGetLoading"
           :disabled="
             personalWorkspace ||
             (workspacePermission !== 'owner' && workspacePermission !== 'admin')
@@ -228,6 +231,8 @@ const inviteMember = () => {
         </n-button>
       </div>
     </div>
+
+    <pre>{{ selectedMember }}</pre>
 
     <div class="py-6">
       <n-tabs type="line" animated>
@@ -248,7 +253,7 @@ const inviteMember = () => {
             <div
               v-for="member in members?.members"
               :key="member.id"
-              class="flex items-center justify-between border border-slate-200 bg-white p-5"
+              class="flex items-center justify-between rounded-md border border-slate-200 bg-white p-5"
             >
               <div class="flex items-center space-x-3">
                 <n-avatar
@@ -293,6 +298,8 @@ const inviteMember = () => {
                         workspacePermission !== 'owner' &&
                         workspacePermission !== 'admin')
                     "
+                    :loading="workspacePermissionGetLoading"
+                    @click="selectedMember = member.id"
                   >
                     <template #icon>
                       <Icon name="iconamoon:menu-kebab-vertical-bold" />
@@ -353,6 +360,7 @@ const inviteMember = () => {
                   secondary
                   type="error"
                   :disabled="personalWorkspace"
+                  :loading="workspacePermissionGetLoading"
                 >
                   <template #icon>
                     <Icon name="hugeicons:user-remove-01" />

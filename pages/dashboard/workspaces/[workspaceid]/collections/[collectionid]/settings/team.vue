@@ -434,10 +434,6 @@ const inviteMember = async () => {
   <div class="flex flex-col">
     <h2 class="text-xl">Publish Access</h2>
 
-    <pre>
-      {{ selectedMember }} {{ workspacePermission }}
-    </pre>
-
     <p class="mb-6 pt-1 text-slate-700">
       The following members can publish this collection to the public. They can
       also edit the collection and manage its settings.
@@ -495,6 +491,7 @@ const inviteMember = async () => {
               secondary
               :loading="
                 collectionPermissionGetLoading ||
+                workspacePermissionGetLoading ||
                 permissionChangeLoading === member.id
               "
               :disabled="workspacePermission === 'viewer'"
@@ -553,6 +550,7 @@ const inviteMember = async () => {
               secondary
               :loading="
                 collectionPermissionGetLoading ||
+                workspacePermissionGetLoading ||
                 permissionChangeLoading === member.id
               "
               @click="selectedMember = member.id"
