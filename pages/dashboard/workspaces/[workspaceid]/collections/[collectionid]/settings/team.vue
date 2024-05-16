@@ -130,7 +130,7 @@ const publisherManageMember = async (key: string) => {
     };
 
     await $fetch(
-      `/api/workspaces/${workspaceid}/collections/${collectionid}/members/publisher`,
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/members/publishers`,
       {
         body: JSON.stringify(body),
         headers: useRequestHeaders(["cookie"]),
@@ -225,6 +225,58 @@ const editorManageMember = async (key: string) => {
         push.error({
           title: "Something went wrong",
           message: "We couldn't assign this editor as an administrator",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
+      });
+  } else if (key === "removeEditor") {
+    const member = editAccess.value.find(
+      (member) => member.id === selectedMember.value,
+    );
+
+    if (!member) {
+      throw new Error("Member not found");
+    }
+
+    permissionChangeLoading.value = member.id;
+
+    const body = {
+      userid: member.id,
+    };
+
+    await $fetch(
+      `/api/workspaces/${workspaceid}/collections/${collectionid}/members/editors`,
+      {
+        body: JSON.stringify(body),
+        headers: useRequestHeaders(["cookie"]),
+        method: "DELETE",
+      },
+    )
+      .then(() => {
+        push.success({
+          title: "Success",
+          message: "This editor has been removed from the collection",
+        });
+
+        // Remove the member from the edit access list
+        editAccess.value = editAccess.value.filter(
+          (entry) => entry.id !== member.id,
+        );
+
+        // Add the member to the viewers list
+        viewers.value?.push({
+          email_address: member.emailAddress,
+          label: member.name || member.username,
+          value: member.id,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't remove this editor from the collection",
         });
       })
       .finally(() => {
