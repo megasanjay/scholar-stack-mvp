@@ -4,12 +4,30 @@ export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinViewerPermission(event);
 
+  /**
+   * TODO: It maybe that the hide has to be done on the workspace level.
+   * We shalle revisit this later
+   */
   const user = await serverSupabaseUser(event);
 
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
+
+  const workspaceMember = await prisma.workspaceMember.findFirst({
+    where: {
+      user_id: user?.id,
+      workspace_id: workspaceid,
+    },
+  });
+
+  if (!workspaceMember) {
+    throw createError({
+      message: "The user is not a member of the workspace",
+      statusCode: 400,
+    });
+  }
 
   const collection = await prisma.collection.findUnique({
     where: { id: collectionid, workspace_id: workspaceid },
@@ -20,6 +38,14 @@ export default defineEventHandler(async (event) => {
       message: "Collection not found",
       statusCode: 404,
     });
+  }
+
+  const collectionAccessEntry = await prisma.collectionAccess.findFirst({
+    where: { collection_id: collectionid, user_id: user?.id },
+  });
+
+  if (!collectionAccessEntry) {
+    // create a new collection access entry with the
   }
 
   const collectionAccessGetTransaction = prisma.collectionAccess.findFirst({

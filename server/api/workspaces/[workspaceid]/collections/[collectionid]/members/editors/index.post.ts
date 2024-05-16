@@ -40,6 +40,8 @@ export default defineEventHandler(async (event) => {
 
   const { userid } = parsedBody.data;
 
+  console.log("userid", userid);
+
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {

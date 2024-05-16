@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { serverSupabaseUser } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
 
-  await collectionMinAdminPermission(event);
+  const loggedInUser = await serverSupabaseUser(event);
+  const loggedInUserId = loggedInUser?.id as string;
 
   const bodySchema = z
     .object({
@@ -33,12 +35,42 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const { userid } = parsedBody.data;
+
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
 
-  const { userid } = parsedBody.data;
+  if (userid === loggedInUserId) {
+    // The user is trying to remove themselves from the collection
+
+    // Check if the user is a workspace admin
+    const workspaceAdmin = await prisma.workspaceMember.findFirst({
+      where: {
+        admin: true,
+        user_id: userid,
+        workspace_id: workspaceid,
+      },
+    });
+
+    const workspaceOwner = await prisma.workspaceMember.findFirst({
+      where: {
+        owner: true,
+        user_id: userid,
+        workspace_id: workspaceid,
+      },
+    });
+
+    if (workspaceAdmin || workspaceOwner) {
+      throw createError({
+        message: "You cannot remove yourself from the collection",
+        statusCode: 400,
+      });
+    }
+  } else {
+    await collectionMinAdminPermission(event);
+  }
 
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
@@ -69,10 +101,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 400,
     });
   } else {
-    await prisma.collectionAccess.update({
-      data: {
-        role: "viewer",
-      },
+    await prisma.collectionAccess.delete({
       where: {
         user_id_collection_id: {
           collection_id: collectionid,
@@ -80,6 +109,18 @@ export default defineEventHandler(async (event) => {
         },
       },
     });
+
+    // await prisma.collectionAccess.update({
+    //   data: {
+    //     role: "viewer",
+    //   },
+    //   where: {
+    //     user_id_collection_id: {
+    //       collection_id: collectionid,
+    //       user_id: userid,
+    //     },
+    //   },
+    // });
   }
 
   return {

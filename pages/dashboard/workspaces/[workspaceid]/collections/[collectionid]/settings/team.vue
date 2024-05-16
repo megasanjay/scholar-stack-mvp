@@ -100,6 +100,88 @@ const generateEditorDropdownOptions = (memberid: string) => {
   ];
 };
 
+const {
+  data: viewers,
+  error: viewersError,
+  pending: viewersLoading,
+} = await useFetch(
+  `/api/workspaces/${workspaceid}/collections/${collectionid}/members/viewers`,
+  {
+    headers: useRequestHeaders(["cookie"]),
+    lazy: true,
+    server: false,
+  },
+);
+
+if (viewersError.value) {
+  console.log(viewersError.value);
+
+  push.error({
+    title: "Something went wrong",
+    message: "We couldn't load the viewers of this collection",
+  });
+}
+
+const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
+  return h(
+    "div",
+    {
+      style: {
+        alignItems: "center",
+        display: "flex",
+      },
+    },
+    [
+      h(NAvatar, {
+        round: true,
+        size: 24,
+        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
+        style: {
+          marginRight: "12px",
+        },
+      }),
+      option.label as string,
+    ],
+  );
+};
+
+const renderLabel: SelectRenderLabel = (option) => {
+  return h(
+    "div",
+    {
+      style: {
+        alignItems: "center",
+        display: "flex",
+      },
+    },
+    [
+      h(NAvatar, {
+        round: true,
+        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
+      }),
+      h(
+        "div",
+        {
+          style: {
+            marginLeft: "12px",
+            padding: "4px 0",
+          },
+        },
+        [
+          h("div", null, [option.label as string]),
+          h(
+            NText,
+            { depth: 3, tag: "div" },
+            {
+              default: () => option.email_address,
+            },
+          ),
+        ],
+      ),
+    ],
+  );
+};
+
 const publisherManageMember = async (key: string) => {
   if (key === "removePublisher") {
     const member = publishAccess.value.find(
@@ -230,7 +312,7 @@ const editorManageMember = async (key: string) => {
       .finally(() => {
         permissionChangeLoading.value = "";
       });
-  } else if (key === "removeEditor") {
+  } else if (key === "removeEditor" || key === "leaveCollection") {
     const member = editAccess.value.find(
       (member) => member.id === selectedMember.value,
     );
@@ -274,97 +356,25 @@ const editorManageMember = async (key: string) => {
       .catch((error) => {
         console.error(error);
 
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't remove this editor from the collection",
-        });
+        if (key === "removeEditor") {
+          push.error({
+            title: "Something went wrong",
+            message: "We couldn't remove this editor from the collection",
+          });
+        }
+
+        if (key === "leaveCollection") {
+          push.error({
+            title: "Something went wrong",
+            message:
+              "We couldn't remove your editor permission from this collection",
+          });
+        }
       })
       .finally(() => {
         permissionChangeLoading.value = "";
       });
   }
-};
-
-const {
-  data: viewers,
-  error: viewersError,
-  pending: viewersLoading,
-} = await useFetch(
-  `/api/workspaces/${workspaceid}/collections/${collectionid}/members/viewers`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-    lazy: true,
-    server: false,
-  },
-);
-
-if (viewersError.value) {
-  console.log(viewersError.value);
-
-  push.error({
-    title: "Something went wrong",
-    message: "We couldn't load the viewers of this collection",
-  });
-}
-
-const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
-  return h(
-    "div",
-    {
-      style: {
-        alignItems: "center",
-        display: "flex",
-      },
-    },
-    [
-      h(NAvatar, {
-        round: true,
-        size: 24,
-        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
-        style: {
-          marginRight: "12px",
-        },
-      }),
-      option.label as string,
-    ],
-  );
-};
-
-const renderLabel: SelectRenderLabel = (option) => {
-  return h(
-    "div",
-    {
-      style: {
-        alignItems: "center",
-        display: "flex",
-      },
-    },
-    [
-      h(NAvatar, {
-        round: true,
-        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
-      }),
-      h(
-        "div",
-        {
-          style: {
-            marginLeft: "12px",
-            padding: "4px 0",
-          },
-        },
-        [
-          h("div", null, [option.label as string]),
-          h(
-            NText,
-            { depth: 3, tag: "div" },
-            {
-              default: () => option.email_address,
-            },
-          ),
-        ],
-      ),
-    ],
-  );
 };
 
 const inviteMember = async () => {
@@ -388,6 +398,7 @@ const inviteMember = async () => {
         message: "This user has been added as an editor to your workspace",
       });
 
+      // Add the user to the edit access list
       editAccess.value.push({
         id: response.editor.user_id,
         username: response.editor.username || "",
@@ -396,6 +407,12 @@ const inviteMember = async () => {
         emailAddress: response.editor.email_address || "",
         role: "collection-editor",
       });
+
+      // Remove the user from the viewers list
+      viewers.value =
+        viewers.value?.filter(
+          (viewer) => viewer.value !== userToInvite.value,
+        ) || [];
 
       userToInvite.value = null;
     })
@@ -480,6 +497,7 @@ const inviteMember = async () => {
                 collectionPermissionGetLoading ||
                 permissionChangeLoading === member.id
               "
+              :disabled="workspacePermission === 'viewer'"
               @click="selectedMember = member.id"
             >
               <template #icon>
