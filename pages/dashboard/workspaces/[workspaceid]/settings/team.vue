@@ -22,6 +22,7 @@ const rules = {
   },
 };
 
+const permissionChangeLoading = ref("");
 const inviteLoading = ref(false);
 
 const selectedMember = ref<string | null>(null);
@@ -81,15 +82,24 @@ const generateManageOptions = (memberId: string) => {
       key: "makeWorkspaceAdmin",
       label: "Assign as Administrator",
       show:
-        workspacePermission.value === "owner" ||
-        workspacePermission.value === "admin",
+        (workspacePermission.value === "owner" ||
+          workspacePermission.value === "admin") &&
+        !selectedMember.admin &&
+        !selectedMember.owner,
     },
     {
+      key: "removeAdministrator",
+      label: "Remove Administrator Role",
+      show: selectedMember.admin && selectedMember.id !== currentMember.id,
+    },
+    {
+      disabled: currentMember.owner,
       key: "leaveWorkspace",
       label: "Leave Workspace",
       show: selectedMember.id === currentMember.id,
     },
     {
+      disabled: selectedMember.owner || selectedMember.admin,
       key: "removeMember",
       label: "Remove from Workspace",
       show: selectedMember.id !== currentMember.id,
@@ -97,18 +107,146 @@ const generateManageOptions = (memberId: string) => {
   ];
 };
 
-const manageMember = (key: string) => {
-  console.log(key);
+const manageMember = async (key: string) => {
+  if (!selectedMember.value) {
+    return;
+  }
 
+  if (key === "removeMember" || key === "leaveWorkspace") {
+    const body = {
+      userid: selectedMember.value,
+    };
+
+    permissionChangeLoading.value = selectedMember.value;
+
+    await $fetch(`/api/workspaces/${workspaceid}/members`, {
+      body: JSON.stringify(body),
+      headers: useRequestHeaders(["cookie"]),
+      method: "DELETE",
+    })
+      .then(async (_res) => {
+        if (key === "leaveWorkspace") {
+          push.success({
+            title: "Left Workspace",
+            message: "You've left this workspace",
+          });
+
+          await navigateTo("/dashboard/workspaces");
+        } else if (key === "removeMember") {
+          push.success({
+            title: "Member Removed",
+            message: "We've removed this member from your workspace",
+          });
+
+          window.location.reload();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't remove this member from your workspace",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
+      });
+  }
   if (key === "makeWorkspaceAdmin") {
-    console.log("Assign as Administrator");
+    const body = {
+      userid: selectedMember.value,
+    };
+
+    permissionChangeLoading.value = selectedMember.value;
+
+    await $fetch(`/api/workspaces/${workspaceid}/members/admin`, {
+      body: JSON.stringify(body),
+      headers: useRequestHeaders(["cookie"]),
+      method: "POST",
+    })
+      .then((_res) => {
+        push.success({
+          title: "Member Promoted",
+          message: "We've promoted this member to an administrator",
+        });
+
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't promote this member to an administrator",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
+      });
+  } else if (key === "removeAdministrator") {
+    const body = {
+      userid: selectedMember.value,
+    };
+
+    permissionChangeLoading.value = selectedMember.value;
+
+    await $fetch(`/api/workspaces/${workspaceid}/members/admin`, {
+      body: JSON.stringify(body),
+      headers: useRequestHeaders(["cookie"]),
+      method: "DELETE",
+    })
+      .then((_res) => {
+        push.success({
+          title: "Administrator Role Removed",
+          message: "We've removed the administrator role from this member",
+        });
+
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+
+        push.error({
+          title: "Something went wrong",
+          message: "We couldn't remove the administrator role from this member",
+        });
+      })
+      .finally(() => {
+        permissionChangeLoading.value = "";
+      });
   } else if (key === "leaveWorkspace") {
     console.log("Leave Workspace");
   }
 };
 
-const cancelInvitation = (memberId: string) => {
-  console.log(memberId);
+const cancelInvitation = async (memberId: string) => {
+  permissionChangeLoading.value = memberId;
+
+  await $fetch(`/api/workspaces/${workspaceid}/members/invitation`, {
+    body: JSON.stringify({ emailAddress: memberId }),
+    headers: useRequestHeaders(["cookie"]),
+    method: "DELETE",
+  })
+    .then((_res) => {
+      push.success({
+        title: "Invitation Cancelled",
+        message: "We've cancelled the invitation for this user",
+      });
+
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.log(err);
+
+      push.error({
+        title: "Something went wrong",
+        message: "We couldn't cancel the invitation for this user",
+      });
+    })
+    .finally(() => {
+      permissionChangeLoading.value = "";
+    });
 };
 
 const inviteMember = () => {
@@ -298,7 +436,10 @@ const inviteMember = () => {
                         workspacePermission !== 'owner' &&
                         workspacePermission !== 'admin')
                     "
-                    :loading="workspacePermissionGetLoading"
+                    :loading="
+                      workspacePermissionGetLoading ||
+                      permissionChangeLoading === member.id
+                    "
                     @click="selectedMember = member.id"
                   >
                     <template #icon>
@@ -360,7 +501,11 @@ const inviteMember = () => {
                   secondary
                   type="error"
                   :disabled="personalWorkspace"
-                  :loading="workspacePermissionGetLoading"
+                  :loading="
+                    workspacePermissionGetLoading ||
+                    permissionChangeLoading === member.id
+                  "
+                  @click="cancelInvitation(member.id)"
                 >
                   <template #icon>
                     <Icon name="hugeicons:user-remove-01" />
