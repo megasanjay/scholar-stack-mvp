@@ -253,7 +253,7 @@ const inviteMember = () => {
             <div
               v-for="member in members?.members"
               :key="member.id"
-              class="flex items-center justify-between rounded-md border border-slate-200 bg-white p-5"
+              class="-mt-[1px] flex items-center justify-between border border-slate-200 bg-white p-5"
             >
               <div class="flex items-center space-x-3">
                 <n-avatar
