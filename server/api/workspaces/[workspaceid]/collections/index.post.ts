@@ -64,6 +64,35 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Get the workspace owner and admins and add them to the collection access table with the role of admin
+  // const workspaceUsers = await prisma.workspaceMember.findMany({
+  //   where: { workspace_id: workspaceid },
+  // });
+
+  // for (const workspaceUser of workspaceUsers) {
+  //   if (workspaceUser.owner || workspaceUser.admin) {
+  //     // Check if the user is already in the collection access table
+  //     const collectionAccess = await prisma.collectionAccess.findFirst({
+  //       where: {
+  //         collection_id: collection.id,
+  //         user_id: workspaceUser.user_id,
+  //       },
+  //     });
+
+  //     if (collectionAccess) {
+  //       continue;
+  //     }
+
+  //     await prisma.collectionAccess.create({
+  //       data: {
+  //         collection_id: collection.id,
+  //         role: "admin",
+  //         user_id: workspaceUser.user_id,
+  //       },
+  //     });
+  //   }
+  // }
+
   const collectionid = collection.id;
 
   const { statusCode } = await collectionNewVersion(collectionid);
