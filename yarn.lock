@@ -7214,9 +7214,9 @@ normalize-range@^0.1.2:
   integrity sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==
 
 notivue@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/notivue/-/notivue-2.2.1.tgz#1fc3331ae3093c44ca247f5a4ec7097a3501b61e"
-  integrity sha512-PO9ADaMUmJGF06KPbj9AFbo0YidFR350kahp4vrF0Q6ZFZThvM4hfikfa9Di6Ee0yqCoT5JU8xNR2rdX5ibhJA==
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/notivue/-/notivue-2.4.4.tgz#f92ebca45ca41b39f2f14d189adc6d1551aaebfb"
+  integrity sha512-d9RaXMbSQD1DS0rrA5WCfql2xm5nXOq1U1nnf8bgQ1LRHu4UsLY57Bdc9O9SHTpR1gDmm/pSxq7gocitzDtMpw==
 
 npm-bundled@^3.0.0:
   version "3.0.0"
