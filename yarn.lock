@@ -2829,9 +2829,9 @@
     d3-zoom "^3.0.0"
 
 "@vue-flow/minimap@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@vue-flow/minimap/-/minimap-1.4.0.tgz#335582aacb6fd51a7ff2900587197b190a7501be"
-  integrity sha512-GetmN8uOQxIx4ja85VDnIwpZO5SnGIOfYSqUw8MRMbc8CdACun2M2e3FRaMZRaWapclU2ssXms4xHMWrA3YWpw==
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@vue-flow/minimap/-/minimap-1.5.0.tgz#42e3f3f9c4cec0fb968e81c09a4564be28ea9b23"
+  integrity sha512-JhxXDF+8uTc7sgkZHDIvFpHqSl4wsK9xp8Kz5OHwNcXlgGcwqj4yad6jcc1B6bGxm+huESpNmoPotQbpMn6rVw==
   dependencies:
     d3-selection "^3.0.0"
     d3-zoom "^3.0.0"
