@@ -19,7 +19,8 @@
     "scripts:truncate:tables": "tsx ./scripts/truncate-tables.ts",
     "scripts:fetch:save:identifiers": "tsx ./scripts/fetch-save-identifiers.ts",
     "scripts:compare:identifiers": "tsx ./scripts/compare-identifiers.ts",
-    "postinstall": "nuxt prepare && yarn prisma:generate"
+    "postinstall": "nuxt prepare && yarn prisma:generate",
+    "prune-branches": "git removed-branches --prune --force"
   },
   "devDependencies": {
     "@bg-dev/nuxt-naiveui": "^1.2.3",
@@ -41,6 +42,7 @@
     "eslint-plugin-simple-import-sort": "12.1.0",
     "eslint-plugin-sort-keys-custom-order": "1.0.5",
     "eslint-plugin-unused-imports": "3.1.0",
+    "git-removed-branches": "^2.1.0",
     "nuxt": "^3.11.1",
     "nuxt-headlessui": "^1.1.4",
     "nuxt-security": "^1.2.2",
