@@ -13,6 +13,7 @@ const logout = async () => {
   console.log("Logging out");
 
   const { error } = await supabase.auth.signOut();
+
   if (error) console.log(error);
 
   navigateTo("/");

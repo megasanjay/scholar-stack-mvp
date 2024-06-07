@@ -12,10 +12,30 @@ module.exports = {
   parserOptions: {
     parser: "@typescript-eslint/parser",
   },
-  plugins: ["unused-imports", "sort-keys-custom-order"],
+  plugins: ["unused-imports", "sort-keys-custom-order", "@stylistic/js"],
   root: true,
   rules: {
     "@typescript-eslint/no-unused-vars": "off",
+
+    "@stylistic/js/comma-dangle": ["error", "always-multiline"],
+    "@stylistic/js/padding-line-between-statements": [
+      "error",
+      {
+        blankLine: "always",
+        prev: "*",
+        next: "return",
+      },
+      {
+        blankLine: "always",
+        prev: ["const", "let", "var"],
+        next: "*",
+      },
+      {
+        blankLine: "any",
+        prev: ["const", "let", "var"],
+        next: ["const", "let", "var"],
+      },
+    ],
 
     endOfLine: "off",
 

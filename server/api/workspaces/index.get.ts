@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
 
     if (personalWorkspace) {
       const personalWorkspaceIndex = foundWorkspaces.indexOf(personalWorkspace);
+
       foundWorkspaces.splice(personalWorkspaceIndex, 1);
       foundWorkspaces.unshift(personalWorkspace);
     }

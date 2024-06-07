@@ -29,6 +29,7 @@ const changesPresent = computed(() => {
     ) {
       return true;
     }
+
     return false;
   });
 });

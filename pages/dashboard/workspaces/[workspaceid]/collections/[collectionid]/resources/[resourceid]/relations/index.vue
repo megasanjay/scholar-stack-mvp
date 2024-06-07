@@ -298,6 +298,7 @@ const deleteRelation = async (relationid: string) => {
 
   if (!relation) {
     push.error("Something went wrong");
+
     return;
   }
 
@@ -525,6 +526,7 @@ const restoreRelation = async (relationid: string) => {
 
   if (!relation) {
     push.error("Something went wrong");
+
     return;
   }
 
