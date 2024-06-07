@@ -67,6 +67,23 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
+      class="flex items-center space-x-1 text-slate-500"
+      active-class="border-b-2 border-slate-800 text-slate-900"
+      :class="{
+        'border-b-2 border-slate-800 text-slate-900': isResourcePage,
+      }"
+      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`"
+    >
+      <div
+        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+      >
+        <Icon name="icon-park-twotone:connection-point-two" />
+
+        <span class="text-sm"> Relations </span>
+      </div>
+    </NuxtLink>
+
+    <NuxtLink
       class="flex items-center space-x-1 text-slate-500 transition-all"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/changelog`"

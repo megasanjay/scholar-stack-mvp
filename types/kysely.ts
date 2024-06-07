@@ -7,43 +7,43 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type Analytics = {
   id: Generated<number>;
-  created: Generated<Timestamp>;
-  event: Generated<string>;
   identifier: string;
   type: string;
+  event: Generated<string>;
+  created: Generated<Timestamp>;
 };
 export type Collection = {
   id: string;
   title: Generated<string>;
-  created: Generated<Timestamp>;
-  creators: Generated<unknown>;
   description: Generated<string>;
   detailed_description: Generated<string>;
-  identifier: string;
   image_url: Generated<string>;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
+  identifier: string;
   private: Generated<boolean>;
   random_int: Generated<number>;
-  updated: Timestamp;
+  creators: Generated<unknown>;
   workspace_id: string | null;
 };
 export type CollectionAccess = {
-  collection_id: string;
-  created: Generated<Timestamp>;
-  hidden: Generated<boolean>;
-  role: string;
-  updated: Timestamp;
   user_id: string;
+  collection_id: string;
+  role: string;
+  hidden: Generated<boolean>;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
 };
 export type ExternalRelation = {
   id: string;
-  action: string | null;
-  created: Generated<Timestamp>;
-  original_relation_id: string | null;
-  resource_type: string | null;
   source_id: string;
+  original_relation_id: string | null;
   target: string;
   target_type: string;
   type: string;
+  resource_type: string | null;
+  action: string | null;
+  created: Generated<Timestamp>;
   updated: Timestamp;
 };
 export type ExternalRelationToVersion = {
@@ -52,14 +52,14 @@ export type ExternalRelationToVersion = {
 };
 export type InternalRelation = {
   id: string;
-  action: string | null;
-  created: Generated<Timestamp>;
-  mirror: Generated<boolean>;
   original_relation_id: string | null;
-  resource_type: string | null;
   source_id: string;
   target_id: string;
   type: string;
+  resource_type: string | null;
+  action: string | null;
+  mirror: Generated<boolean>;
+  created: Generated<Timestamp>;
   updated: Timestamp;
 };
 export type InternalRelationToVersion = {
@@ -67,83 +67,83 @@ export type InternalRelationToVersion = {
   B: string;
 };
 export type Invite = {
-  created: Generated<Timestamp>;
   email_address: string;
-  updated: Timestamp;
   workspace_id: string;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
 };
 export type Notification = {
   id: string;
+  user_id: string;
   title: Generated<string>;
   content: Generated<string>;
-  created: Generated<Timestamp>;
-  read: Generated<boolean>;
   target: Generated<string>;
+  read: Generated<boolean>;
+  created: Generated<Timestamp>;
   updated: Timestamp;
-  user_id: string;
 };
 export type Resource = {
   id: string;
-  title: Generated<string>;
-  action: string | null;
-  back_link_id: string | null;
-  created: Generated<Timestamp>;
-  description: Generated<string>;
-  filled_in: Generated<boolean>;
-  identifier: string;
   identifier_type: string;
-  original_resource_id: string | null;
+  identifier: string;
+  title: Generated<string>;
+  description: Generated<string>;
   resource_type: Generated<string>;
-  updated: Timestamp;
+  back_link_id: string | null;
   version_label: string | null;
+  original_resource_id: string | null;
+  action: string | null;
+  filled_in: Generated<boolean>;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
 };
 export type ResourceToVersion = {
   A: string;
   B: string;
 };
 export type Starred = {
+  user_id: string;
   collection_id: string;
   created: Generated<Timestamp>;
-  user_id: string;
 };
 export type User = {
   id: string;
+  email_address: string;
   username: string;
   name: string;
   affiliation: string;
   contact_email_address: string;
-  created: Generated<Timestamp>;
-  email_address: string;
   website: string;
+  created: Generated<Timestamp>;
 };
 export type Version = {
   id: string;
+  collection_id: string;
   name: Generated<string>;
   changelog: Generated<string>;
-  collection_id: string;
-  created: Generated<Timestamp>;
-  creators: Generated<unknown>;
   identifier: string;
+  creators: Generated<unknown>;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
   published: Generated<boolean>;
   published_on: Timestamp | null;
-  updated: Timestamp;
 };
 export type Workspace = {
   id: string;
   title: Generated<string>;
-  created: Generated<Timestamp>;
   description: Generated<string>;
   personal: Generated<boolean>;
   type: Generated<string>;
+  created: Generated<Timestamp>;
   updated: Timestamp;
 };
 export type WorkspaceMember = {
-  admin: Generated<boolean>;
-  created: Generated<Timestamp>;
-  owner: Generated<boolean>;
-  updated: Timestamp;
   user_id: string;
   workspace_id: string;
+  owner: Generated<boolean>;
+  admin: Generated<boolean>;
+  created: Generated<Timestamp>;
+  updated: Timestamp;
 };
 export type DB = {
   _ExternalRelationToVersion: ExternalRelationToVersion;
