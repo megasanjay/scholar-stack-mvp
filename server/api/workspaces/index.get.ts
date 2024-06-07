@@ -7,10 +7,13 @@ export default defineEventHandler(async (event) => {
   const userid = user?.id as string;
 
   // Get the user's workspaces
-  const query = await kysely()
+  const workspaces = await kysely()
     .selectFrom("WorkspaceMember")
+    .innerJoin("Workspace", "Workspace.id", "WorkspaceMember.workspace_id")
     .where("user_id", "=", userid)
-    .selectAll();
+    .selectAll()
+    .execute();
+
   // const workspaces = await prisma.workspaceMember.findMany({
   //   select: {
   //     workspace: {
@@ -29,10 +32,11 @@ export default defineEventHandler(async (event) => {
   //   },
   // });
 
-  const workspaces = query.map((workspace) => workspace.workspace);
+  console.log("workspaces", workspaces);
 
   if (workspaces && workspaces.length > 0) {
-    const foundWorkspaces = workspaces.map((workspace) => workspace.workspace);
+    // const foundWorkspaces = workspaces.map((workspace) => workspace.workspace);
+    const foundWorkspaces = workspaces.map((workspace) => workspace);
 
     // Move the personal workspace to the top
     const personalWorkspace = foundWorkspaces.find(
