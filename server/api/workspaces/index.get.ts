@@ -7,23 +7,29 @@ export default defineEventHandler(async (event) => {
   const userid = user?.id as string;
 
   // Get the user's workspaces
-  const workspaces = await prisma.workspaceMember.findMany({
-    select: {
-      workspace: {
-        select: {
-          id: true,
-          title: true,
-          created: true,
-          description: true,
-          personal: true,
-          type: true,
-        },
-      },
-    },
-    where: {
-      user_id: userid,
-    },
-  });
+  const query = await kysely()
+    .selectFrom("WorkspaceMember")
+    .where("user_id", "=", userid)
+    .selectAll();
+  // const workspaces = await prisma.workspaceMember.findMany({
+  //   select: {
+  //     workspace: {
+  //       select: {
+  //         id: true,
+  //         title: true,
+  //         created: true,
+  //         description: true,
+  //         personal: true,
+  //         type: true,
+  //       },
+  //     },
+  //   },
+  //   where: {
+  //     user_id: userid,
+  //   },
+  // });
+
+  const workspaces = query.map((workspace) => workspace.workspace);
 
   if (workspaces && workspaces.length > 0) {
     const foundWorkspaces = workspaces.map((workspace) => workspace.workspace);
