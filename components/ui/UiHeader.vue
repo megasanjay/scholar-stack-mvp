@@ -5,6 +5,7 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 
 const loggedIn = computed(() => user.value);
+
 console.log("User", user.value);
 
 const logout = async () => {

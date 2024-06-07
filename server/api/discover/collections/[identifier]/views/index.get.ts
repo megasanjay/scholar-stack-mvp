@@ -25,7 +25,9 @@ export default defineEventHandler(async (event) => {
   // Create an object with the hour as the key and the count as the value
   const hourlyViews = views.reduce<{ [key: number]: number }>((acc, view) => {
     const hour = new Date(view.created).getHours();
+
     acc[hour] = acc[hour] ? acc[hour] + 1 : 1;
+
     return acc;
   }, {});
 
@@ -33,7 +35,9 @@ export default defineEventHandler(async (event) => {
   // Should be the last 24 hours
   const hours = Array.from({ length: 24 }, (_, i) => {
     const date = new Date();
+
     date.setHours(date.getHours() - i);
+
     return date.getHours();
   });
 

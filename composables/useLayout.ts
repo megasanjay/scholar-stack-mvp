@@ -23,6 +23,7 @@ export function useLayout() {
     dagreGraph.setDefaultEdgeLabel(() => ({}));
 
     const isHorizontal = direction === "LR";
+
     dagreGraph.setGraph({
       compound: true,
       edgesep: 50,

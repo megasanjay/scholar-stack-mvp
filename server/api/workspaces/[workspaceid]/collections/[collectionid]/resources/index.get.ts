@@ -87,6 +87,7 @@ export default defineEventHandler(async (event) => {
     if (a.versionName > b.versionName) {
       return -1;
     }
+
     return 0;
   });
 
@@ -94,7 +95,9 @@ export default defineEventHandler(async (event) => {
   const seen = new Set();
   const resources = filteredResources.filter((resource) => {
     const duplicate = seen.has(resource.id);
+
     seen.add(resource.id);
+
     return !duplicate;
   });
 

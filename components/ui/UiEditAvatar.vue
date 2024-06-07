@@ -51,6 +51,7 @@ const uploadAvatar = async (evt) => {
     });
 
     const { signedUrl } = data;
+
     console.log("Signed URL: ", signedUrl);
 
     const formData = new FormData();

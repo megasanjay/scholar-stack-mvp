@@ -88,6 +88,7 @@ const signIn = (e: MouseEvent) => {
         loading.value = false;
 
         console.error(error);
+
         return;
       }
 

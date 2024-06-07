@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
   const newFileName = `${collectionid}.${fileExtension}`;
 
   const headers = new Headers();
+
   headers.set("AccessKey", process.env.BUNNY_STORAGE_ACCESS_KEY ?? "");
   headers.set("Content-Type", file.type ?? "");
 
