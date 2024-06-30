@@ -38,6 +38,7 @@ interface GroupedRelation {
   resource_type: string | null;
   created: Date;
   updated: Date;
+  source: string | null;
   action?: string | null;
 }
 

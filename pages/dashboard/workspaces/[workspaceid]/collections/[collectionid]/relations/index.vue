@@ -38,6 +38,7 @@ const selectedRelation = ref<GroupedRelation>({
   created: new Date(),
   external: true,
   resource_type: null,
+  source: null,
   target: "",
   target_type: null,
   type: null,
@@ -54,7 +55,7 @@ const currentCollection = computed(() => {
   );
 });
 
-const { data: resource, error } = await useFetch(
+const { data: relations, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/relations`,
   {
     headers: useRequestHeaders(["cookie"]),
@@ -74,93 +75,60 @@ if (error.value) {
   );
 }
 
-if (resource.value) {
-  // If the resource is marked for deletion, redirect the user
-  // to the collection page
-  if (
-    "action" in resource.value &&
-    (resource.value.action === "delete" ||
-      resource.value.action === "oldVersion")
-  ) {
-    push.error({
-      title: "Resource marked for deletion",
-      message: "You will need to undelete this resource before you can view it",
-    });
+const groupedResources = computed(() => {
+  const grouped = {};
 
-    navigateTo(
-      `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources`,
-    );
+  console.log("rendering grouped resources");
 
-    throw new Error("Resource marked for deletion");
-  }
-}
-
-const { data: relations, error: _relationsError } = await useFetch(
-  `/api/workspaces/${workspaceid}/collections/${collectionid}/relations`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
-);
-
-const groupedRelations = computed(() => {
-  const grouped: GroupedRelations = {};
+  console.log(relations.value);
 
   if (relations.value) {
-    // group relation by type
+    // Create a list of source resources
     for (const relation of relations.value) {
-      if (relation.type) {
-        if (relation.type in grouped) {
-          grouped[relation.type].push(relation as unknown as GroupedRelation);
-        } else {
-          grouped[relation.type] = [relation as unknown as GroupedRelation];
-        }
+      if (relation.source_id in grouped) {
+        // do nothing
+      } else {
+        grouped[relation.source_id] = {
+          name: relation.source_name,
+          relations: {},
+        };
+      }
+
+      // Create a nested list under the source resource but for relation type
+      if (relation.type in grouped[relation.source_id]) {
+        grouped[relation.source_id].relations[relation.type].push(relation);
+      } else {
+        grouped[relation.source_id].relations[relation.type] = [relation];
       }
     }
   }
 
-  Object.keys(grouped).forEach((key) => {
-    const group = grouped[key];
-
-    if (group) {
-      group.sort((a, b) => {
-        if (a.updated > b.updated) {
-          return -1;
-        }
-
-        if (a.updated < b.updated) {
-          return 1;
-        }
-
-        return 0;
-      });
-    }
-  });
-
   return grouped;
 });
 
-const {
-  data: resourceList,
-  error: resourceListError,
-  pending: resourceListLoadingIndicator,
-} = useLazyFetch(
-  `/api/workspaces/${workspaceid}/collections/${collectionid}/resources?resourceid=${resourceid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
-);
+const resourceList = ref<any>([]);
+const resourceListLoadingIndicator = ref(false);
 
-// Show an error message if the resource list fails to load
-watchEffect(() => {
-  if (resourceListError.value) {
-    console.log(resourceListError.value);
+const getResourceList = async (resourceid: string) => {
+  resourceListLoadingIndicator.value = true;
 
-    push.error({
-      title: "Something went wrong",
-      message: "We couldn't load your resources",
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources${resourceid ? `?resourceid=${resourceid}` : ``}`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+    },
+  )
+    .then((response) => {
+      resourceList.value = response;
+    })
+    .catch((error) => {
+      console.error(error);
+      push.error("Something went wrong");
+    })
+    .finally(() => {
+      resourceListLoadingIndicator.value = false;
     });
-  }
-});
+};
 
 const renderLabel = (option: SelectOption): any => {
   return [
@@ -199,7 +167,7 @@ const getResourceName = (resourceid: string) => {
   if (resourceList.value) {
     const resources = resourceList.value;
 
-    const resource = resources.find((res) => res.value === resourceid);
+    const resource = resources.find((res: any) => res.value === resourceid);
 
     if (resource) {
       return resource.label;
@@ -240,11 +208,14 @@ const selectedIdentiferValidator = (rule: FormItemRule, value: string) => {
 };
 
 const openAddRelationDrawer = (targetLocation: string) => {
+  getResourceList("");
+
   selectedRelation.value = {
     id: nanoid(),
     created: new Date(),
     external: true,
     resource_type: null,
+    source: null,
     target: "",
     target_type: null,
     type: null,
@@ -342,6 +313,7 @@ const addNewRelation = () => {
       if (selectedRelation.value.external) {
         const d = {
           resourceType: selectedRelation.value.resource_type,
+          source: selectedRelation.value.source,
           target: selectedRelation.value.target,
           targetType: selectedRelation.value.target_type,
           type: selectedRelation.value.type,
@@ -350,7 +322,7 @@ const addNewRelation = () => {
         addNewRelationLoading.value = true;
 
         const { data: newExternalRelation } = await $fetch(
-          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external`,
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/external`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
@@ -373,6 +345,7 @@ const addNewRelation = () => {
       } else {
         const d = {
           resourceType: selectedRelation.value.resource_type,
+          source: selectedRelation.value.source,
           target: selectedRelation.value.target,
           type: selectedRelation.value.type,
         };
@@ -380,7 +353,7 @@ const addNewRelation = () => {
         addNewRelationLoading.value = true;
 
         await $fetch(
-          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal`,
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/internal`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
@@ -607,159 +580,166 @@ const restoreRelation = async (relationid: string) => {
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
       <n-empty
-        v-if="Object.keys(groupedRelations).length === 0"
+        v-if="Object.keys(groupedResources).length === 0"
         description="No relations for this resource"
         class="py-4"
       >
       </n-empty>
 
       <n-space v-else vertical size="large" class="w-full">
-        <div v-for="(gr, name, index) in groupedRelations" :key="index">
-          <div flex class="flex items-center justify-between pb-5 pt-10">
-            <h2>{{ getRelationName(name as string) }}</h2>
+        <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
+          <div flex class="flex items-center justify-between pt-10">
+            <h2>{{ gr1.name }}</h2>
           </div>
 
-          <n-space vertical size="large" class="w-full">
-            <div
-              v-for="(relation, idx) of gr || []"
-              :key="idx"
-              class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
-              :class="{
-                'border-slate-300 bg-white':
-                  !relation.action || relation.action === 'clone',
-                'cursor-not-allowed border-red-300 bg-red-50':
-                  relation.action === 'delete',
-                'border-emerald-400 bg-emerald-50/20':
-                  relation.action === 'update',
-                'border-blue-300 bg-cyan-50/20': relation.action === 'create',
-              }"
-            >
-              <n-space vertical size="large">
-                <div class="group w-max">
-                  <NuxtLink
-                    v-if="relation.external"
-                    :to="
-                      relation.target_type !== 'url'
-                        ? `https://identifiers.org/${relation.target_type}:${relation.target}`
-                        : relation.target
-                    "
-                    class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                    target="_blank"
-                    @click.stop=""
-                  >
-                    {{ relation.target }}
+          <div v-for="(gr, name, index) in gr1.relations" :key="index">
+            <div flex class="flex items-center justify-between pb-5 pt-5">
+              <h3>{{ getRelationName(name as string) }}</h3>
+            </div>
 
-                    <Icon
-                      name="mdi:external-link"
-                      size="16"
-                      class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                    />
-                  </NuxtLink>
+            <n-space vertical size="large" class="w-full">
+              <div
+                v-for="(relation, idx) of gr || []"
+                :key="idx"
+                class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
+                :class="{
+                  'border-slate-300 bg-white':
+                    !relation.action || relation.action === 'clone',
+                  'cursor-not-allowed border-red-300 bg-red-50':
+                    relation.action === 'delete',
+                  'border-emerald-400 bg-emerald-50/20':
+                    relation.action === 'update',
+                  'border-blue-300 bg-cyan-50/20': relation.action === 'create',
+                }"
+              >
+                <n-space vertical size="large">
+                  <div class="group w-max">
+                    <NuxtLink
+                      v-if="relation.external"
+                      :to="
+                        relation.target_type !== 'url'
+                          ? `https://identifiers.org/${relation.target_type}:${relation.target}`
+                          : relation.target
+                      "
+                      class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                      target="_blank"
+                      @click.stop=""
+                    >
+                      {{ relation.target }}
 
-                  <div v-else class="flex items-center font-medium">
-                    {{ getResourceName(relation.target) }}
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between space-x-4">
-                  <div class="flex items-center justify-start space-x-4">
-                    <n-tag type="info"> {{ relation?.resource_type }} </n-tag>
-
-                    <n-tag v-if="relation.target_type" type="success">
-                      {{ relation.target_type }}
-                    </n-tag>
-                  </div>
-
-                  <div
-                    v-if="!currentCollection?.version?.published"
-                    class="flex items-center space-x-4"
-                  >
-                    <n-space>
-                      <n-tag
-                        v-if="relation.action === 'create'"
-                        type="info"
-                        size="medium"
-                      >
-                        <template #icon>
-                          <Icon name="mdi:new-box" size="16" />
-                        </template>
-                        New Relation
-                      </n-tag>
-
-                      <n-tag
-                        v-if="relation.action === 'update'"
-                        type="success"
-                        size="medium"
-                      >
-                        <template #icon>
-                          <Icon
-                            name="mdi:file-document-edit-outline"
-                            size="16"
-                          />
-                        </template>
-                        Updated
-                      </n-tag>
-
-                      <n-tag
-                        v-if="relation.action === 'delete'"
-                        type="error"
-                        size="medium"
-                      >
-                        <template #icon>
-                          <Icon name="mdi:delete-outline" size="16" />
-                        </template>
-                        Marked for deletion
-                      </n-tag>
-                    </n-space>
-
-                    <div>
-                      <n-divider
-                        v-if="relation.action && relation.action !== 'clone'"
-                        vertical
+                      <Icon
+                        name="mdi:external-link"
+                        size="16"
+                        class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
                       />
+                    </NuxtLink>
+
+                    <div v-else class="flex items-center font-medium">
+                      <!-- {{ getResourceName(relation.target) }} -->
+                      {{ relation.target_name }}
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between space-x-4">
+                    <div class="flex items-center justify-start space-x-4">
+                      <n-tag type="info"> {{ relation?.resource_type }} </n-tag>
+
+                      <n-tag v-if="relation.target_type" type="success">
+                        {{ relation.target_type }}
+                      </n-tag>
                     </div>
 
-                    <n-button
-                      v-if="relation.action !== 'delete'"
-                      type="info"
-                      :disabled="relation.action === 'delete'"
-                      @click="openEditRelationDrawer(relation.id)"
+                    <div
+                      v-if="!currentCollection?.version?.published"
+                      class="flex items-center space-x-4"
                     >
-                      <template #icon>
-                        <Icon name="mdi:file-document-edit-outline" />
-                      </template>
+                      <n-space>
+                        <n-tag
+                          v-if="relation.action === 'create'"
+                          type="info"
+                          size="medium"
+                        >
+                          <template #icon>
+                            <Icon name="mdi:new-box" size="16" />
+                          </template>
+                          New Relation
+                        </n-tag>
 
-                      Edit
-                    </n-button>
+                        <n-tag
+                          v-if="relation.action === 'update'"
+                          type="success"
+                          size="medium"
+                        >
+                          <template #icon>
+                            <Icon
+                              name="mdi:file-document-edit-outline"
+                              size="16"
+                            />
+                          </template>
+                          Updated
+                        </n-tag>
 
-                    <n-button
-                      v-if="relation.action !== 'delete'"
-                      type="error"
-                      @click="deleteRelation(relation.id)"
-                    >
-                      <template #icon>
-                        <Icon name="mdi:delete-outline" />
-                      </template>
+                        <n-tag
+                          v-if="relation.action === 'delete'"
+                          type="error"
+                          size="medium"
+                        >
+                          <template #icon>
+                            <Icon name="mdi:delete-outline" size="16" />
+                          </template>
+                          Marked for deletion
+                        </n-tag>
+                      </n-space>
 
-                      Delete
-                    </n-button>
+                      <div>
+                        <n-divider
+                          v-if="relation.action && relation.action !== 'clone'"
+                          vertical
+                        />
+                      </div>
 
-                    <n-button
-                      v-if="relation.action === 'delete'"
-                      type="warning"
-                      @click="restoreRelation(relation.id)"
-                    >
-                      <template #icon>
-                        <Icon name="mdi:undo" />
-                      </template>
+                      <n-button
+                        v-if="relation.action !== 'delete'"
+                        type="info"
+                        :disabled="relation.action === 'delete'"
+                        @click="openEditRelationDrawer(relation.id)"
+                      >
+                        <template #icon>
+                          <Icon name="mdi:file-document-edit-outline" />
+                        </template>
 
-                      Undo delete
-                    </n-button>
+                        Edit
+                      </n-button>
+
+                      <n-button
+                        v-if="relation.action !== 'delete'"
+                        type="error"
+                        @click="deleteRelation(relation.id)"
+                      >
+                        <template #icon>
+                          <Icon name="mdi:delete-outline" />
+                        </template>
+
+                        Delete
+                      </n-button>
+
+                      <n-button
+                        v-if="relation.action === 'delete'"
+                        type="warning"
+                        @click="restoreRelation(relation.id)"
+                      >
+                        <template #icon>
+                          <Icon name="mdi:undo" />
+                        </template>
+
+                        Undo delete
+                      </n-button>
+                    </div>
                   </div>
-                </div>
-              </n-space>
-            </div>
-          </n-space>
+                </n-space>
+              </div>
+            </n-space>
+          </div>
         </div>
       </n-space>
     </div>
@@ -773,6 +753,32 @@ const restoreRelation = async (relationid: string) => {
         :close-on-esc="!addNewRelationLoading && !editRelationLoading"
       >
         <n-form ref="formRef" :model="selectedRelation" size="large">
+          <n-form-item
+            path="source"
+            class="w-full"
+            :rule="{
+              message: 'Please select a source',
+              required: true,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Source of relation</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.source"
+              filterable
+              clearable
+              :render-label="renderLabel"
+              :disabled="!!selectedRelation.original_relation_id"
+              :loading="resourceListLoadingIndicator"
+              :options="resourceList || []"
+            />
+          </n-form-item>
+
+          <n-divider />
+
           <n-form-item
             path="resource_type"
             class="w-full"
@@ -888,7 +894,7 @@ const restoreRelation = async (relationid: string) => {
 
         <pre>
           {{ selectedRelation }}
-           {{ selectedIdentifier }}
+           
         </pre>
 
         <template #footer>
