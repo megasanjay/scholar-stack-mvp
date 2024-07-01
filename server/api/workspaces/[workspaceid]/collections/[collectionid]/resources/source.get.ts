@@ -7,8 +7,6 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
-  const { resourceid } = getQuery(event);
-
   const collection = await prisma.collection.findUnique({
     where: { id: collectionid, workspace_id: workspaceid },
   });
@@ -47,11 +45,14 @@ export default defineEventHandler(async (event) => {
 
     for (const resource of resources) {
       if (resource.original_resource_id) {
-        continue;
-      }
+        // remove the original resource from the list in favor of the cloned resource
+        const originalResourceIndex = allResources.findIndex(
+          (r) => r.id === resource.original_resource_id,
+        );
 
-      if (resourceid && resource.id === resourceid) {
-        continue;
+        if (originalResourceIndex !== -1) {
+          allResources.splice(originalResourceIndex, 1);
+        }
       }
 
       if (
@@ -101,32 +102,10 @@ export default defineEventHandler(async (event) => {
     return !duplicate;
   });
 
-  let currentResource = null;
-
-  if (resourceid) {
-    currentResource = await prisma.resource.findUnique({
-      where: {
-        id: resourceid as string,
-      },
-    });
-
-    if (!currentResource) {
-      throw createError({
-        message: "Resource not found",
-        statusCode: 404,
-      });
-    }
-  }
+  const currentResource = null;
 
   for (const resource of resources) {
     const item = {
-      disabled:
-        !!(
-          currentResource &&
-          "original_resource_id" in currentResource &&
-          currentResource.original_resource_id === resource.id
-        ) ||
-        (resource.action && resource.action === "delete"),
       label: resource.title,
       latestCollectionVersionName: resource.versionName,
       orignalResourceId:
