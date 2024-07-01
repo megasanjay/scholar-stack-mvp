@@ -106,11 +106,35 @@ const groupedResources = computed(() => {
   return grouped;
 });
 
-const resourceList = ref<any>([]);
-const resourceListLoadingIndicator = ref(false);
+const sourceResourceList = ref<any>([]);
+const sourceResourceListLoadingIndicator = ref(false);
 
-const getResourceList = async (resourceid: string) => {
-  resourceListLoadingIndicator.value = true;
+const targetResourceList = ref<any>([]);
+const targetResourceListLoadingIndicator = ref(false);
+
+const getSourceResourceList = async () => {
+  sourceResourceListLoadingIndicator.value = true;
+
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/source`,
+    {
+      headers: useRequestHeaders(["cookie"]),
+    },
+  )
+    .then((response) => {
+      sourceResourceList.value = response;
+    })
+    .catch((error) => {
+      console.error(error);
+      push.error("Something went wrong");
+    })
+    .finally(() => {
+      sourceResourceListLoadingIndicator.value = false;
+    });
+};
+
+const getTargetResourceList = async (resourceid: string) => {
+  targetResourceListLoadingIndicator.value = true;
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources${resourceid ? `?resourceid=${resourceid}` : ``}`,
@@ -119,14 +143,14 @@ const getResourceList = async (resourceid: string) => {
     },
   )
     .then((response) => {
-      resourceList.value = response;
+      targetResourceList.value = response;
     })
     .catch((error) => {
       console.error(error);
       push.error("Something went wrong");
     })
     .finally(() => {
-      resourceListLoadingIndicator.value = false;
+      targetResourceListLoadingIndicator.value = false;
     });
 };
 
@@ -208,7 +232,8 @@ const selectedIdentiferValidator = (rule: FormItemRule, value: string) => {
 };
 
 const openAddRelationDrawer = (targetLocation: string) => {
-  getResourceList("");
+  getSourceResourceList();
+  getTargetResourceList("");
 
   selectedRelation.value = {
     id: nanoid(),
@@ -589,7 +614,7 @@ const restoreRelation = async (relationid: string) => {
       <n-space v-else vertical size="large" class="w-full">
         <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
           <div flex class="flex items-center justify-between pt-10">
-            <h2>{{ gr1.name }}</h2>
+            <h2>{{ gr1.name }} {{ resourceName }}</h2>
           </div>
 
           <div v-for="(gr, name, index) in gr1.relations" :key="index">
@@ -772,8 +797,8 @@ const restoreRelation = async (relationid: string) => {
               clearable
               :render-label="renderLabel"
               :disabled="!!selectedRelation.original_relation_id"
-              :loading="resourceListLoadingIndicator"
-              :options="resourceList || []"
+              :loading="sourceResourceListLoadingIndicator"
+              :options="sourceResourceList || []"
             />
           </n-form-item>
 
@@ -886,8 +911,8 @@ const restoreRelation = async (relationid: string) => {
               clearable
               :render-label="renderLabel"
               :disabled="!!selectedRelation.original_relation_id"
-              :loading="resourceListLoadingIndicator"
-              :options="resourceList || []"
+              :loading="targetResourceListLoadingIndicator"
+              :options="targetResourceList || []"
             />
           </n-form-item>
         </n-form>

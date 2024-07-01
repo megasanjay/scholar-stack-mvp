@@ -36,9 +36,8 @@ export default defineEventHandler(async (event) => {
 
   await collectionMinEditorPermission(event);
 
-  const { collectionid, resourceid, workspaceid } = event.context.params as {
+  const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
-    resourceid: string;
     workspaceid: string;
   };
 
@@ -67,27 +66,54 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const { resourceType, source, target, type } = parsedBody.data;
+
+  /**
+   * TODO: Check if we are using the correct source (with respect to versions)
+   */
+
+  if (target === source) {
+    throw createError({
+      message: "Cannot create a relation to itself",
+      statusCode: 400,
+    });
+  }
+
   // Check if the resource exists and is part of the collection
-  const resource = await prisma.resource.findFirst({
+  const sourceResource = await prisma.resource.findFirst({
     where: {
-      id: resourceid,
-      Version: { some: { collection_id: collectionid } },
+      id: source,
+      Version: {
+        some: {
+          collection_id: collectionid,
+        },
+      },
     },
   });
 
-  if (!resource) {
+  if (!sourceResource) {
     throw createError({
-      message: "Resource not found",
+      message: "Source resource not found",
       statusCode: 404,
     });
   }
 
-  const { resourceType, target, type } = parsedBody.data;
+  // Check if the target resource exists and is part of the collection
+  const targetResource = await prisma.resource.findFirst({
+    where: {
+      id: target,
+      Version: {
+        some: {
+          collection_id: collectionid,
+        },
+      },
+    },
+  });
 
-  if (target === resourceid) {
+  if (!targetResource) {
     throw createError({
-      message: "Cannot create a relation to itself",
-      statusCode: 400,
+      message: "Target resource not found",
+      statusCode: 404,
     });
   }
 
@@ -95,7 +121,7 @@ export default defineEventHandler(async (event) => {
     data: {
       action: "create",
       resource_type: resourceType,
-      source_id: resourceid,
+      source_id: source,
       target_id: target,
       type,
       Version: {
@@ -119,7 +145,10 @@ export default defineEventHandler(async (event) => {
     created: internalRelation.created,
     external: false,
     resource_type: internalRelation.resource_type,
+    source_id: source,
+    source_name: sourceResource.title,
     target: internalRelation.target_id,
+    target_name: targetResource.title,
     target_type: null,
     type: internalRelation.type,
     updated: internalRelation.updated,
