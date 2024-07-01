@@ -78,10 +78,6 @@ if (error.value) {
 const groupedResources = computed(() => {
   const grouped = {};
 
-  console.log("rendering grouped resources");
-
-  console.log(relations.value);
-
   if (relations.value) {
     // Create a list of source resources
     for (const relation of relations.value) {
@@ -95,7 +91,7 @@ const groupedResources = computed(() => {
       }
 
       // Create a nested list under the source resource but for relation type
-      if (relation.type in grouped[relation.source_id]) {
+      if (relation.type in grouped[relation.source_id].relations) {
         grouped[relation.source_id].relations[relation.type].push(relation);
       } else {
         grouped[relation.source_id].relations[relation.type] = [relation];
@@ -298,7 +294,7 @@ const deleteRelation = async (relationid: string) => {
   }
 
   await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
     {
       headers: useRequestHeaders(["cookie"]),
       method: "DELETE",
