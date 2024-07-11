@@ -18,6 +18,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // get the latest version for the collection
+  const latestVersion = await prisma.version.findFirst({
+    include: {
+      Resources: true,
+    },
+    orderBy: {
+      created: "desc",
+    },
+    where: {
+      collection_id: collectionid,
+    },
+  });
+
   // get all the versions for the collection
   // const versions = await prisma.version.findMany({
   //   where: {
@@ -31,22 +44,7 @@ export default defineEventHandler(async (event) => {
   const allResourceIds = [];
 
   // get all the resources for the collection
-  const resources = await prisma.resource.findMany({
-    include: {
-      Version: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    where: {
-      Version: {
-        some: {
-          collection_id: collectionid,
-        },
-      },
-    },
-  });
+  const resources = latestVersion?.Resources || [];
 
   // Remove any duplicate resources and any resources that have the delete or oldVersion action
   const seen = new Set();
@@ -67,30 +65,14 @@ export default defineEventHandler(async (event) => {
       continue;
     }
 
-    allResources.push({ ...resource, versionName: resource.Version[0].name });
+    allResources.push({ ...resource, versionName: latestVersion?.name });
     allResourceIds.push(resource.id);
-  }
-
-  // If a resource is cloned, remove the original resource from the list in favor of the cloned resource
-  for (let i = 0; i < allResources.length; i++) {
-    const resource = allResources[i];
-
-    if (resource.original_resource_id) {
-      const originalResourceIndex = allResources.findIndex(
-        (r) => r.id === resource.original_resource_id,
-      );
-
-      if (originalResourceIndex !== -1) {
-        allResources.splice(originalResourceIndex, 1);
-        i--;
-      }
-    }
   }
 
   for (const resource of allResources) {
     const item = {
-      label: resource.title,
-      latestCollectionVersionName: resource.versionName,
+      action: resource.action,
+      label: resource.title || "Unnamed Resource",
       orignalResourceId:
         "original_resource_id" in resource
           ? resource.original_resource_id
