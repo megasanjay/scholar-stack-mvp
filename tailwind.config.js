@@ -65,7 +65,7 @@ module.exports = {
       },
 
       fontFamily: {
-        primary: ["Inter", ...fontFamily.sans],
+        primary: ["Onest", "Poppins", "Inter", ...fontFamily.sans],
       },
 
       keyframes: {
