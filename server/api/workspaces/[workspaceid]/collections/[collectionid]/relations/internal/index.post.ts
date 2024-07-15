@@ -79,13 +79,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if the resource exists and is part of the collection
+  // Check if the resource exists in the collection and is part of the draft version
   const sourceResource = await prisma.resource.findFirst({
     where: {
       id: source,
       Version: {
         some: {
-          collection_id: collectionid,
+          id: version.id,
         },
       },
     },
@@ -95,6 +95,18 @@ export default defineEventHandler(async (event) => {
     throw createError({
       message: "Source resource not found",
       statusCode: 404,
+    });
+  }
+
+  // Check if the source resource is deleted or is an old version
+  if (
+    !sourceResource.action ||
+    sourceResource.action === "delete" ||
+    sourceResource.action === "oldVersion"
+  ) {
+    throw createError({
+      message: "Source resource cannot accept relations",
+      statusCode: 400,
     });
   }
 
