@@ -261,6 +261,11 @@ const openEditRelationDrawer = (id: string) => {
   const relation = relations.value?.find((r) => r.id === id);
 
   if (relation) {
+    console.log(relation);
+
+    getSourceResourceList();
+    getTargetResourceList("");
+
     /**
      * TODO: the dates need to be fixed. Not sure where ts thinks the dates are strings
      */
@@ -270,6 +275,7 @@ const openEditRelationDrawer = (id: string) => {
       created: new Date(),
       external: relation.external,
       resource_type: relation.resource_type,
+      source: relation.source_id,
       target: relation.target,
       target_type: relation.external ? relation.target_type : null,
       type: relation.type,
@@ -782,6 +788,7 @@ const restoreRelation = async (relationid: string) => {
               required: true,
               trigger: ['blur', 'change'],
             }"
+            :show-feedback="false"
           >
             <template #label>
               <span class="font-medium">Source of relation</span>
@@ -792,7 +799,11 @@ const restoreRelation = async (relationid: string) => {
               filterable
               clearable
               :render-label="renderLabel"
-              :disabled="!!selectedRelation.original_relation_id"
+              :disabled="
+                !!selectedRelation.original_relation_id ||
+                sourceResourceListLoadingIndicator ||
+                drawerAction === 'Edit'
+              "
               :loading="sourceResourceListLoadingIndicator"
               :options="sourceResourceList || []"
             />
