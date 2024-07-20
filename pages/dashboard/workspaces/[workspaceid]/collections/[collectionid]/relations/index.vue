@@ -812,73 +812,6 @@ const restoreRelation = async (relationid: string) => {
           <n-divider />
 
           <n-form-item
-            path="resource_type"
-            class="w-full"
-            :rule="{
-              message: 'Please select a resource type',
-              required: true,
-              trigger: ['blur', 'change'],
-            }"
-          >
-            <template #label>
-              <span class="font-medium">Resource Type</span>
-            </template>
-
-            <n-select
-              v-model:value="selectedRelation.resource_type"
-              filterable
-              clearable
-              :options="resourceTypeOptions"
-              placeholder="Dataset"
-            />
-          </n-form-item>
-
-          <n-form-item
-            path="type"
-            class="w-full"
-            :rule="{
-              message: 'Please select a relation type',
-              required: true,
-              trigger: ['blur', 'change'],
-            }"
-          >
-            <template #label>
-              <span class="font-medium">Relation Type</span>
-            </template>
-
-            <n-select
-              v-model:value="selectedRelation.type"
-              filterable
-              clearable
-              :options="relationTypeOptions"
-              placeholder="isPartOf"
-            />
-          </n-form-item>
-
-          <n-form-item
-            v-if="selectedRelation.external"
-            path="target_type"
-            :rule="{
-              message: 'Please select a target type',
-              required: selectedRelation.external,
-              trigger: ['blur', 'change'],
-            }"
-          >
-            <template #label>
-              <span class="font-medium">Target Type</span>
-            </template>
-
-            <n-select
-              v-model:value="selectedRelation.target_type"
-              :disabled="!!selectedRelation.original_relation_id"
-              filterable
-              clearable
-              :options="typeOptions"
-              placeholder="DOI"
-            />
-          </n-form-item>
-
-          <n-form-item
             v-if="selectedRelation.external"
             path="target"
             :rule="{
@@ -920,6 +853,73 @@ const restoreRelation = async (relationid: string) => {
               :disabled="!!selectedRelation.original_relation_id"
               :loading="targetResourceListLoadingIndicator"
               :options="targetResourceList || []"
+            />
+          </n-form-item>
+
+          <n-form-item
+            v-if="selectedRelation.external"
+            path="target_type"
+            :rule="{
+              message: 'Please select a target type',
+              required: selectedRelation.external,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Target Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.target_type"
+              :disabled="!!selectedRelation.original_relation_id"
+              filterable
+              clearable
+              :options="typeOptions"
+              placeholder="DOI"
+            />
+          </n-form-item>
+
+          <n-form-item
+            path="type"
+            class="w-full"
+            :rule="{
+              message: 'Please select a relation type',
+              required: true,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Relation Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.type"
+              filterable
+              clearable
+              :options="relationTypeOptions"
+              placeholder="isPartOf"
+            />
+          </n-form-item>
+
+          <n-form-item
+            path="resource_type"
+            class="w-full"
+            :rule="{
+              message: 'Please select a resource type',
+              required: true,
+              trigger: ['blur', 'change'],
+            }"
+          >
+            <template #label>
+              <span class="font-medium">Resource Type</span>
+            </template>
+
+            <n-select
+              v-model:value="selectedRelation.resource_type"
+              filterable
+              clearable
+              :options="resourceTypeOptions"
+              placeholder="Dataset"
             />
           </n-form-item>
         </n-form>
