@@ -88,6 +88,7 @@ export type Resource = {
     title: Generated<string>;
     description: Generated<string>;
     resource_type: Generated<string>;
+    relation_resource_type: Generated<string>;
     back_link_id: string | null;
     version_label: string | null;
     original_resource_id: string | null;

@@ -129,6 +129,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  if (sourceResource.original_resource_id === target) {
+    throw createError({
+      message: "Cannot create a cyclic relation",
+      statusCode: 400,
+    });
+  }
+
   const internalRelation = await prisma.internalRelation.create({
     data: {
       action: "create",

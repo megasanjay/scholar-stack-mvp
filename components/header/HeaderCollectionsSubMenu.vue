@@ -69,9 +69,6 @@ const isDraftVersion = computed(() => {
     <NuxtLink
       class="flex items-center space-x-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
-      :class="{
-        'border-b-2 border-slate-800 text-slate-900': isResourcePage,
-      }"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`"
     >
       <div

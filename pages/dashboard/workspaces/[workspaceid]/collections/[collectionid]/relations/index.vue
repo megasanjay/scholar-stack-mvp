@@ -555,6 +555,22 @@ const restoreRelation = async (relationid: string) => {
       push.error("Something went wrong");
     });
 };
+
+const selectRelationResourceType = (resourceid: string) => {
+  if (!targetResourceList.value) {
+    getTargetResourceList(resourceid);
+  }
+
+  const resource = targetResourceList.value?.find(
+    (r) => r.value === resourceid,
+  );
+
+  console.log(resource);
+
+  if (resource) {
+    selectedRelation.value.resource_type = resource.relationResourceType;
+  }
+};
 </script>
 
 <template>
@@ -853,6 +869,7 @@ const restoreRelation = async (relationid: string) => {
               :disabled="!!selectedRelation.original_relation_id"
               :loading="targetResourceListLoadingIndicator"
               :options="targetResourceList || []"
+              @update:value="selectRelationResourceType"
             />
           </n-form-item>
 
