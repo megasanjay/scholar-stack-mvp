@@ -529,14 +529,9 @@ const restoreRelation = async (relationid: string) => {
     return;
   }
 
-  const d = {
-    action: "restore",
-  };
-
   await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
     {
-      body: JSON.stringify(d),
       headers: useRequestHeaders(["cookie"]),
       method: "PATCH",
     },
@@ -564,8 +559,6 @@ const selectRelationResourceType = (resourceid: string) => {
   const resource = targetResourceList.value?.find(
     (r) => r.value === resourceid,
   );
-
-  console.log(resource);
 
   if (resource) {
     selectedRelation.value.resource_type = resource.relationResourceType;
