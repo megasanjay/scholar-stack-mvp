@@ -341,7 +341,7 @@ const removeCollectionStar = async () => {
 
       <n-divider />
 
-      <n-tabs type="line" animated default-value="versions" class="px-7">
+      <n-tabs type="line" animated default-value="resources" class="px-7">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center" class="px-2">

@@ -39,7 +39,7 @@ const selectedRelation = ref<GroupedRelation>({
   external: true,
   resource_type: null,
   source: null,
-  target: "",
+  target: null,
   target_type: null,
   type: null,
   updated: new Date(),
@@ -227,7 +227,10 @@ const selectedIdentiferValidator = (rule: FormItemRule, value: string) => {
   return true;
 };
 
-const openAddRelationDrawer = (targetLocation: string) => {
+const openAddRelationDrawer = (
+  targetLocation: string,
+  sourceid: string = "",
+) => {
   getSourceResourceList();
   getTargetResourceList("");
 
@@ -237,7 +240,7 @@ const openAddRelationDrawer = (targetLocation: string) => {
     external: true,
     resource_type: null,
     source: null,
-    target: "",
+    target: null,
     target_type: null,
     type: null,
     updated: new Date(),
@@ -252,6 +255,10 @@ const openAddRelationDrawer = (targetLocation: string) => {
     selectedRelation.value.type = "Cites";
     selectedRelation.value.target_type = "url";
     selectedRelation.value.target = faker.internet.url();
+  }
+
+  if (sourceid) {
+    selectedRelation.value.source = sourceid;
   }
 
   showRelationDrawer.value = true;
@@ -580,10 +587,6 @@ const selectRelationResourceType = (resourceid: string) => {
 
             <n-tag type="warning">beta</n-tag>
           </n-space>
-
-          <n-tag v-if="resource?.back_link_id" type="info" size="large">
-            {{ resource?.back_link_id }}
-          </n-tag>
         </n-space>
 
         <div class="flex items-center space-x-2">
@@ -626,6 +629,32 @@ const selectRelationResourceType = (resourceid: string) => {
         <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
           <div flex class="flex items-center justify-between pt-10">
             <h2>{{ gr1.name }} {{ resourceName }}</h2>
+
+            <div class="flex items-center space-x-2">
+              <n-button
+                size="small"
+                color="black"
+                @click="openAddRelationDrawer('external', resourceName)"
+              >
+                <template #icon>
+                  <Icon name="material-symbols-light:rebase-edit-rounded" />
+                </template>
+
+                Add external relation
+              </n-button>
+
+              <n-button
+                size="small"
+                color="black"
+                @click="openAddRelationDrawer('internal', resourceName)"
+              >
+                <template #icon>
+                  <Icon name="material-symbols-light:rebase-edit-rounded" />
+                </template>
+
+                Add internal relation
+              </n-button>
+            </div>
           </div>
 
           <div v-for="(gr, name, index) in gr1.relations" :key="index">
@@ -635,8 +664,8 @@ const selectRelationResourceType = (resourceid: string) => {
 
             <n-space vertical size="large" class="w-full">
               <div
-                v-for="(relation, idx) of gr || []"
-                :key="idx"
+                v-for="(relation, id) of gr || []"
+                :key="id"
                 class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
                 :class="{
                   'border-slate-300 bg-white':
@@ -859,7 +888,11 @@ const selectRelationResourceType = (resourceid: string) => {
               filterable
               clearable
               :render-label="renderLabel"
-              :disabled="!!selectedRelation.original_relation_id"
+              :disabled="
+                !!selectedRelation.original_relation_id ||
+                targetResourceListLoadingIndicator ||
+                drawerAction === 'Edit'
+              "
               :loading="targetResourceListLoadingIndicator"
               :options="targetResourceList || []"
               @update:value="selectRelationResourceType"
