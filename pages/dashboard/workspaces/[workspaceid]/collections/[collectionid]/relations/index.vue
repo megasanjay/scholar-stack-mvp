@@ -183,20 +183,6 @@ const renderLabel = (option: SelectOption): any => {
   ];
 };
 
-const getResourceName = (resourceid: string) => {
-  if (resourceList.value) {
-    const resources = resourceList.value;
-
-    const resource = resources.find((res: any) => res.value === resourceid);
-
-    if (resource) {
-      return resource.label;
-    }
-  }
-
-  return "";
-};
-
 const getRelationName = (relationType: string) => {
   const relation = relationTypeOptions.find((r) => r.value === relationType);
 

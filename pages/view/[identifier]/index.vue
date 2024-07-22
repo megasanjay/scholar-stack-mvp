@@ -341,7 +341,7 @@ const removeCollectionStar = async () => {
 
       <n-divider />
 
-      <n-tabs type="line" animated default-value="resources" class="px-7">
+      <n-tabs type="line" animated default-value="impact" class="px-7">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center" class="px-2">
@@ -368,7 +368,7 @@ const removeCollectionStar = async () => {
                 </n-space>
               </div>
 
-              <n-space vertical class="w-full">
+              <n-flex vertical class="w-full">
                 <div
                   v-for="(resource, idx) of group || []"
                   :key="idx"
@@ -385,44 +385,58 @@ const removeCollectionStar = async () => {
                   </p>
 
                   <div
-                    class="flex w-full items-center space-x-1 border-t pb-4 pt-3"
+                    class="flex w-full items-center justify-between space-x-1 border-t pb-4 pt-3"
                   >
-                    <n-tag
-                      :type="resource.identifier_type ? 'info' : 'error'"
-                      size="small"
-                      class=""
-                    >
-                      {{ resource.identifier_type || "No identifier provided" }}
-                    </n-tag>
-
-                    <div>
-                      <n-divider vertical />
-                    </div>
-
-                    <div class="group w-max">
-                      <NuxtLink
-                        :to="
-                          resource.identifier_type !== 'url'
-                            ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
-                            : resource.identifier
-                        "
-                        class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                        target="_blank"
-                        @click.stop=""
+                    <n-flex align="center">
+                      <n-tag
+                        :type="resource.identifier_type ? 'info' : 'error'"
+                        size="small"
+                        class=""
                       >
-                        {{ resource.identifier }}
+                        {{
+                          resource.identifier_type || "No identifier provided"
+                        }}
+                      </n-tag>
 
-                        <Icon
-                          v-if="resource.identifier_type"
-                          name="mdi:external-link"
-                          size="16"
-                          class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                        />
-                      </NuxtLink>
-                    </div>
+                      <div>
+                        <n-divider vertical />
+                      </div>
+
+                      <div class="group w-max">
+                        <NuxtLink
+                          :to="
+                            resource.identifier_type !== 'url'
+                              ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
+                              : resource.identifier
+                          "
+                          class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                          target="_blank"
+                          @click.stop=""
+                        >
+                          {{ resource.identifier }}
+
+                          <Icon
+                            v-if="resource.identifier_type"
+                            name="mdi:external-link"
+                            size="16"
+                            class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                          />
+                        </NuxtLink>
+                      </div>
+                    </n-flex>
+
+                    <n-flex justify="space-between" align="center">
+                      <n-tag type="info" round :bordered="false">
+                        <template #icon>
+                          <Icon name="ic:baseline-bookmark" size="16" />
+                        </template>
+
+                        Cited {{ Math.floor(Math.random() * 1000) }} times
+                      </n-tag>
+                    </n-flex>
                   </div>
                 </div>
-              </n-space>
+              </n-flex>
             </div>
           </n-flex>
         </n-tab-pane>
@@ -504,6 +518,21 @@ const removeCollectionStar = async () => {
             class="py-5"
             :version-identifier="data?.identifier || ''"
           />
+        </n-tab-pane>
+
+        <n-tab-pane name="impact" tab="Impact">
+          <template #tab>
+            <n-space align="center" class="px-2">
+              <Icon name="ph:list-heart" size="18" />
+
+              <span class="font-medium"> Impact</span>
+            </n-space>
+          </template>
+          helelo
+
+          <ClientOnly>
+            <!-- <DiscoverImpactCloud /> -->
+          </ClientOnly>
         </n-tab-pane>
       </n-tabs>
     </div>

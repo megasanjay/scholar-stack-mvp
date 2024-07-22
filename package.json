@@ -91,6 +91,7 @@
     "vue3-lottie": "3.3.0",
     "vue3-marquee": "^4.0.0",
     "vuedraggable": "^4.1.0",
+    "wordcloud": "^1.2.2",
     "zod": "^3.22.3"
   },
   "volta": {
