@@ -11,7 +11,7 @@ export function useLayout() {
 
   const graph = ref(new dagre.graphlib.Graph());
 
-  const previousDirection = ref("LR");
+  const previousDirection = ref("TB");
 
   // sourcery skip: avoid-function-declarations-in-blocks
   function layout(nodes: any, edges: any, direction: any) {

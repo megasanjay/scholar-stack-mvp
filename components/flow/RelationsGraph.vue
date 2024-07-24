@@ -40,14 +40,17 @@ const nodes = ref<Node[]>([]);
 
 for (const relation of remappedRelations) {
   // check if relation.source is in nodes
-  const sourceNode = nodes.value.find((node) => node.id === relation.source);
+  const sourceNode = nodes.value.find(
+    (node: any) => node.id === relation.source,
+  );
 
   if (!sourceNode) {
     nodes.value.push({
       id: relation.source,
       label: relation.internal
-        ? props.resources.find((resource) => resource.id === relation.source)
-            ?.title
+        ? props.resources.find(
+            (resource: any) => resource.id === relation.source,
+          )?.title
         : relation.source,
       position: { x: 0, y: 0 },
       type: "custom",
@@ -55,14 +58,17 @@ for (const relation of remappedRelations) {
   }
 
   // check if relation.target is in nodes
-  const targetNode = nodes.value.find((node) => node.id === relation.target);
+  const targetNode = nodes.value.find(
+    (node: any) => node.id === relation.target,
+  );
 
   if (!targetNode) {
     nodes.value.push({
       id: relation.target,
       label: relation.internal
-        ? props.resources.find((resource) => resource.id === relation.target)
-            ?.title
+        ? props.resources.find(
+            (resource: any) => resource.id === relation.target,
+          )?.title
         : relation.target,
       position: { x: 0, y: 0 },
       type: "custom",

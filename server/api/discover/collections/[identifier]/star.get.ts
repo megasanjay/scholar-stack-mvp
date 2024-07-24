@@ -1,6 +1,7 @@
 import { serverSupabaseUser } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
+  // todo: remove user check
   await protectRoute(event);
 
   const { identifier } = event.context.params as {

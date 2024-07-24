@@ -528,11 +528,8 @@ const removeCollectionStar = async () => {
               <span class="font-medium"> Impact</span>
             </n-space>
           </template>
-          helelo
 
-          <ClientOnly>
-            <!-- <DiscoverImpactCloud /> -->
-          </ClientOnly>
+          <DiscoverImpactCloud />
         </n-tab-pane>
       </n-tabs>
     </div>
