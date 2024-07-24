@@ -8,7 +8,7 @@ definePageMeta({
 <template>
   <main>
     <div
-      class="mb-4 flex items-center justify-center rounded-lg border bg-yellow-50 p-4 text-lg text-yellow-600"
+      class="flex items-center justify-center rounded-lg border bg-yellow-50 p-4 pb-4 text-lg text-yellow-600"
       role="alert"
     >
       <svg
@@ -38,8 +38,8 @@ definePageMeta({
         <GridPattern
           :offset-x="0"
           :offset-y="0"
-          :size="64"
-          class="absolute -inset-px h-full w-full stroke-black/10 stroke-[4] [mask-image:radial-gradient(white,transparent_70%)] [stroke-dasharray:5_6] [stroke-dashoffset:10]"
+          :size="60"
+          class="absolute -inset-px h-full w-full stroke-slate-300/80 stroke-[4] [mask-image:radial-gradient(white,transparent_90%)] [stroke-dasharray:5_6] [stroke-dashoffset:10]"
         >
         </GridPattern>
 
