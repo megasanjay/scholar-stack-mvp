@@ -198,7 +198,7 @@ const removeCollectionStar = async () => {
 </script>
 
 <template>
-  <main class="relative w-full grow overflow-auto px-6 py-10">
+  <main class="relative w-full grow overflow-auto px-2 py-10 sm:px-6">
     <div class="relative mx-auto max-w-screen-2xl">
       <div
         class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
@@ -276,7 +276,7 @@ const removeCollectionStar = async () => {
         </n-popover>
       </div>
 
-      <div class="grid grid-cols-12 gap-10 px-5 pt-5">
+      <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-5">
         <div class="col-span-9">
           <n-space vertical>
             <h1 class="mb-2">
@@ -341,7 +341,7 @@ const removeCollectionStar = async () => {
 
       <n-divider />
 
-      <n-tabs type="line" animated default-value="impact" class="px-7">
+      <n-tabs type="line" animated default-value="impact" class="px-3 md:px-7">
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center" class="px-2">
@@ -385,7 +385,7 @@ const removeCollectionStar = async () => {
                   </p>
 
                   <div
-                    class="flex w-full items-center justify-between space-x-1 border-t pb-4 pt-3"
+                    class="flex w-full flex-col items-start justify-between space-x-1 space-y-5 border-t pb-4 pt-3 md:flex-row md:items-center md:space-y-0"
                   >
                     <n-flex align="center">
                       <n-tag
