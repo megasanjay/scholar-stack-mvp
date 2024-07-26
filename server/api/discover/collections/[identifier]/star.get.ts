@@ -1,9 +1,6 @@
 import { serverSupabaseUser } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-  // todo: remove user check
-  await protectRoute(event);
-
   const { identifier } = event.context.params as {
     identifier: string;
   };
@@ -17,10 +14,6 @@ export default defineEventHandler(async (event) => {
       statusCode: 400,
     });
   }
-
-  const user = await serverSupabaseUser(event);
-
-  const userId = user?.id as string;
 
   const collection = await prisma.collection.findUnique({
     where: { identifier, private: false },
@@ -36,19 +29,8 @@ export default defineEventHandler(async (event) => {
   const returnData = {
     starCount: 0,
     starred: false,
-    statusCode: 200,
+    statusCode: 0,
   };
-
-  const starredData = await prisma.starred.findFirst({
-    where: {
-      collection_id: collection.id,
-      user_id: userId,
-    },
-  });
-
-  if (starredData) {
-    returnData.starred = true;
-  }
 
   const count = await prisma.starred.count({
     where: {
@@ -57,6 +39,24 @@ export default defineEventHandler(async (event) => {
   });
 
   returnData.starCount = count;
+  returnData.statusCode = 200;
+
+  const user = await serverSupabaseUser(event);
+
+  if (user) {
+    const userId = user?.id as string;
+
+    const starredData = await prisma.starred.findFirst({
+      where: {
+        collection_id: collection.id,
+        user_id: userId,
+      },
+    });
+
+    if (starredData) {
+      returnData.starred = true;
+    }
+  }
 
   return returnData;
 });

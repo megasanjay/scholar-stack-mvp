@@ -130,8 +130,6 @@ if (starStatusError.value) {
 }
 
 if (starStatusData.value) {
-  console.log(starStatusData.value);
-
   starredStatus.value = starStatusData.value.starred;
   starCount.value = starStatusData.value.starCount;
 }
@@ -341,7 +339,12 @@ const removeCollectionStar = async () => {
 
       <n-divider />
 
-      <n-tabs type="line" animated default-value="impact" class="px-3 md:px-7">
+      <n-tabs
+        type="line"
+        animated
+        default-value="resources"
+        class="px-3 md:px-7"
+      >
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
             <n-space align="center" class="px-2">
