@@ -32,8 +32,9 @@ export default defineEventHandler(async (event) => {
   const allResources = [];
   const allResourceIds = [];
 
-  // get the resources for each version
+  const updatedResources = [];
 
+  // get the resources for each version
   for (const version of versions) {
     const resources = await prisma.resource.findMany({
       where: {
@@ -47,6 +48,11 @@ export default defineEventHandler(async (event) => {
 
     for (const resource of resources) {
       if (resource.original_resource_id) {
+        // if the resource is an update, add it to the updatedResources list
+        if (resource.action === "update") {
+          updatedResources.push(resource);
+        }
+
         continue;
       }
 
@@ -67,6 +73,24 @@ export default defineEventHandler(async (event) => {
       });
       allResourceIds.push(resource.id);
     }
+  }
+
+  for (const resource of updatedResources) {
+    // find the original resource
+    const originalResource = allResources.find(
+      (r) => r.id === resource.original_resource_id,
+    );
+
+    if (!originalResource) {
+      continue;
+    }
+
+    // TODO: Fix this
+    // Update the original resource with the updated resource data
+    // originalResource.title = resource.title;
+    // originalResource.version_label = resource.version_label;
+    // originalResource.relation_resource_type = resource.relation_resource_type;
+    // originalResource.action = resource.action;
   }
 
   // Get a unique list of all the resource ids keeping the order of the first occurrence that is not the draft version
@@ -133,6 +157,7 @@ export default defineEventHandler(async (event) => {
         "original_resource_id" in resource
           ? resource.original_resource_id
           : null,
+      relationResourceType: resource.relation_resource_type,
       value: resource.id,
       versionLabel: resource.version_label,
     };

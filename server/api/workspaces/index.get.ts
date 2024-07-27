@@ -32,8 +32,6 @@ export default defineEventHandler(async (event) => {
   //   },
   // });
 
-  console.log("workspaces", workspaces);
-
   if (workspaces && workspaces.length > 0) {
     // const foundWorkspaces = workspaces.map((workspace) => workspace.workspace);
     const foundWorkspaces = workspaces.map((workspace) => workspace);

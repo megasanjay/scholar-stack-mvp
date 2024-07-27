@@ -36,7 +36,7 @@ if (error.value) {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <div class="flex w-full items-center justify-between">
+        <div class="flex w-full items-center justify-between space-x-2">
           <h1>
             {{ collection?.title || "Untitled Collection" }}
           </h1>

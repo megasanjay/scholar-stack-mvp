@@ -62,10 +62,6 @@
         "label": "Journal article"
       },
       {
-        "value": "publication-other",
-        "label": "Other"
-      },
-      {
         "value": "publication-patent",
         "label": "Patent"
       },
@@ -127,10 +123,6 @@
       {
         "value": "image-figure",
         "label": "Figure"
-      },
-      {
-        "value": "image-other",
-        "label": "Other"
       },
       {
         "value": "image-photo",

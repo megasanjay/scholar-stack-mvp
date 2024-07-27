@@ -32,12 +32,13 @@ interface GroupedRelation {
   id: string;
   type: string | null;
   external: boolean;
-  target: string;
+  target: string | null;
   original_relation_id?: string | null;
   target_type: string | null;
   resource_type: string | null;
   created: Date;
   updated: Date;
+  source: string | null;
   action?: string | null;
 }
 

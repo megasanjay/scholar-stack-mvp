@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import { Icon } from "#components";
 
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import RELATION_RESOURCE_TYPE_JSON from "@/assets/json/relation-resource-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 
 definePageMeta({
@@ -35,6 +36,7 @@ const formData = reactive<ResourceType>({
   filled_in: false,
   identifier: "",
   identifier_type: null,
+  relation_resource_type: "",
   resource_type: "",
   updated: "",
   version_label: "",
@@ -77,6 +79,11 @@ const rules = {
     required: true,
     trigger: ["blur", "input"],
   },
+  relation_resource_type: {
+    message: "Please enter a type",
+    required: true,
+    trigger: ["blur", "change"],
+  },
   resource_type: {
     message: "Please enter a type",
     required: true,
@@ -85,6 +92,7 @@ const rules = {
 };
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const relationResourceTypeOptions = RELATION_RESOURCE_TYPE_JSON;
 const identifierTypeOptions = PREFIX_JSON;
 
 const selectedIdentifier = computed(() => {
@@ -141,6 +149,7 @@ if (resource.value && "action" in resource.value) {
   formData.identifier = resource.value.identifier || faker.internet.url();
   formData.identifier_type = resource.value.identifier_type || "url";
   formData.resource_type = resource.value.resource_type || "other";
+  formData.relation_resource_type = resource.value.relation_resource_type || "";
   formData.version_label = resource.value.version_label || "";
 
   formData.created = resource.value.created || "";
@@ -204,6 +213,7 @@ const saveResourceData = () => {
         description: formData.description,
         identifier: formData.identifier,
         identifierType: formData.identifier_type,
+        relationResourceType: formData.relation_resource_type,
         resourceType: formData.resource_type,
         versionLabel: formData.version_label,
       };
@@ -236,6 +246,7 @@ const saveResourceData = () => {
               filled_in: true,
               identifier: formData.identifier,
               identifier_type: formData.identifier_type,
+              relation_resource_type: formData.relation_resource_type,
               resource_type: formData.resource_type,
               updated: formData.updated,
               version_label: formData.version_label,
@@ -394,6 +405,18 @@ const saveResourceData = () => {
             clearable
             :options="resourceTypeOptions"
             :render-label="renderLabel"
+          />
+        </n-form-item>
+
+        <n-form-item
+          path="relation_resource_type"
+          label="Relation Resource Type"
+        >
+          <n-select
+            v-model:value="formData.relation_resource_type"
+            filterable
+            clearable
+            :options="relationResourceTypeOptions"
           />
         </n-form-item>
       </n-form>

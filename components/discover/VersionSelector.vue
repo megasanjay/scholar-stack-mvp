@@ -180,9 +180,9 @@ const copyToClipboard = (input: string) => {
               :to="`/view/${version.identifier}`"
               class="text-sm transition-all hover:text-slate-400 hover:underline"
               :class="{
-                'text-stone-600':
+                'text-stone-600 dark:text-stone-600':
                   version.identifier === selectedVersionIdentifier,
-                'text-stone-50':
+                'text-stone-500 dark:text-stone-400':
                   version.identifier !== selectedVersionIdentifier,
               }"
             >
