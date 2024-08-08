@@ -47,7 +47,7 @@ model Notification {
   title   String @default("")
   content String @default("")
 
-  target String @default("https://sciconnect.io")
+  target String @default("https://scitrace.io")
 
   read Boolean @default(false)
 

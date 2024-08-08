@@ -146,7 +146,7 @@ const addResource = async () => {
         <n-empty size="large" description="No resources found"> </n-empty>
       </div>
 
-      <n-space
+      <n-flex
         v-if="collection?.version && collection?.resources"
         vertical
         :size="20"
@@ -205,7 +205,7 @@ const addResource = async () => {
                     placement="bottom-end"
                   >
                     <template #trigger>
-                      <n-space>
+                      <n-flex>
                         <n-tag
                           v-if="resource.action === 'create'"
                           type="info"
@@ -242,7 +242,7 @@ const addResource = async () => {
 
                           Updated
                         </n-tag>
-                      </n-space>
+                      </n-flex>
                     </template>
                     Last modified on {{ displayLongDate(resource.updated) }}
                   </n-tooltip>
@@ -346,7 +346,7 @@ const addResource = async () => {
             </div>
           </div>
         </NuxtLink>
-      </n-space>
+      </n-flex>
     </div>
 
     <ModalNewCollection />

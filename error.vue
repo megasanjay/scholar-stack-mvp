@@ -48,7 +48,7 @@ import notFoundAnimation from "@/assets/lottie/notFoundAnimation.json";
         />
       </ClientOnly>
 
-      <n-space vertical align="center">
+      <n-flex vertical align="center">
         <h1>We couldn't find the resource you're looking for</h1>
 
         <NuxtLink to="/" class="mt-6">
@@ -59,7 +59,7 @@ import notFoundAnimation from "@/assets/lottie/notFoundAnimation.json";
             Go back home</n-button
           >
         </NuxtLink>
-      </n-space>
+      </n-flex>
 
       <n-back-top />
     </main> -->

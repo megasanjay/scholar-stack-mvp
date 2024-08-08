@@ -39,7 +39,7 @@ const themeConfig: ThemeConfig = {
 };
 
 useHead({
-  title: "SciConnect",
+  title: "SciTrace",
   bodyAttrs: {
     class: "test",
   },

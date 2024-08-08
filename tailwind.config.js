@@ -65,6 +65,9 @@ module.exports = {
       },
 
       fontFamily: {
+        inter: ["Inter", ...fontFamily.sans],
+        onest: ["Onest", ...fontFamily.sans],
+        poppins: ["Poppins", ...fontFamily.sans],
         primary: ["Onest", "Poppins", "Inter", ...fontFamily.sans],
       },
 

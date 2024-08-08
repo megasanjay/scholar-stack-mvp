@@ -31,7 +31,7 @@ const logout = async () => {
         >
           <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-          <span class="text-xl font-bold"> SciConnect </span>
+          <span class="text-xl font-bold"> SciTrace </span>
         </NuxtLink>
 
         <div class="flex items-center space-x-3 lg:order-2">
@@ -164,7 +164,7 @@ const logout = async () => {
           >
             <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-            <span class="text-xl font-bold">SciConnect</span>
+            <span class="text-xl font-bold">SciTrace</span>
           </NuxtLink>
         </div>
 
@@ -176,7 +176,7 @@ const logout = async () => {
       </div>
 
       <div class="flex flex-row space-x-8">
-        <n-space justify="space-between" align="center">
+        <n-flex justify="space-between" align="center">
           <n-input size="large" placeholder="Search">
             <template #suffix>
               <Icon name="ion:search-sharp" />
@@ -184,7 +184,7 @@ const logout = async () => {
           </n-input>
 
           <div class="flex items-center justify-center space-x-2">
-            <n-space v-if="!loggedIn">
+            <n-flex v-if="!loggedIn">
               <nuxt-link to="/login">
                 <n-button :color="colors.accent">
                   <template #icon>
@@ -204,7 +204,7 @@ const logout = async () => {
                   Sign Up
                 </n-button>
               </nuxt-link>
-            </n-space>
+            </n-flex>
 
             <n-popover
               v-else
@@ -244,7 +244,7 @@ const logout = async () => {
               </template>
             </n-popover>
           </div>
-        </n-space>
+        </n-flex>
       </div>
     </div>
   </header> -->

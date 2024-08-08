@@ -116,7 +116,7 @@ const copyToClipboard = (input: string) => {
               size="huge"
               aria-modal="true"
             >
-              <n-space vertical align="center">
+              <n-flex vertical align="center">
                 <n-qr-code
                   id="qr-code"
                   :value="`https://scholarstack.io/view/${collectionIdentifier}`"
@@ -127,7 +127,7 @@ const copyToClipboard = (input: string) => {
                 />
 
                 <n-button @click="handleDownloadQRCode"> Download </n-button>
-              </n-space>
+              </n-flex>
             </n-card>
           </n-modal>
         </n-flex>

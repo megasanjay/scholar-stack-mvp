@@ -281,7 +281,7 @@ const removeCollectionStar = async () => {
 
       <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-5">
         <div class="col-span-9">
-          <n-space vertical>
+          <n-flex vertical>
             <h1 class="mb-2">
               {{ data?.collection.title || "Collection Title Unavailable" }}
             </h1>
@@ -330,7 +330,7 @@ const removeCollectionStar = async () => {
                   : "Unknown"
               }}
             </p>
-          </n-space>
+          </n-flex>
         </div>
 
         <div class="relative col-span-3 pt-4">
@@ -352,11 +352,11 @@ const removeCollectionStar = async () => {
       >
         <n-tab-pane name="resources" tab="Resources">
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="fluent:text-bullet-list-square-16-filled" size="18" />
 
               <span class="font-medium"> Resources</span>
-            </n-space>
+            </n-flex>
           </template>
 
           <n-flex vertical>
@@ -366,14 +366,14 @@ const removeCollectionStar = async () => {
               class="py-10"
             >
               <div class="flex items-center justify-between pb-5">
-                <n-space align="center">
+                <n-flex align="center">
                   <Icon :name="selectIcon(name as string).icon" size="35" />
 
                   <h2>
                     {{ selectIcon(name as string).name }}
                     <span> ({{ group.length }}) </span>
                   </h2>
-                </n-space>
+                </n-flex>
               </div>
 
               <n-flex vertical class="w-full">
@@ -455,11 +455,11 @@ const removeCollectionStar = async () => {
           display-directive="show:lazy"
         >
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="tabler:circles-relation" size="18" />
 
               <span class="font-medium"> Relations</span>
-            </n-space>
+            </n-flex>
           </template>
 
           <FlowRelationsGraph
@@ -482,11 +482,11 @@ const removeCollectionStar = async () => {
           display-directive="show:lazy"
         >
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="fluent:history-24-filled" size="18" />
 
               <span class="font-medium"> Changelog</span>
-            </n-space>
+            </n-flex>
           </template>
 
           <MarkdownRender :content="data?.changelog" />
@@ -494,11 +494,11 @@ const removeCollectionStar = async () => {
 
         <n-tab-pane name="versions" tab="Versions">
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="mingcute:version-fill" size="18" />
 
               <span class="font-medium"> Versions </span>
-            </n-space>
+            </n-flex>
           </template>
 
           <DiscoverVersionSelector
@@ -510,11 +510,11 @@ const removeCollectionStar = async () => {
 
         <n-tab-pane name="analytics" tab="Analytics">
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="bi:bar-chart-fill" size="18" />
 
               <span class="font-medium"> Analytics</span>
-            </n-space>
+            </n-flex>
           </template>
 
           <DiscoverCollectionViewsChart
@@ -530,11 +530,11 @@ const removeCollectionStar = async () => {
 
         <n-tab-pane name="impact" tab="Impact">
           <template #tab>
-            <n-space align="center" class="px-2">
+            <n-flex align="center" class="px-2">
               <Icon name="ph:list-heart" size="18" />
 
               <span class="font-medium"> Impact</span>
-            </n-space>
+            </n-flex>
           </template>
 
           <DiscoverImpactCloud />

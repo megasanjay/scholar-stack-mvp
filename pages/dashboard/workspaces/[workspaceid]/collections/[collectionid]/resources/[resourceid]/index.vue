@@ -191,8 +191,8 @@ const createNewVersion = async () => {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <n-space vertical class="w-full">
-          <n-space justify="space-between">
+        <n-flex vertical class="w-full">
+          <n-flex justify="space-between">
             <h1>Overview</h1>
 
             <div class="flex items-center space-x-2">
@@ -244,16 +244,16 @@ const createNewVersion = async () => {
                 </n-button>
               </NuxtLink>
             </div>
-          </n-space>
+          </n-flex>
 
-          <n-space v-if="resource?.back_link_id" align="center">
+          <n-flex v-if="resource?.back_link_id" align="center">
             <span class="font-medium text-slate-500">Derived from</span>
 
             <n-tag type="info" size="small">
               {{ resource?.back_link_id }}
             </n-tag>
-          </n-space>
-        </n-space>
+          </n-flex>
+        </n-flex>
       </div>
     </div>
 

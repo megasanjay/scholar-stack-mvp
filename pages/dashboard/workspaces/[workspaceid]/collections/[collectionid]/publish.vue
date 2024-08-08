@@ -114,7 +114,7 @@ const publishCollection = async () => {
         <div class="flex w-full items-center justify-between">
           <h1 class="mb-2">Publish</h1>
 
-          <n-space align="center">
+          <n-flex align="center">
             <n-button
               v-if="!collection?.version?.published"
               size="large"
@@ -134,7 +134,7 @@ const publishCollection = async () => {
 
               Publish
             </n-button>
-          </n-space>
+          </n-flex>
         </div>
       </div>
     </div>
@@ -156,9 +156,9 @@ const publishCollection = async () => {
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
       <div class="flex items-center justify-between space-x-4 pb-5 pt-10">
-        <n-space align="center">
+        <n-flex align="center">
           <h3>Let's see if all details are provided</h3>
-        </n-space>
+        </n-flex>
       </div>
 
       <TransitionFade>
@@ -172,7 +172,7 @@ const publishCollection = async () => {
           </client-only>
         </div>
 
-        <n-space v-else vertical>
+        <n-flex v-else vertical>
           <n-flex
             v-if="
               validationResults?.errors && validationResults.errors.length > 0
@@ -225,7 +225,7 @@ const publishCollection = async () => {
 
             <p>All details are provided. You can now publish the collection.</p>
           </n-flex>
-        </n-space>
+        </n-flex>
       </TransitionFade>
 
       <n-divider />

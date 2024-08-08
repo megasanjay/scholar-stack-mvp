@@ -13,7 +13,7 @@
           >
             <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-            <span class="text-xl font-bold"> SciConnect </span>
+            <span class="text-xl font-bold"> SciTrace </span>
           </NuxtLink>
 
           <div class="lg:order-2">

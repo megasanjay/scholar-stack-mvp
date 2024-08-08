@@ -146,7 +146,7 @@ watchEffect(() => {
           <n-form-item path="emailAddress" label="Email Address">
             <n-input
               v-model:value="loginForm.emailAddress"
-              placeholder="hello@sciconnect.io"
+              placeholder="hello@scitrace.io"
               clearable
               @keydown.enter.prevent
             />

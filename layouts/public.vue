@@ -23,9 +23,7 @@ const devMode = process.env.NODE_ENV === "development";
           >
             <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-            <span class="text-xl font-bold dark:text-stone-50">
-              SciConnect
-            </span>
+            <span class="text-xl font-bold dark:text-stone-50"> SciTrace </span>
           </NuxtLink>
 
           <div class="flex items-center gap-3 lg:order-2">

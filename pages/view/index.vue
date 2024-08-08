@@ -44,17 +44,17 @@ const requestNewPage = (newPage: number) => {
     <div class="mx-auto w-full max-w-screen-xl px-2.5 py-10 lg:px-20">
       <h1 class="mb-5">Recently published collections</h1>
 
-      <n-space vertical size="large">
+      <n-flex vertical size="large">
         <div
           v-for="item in data?.collections"
           :key="item.id"
           class="border-b py-4"
         >
-          <n-space vertical>
-            <n-space align="center">
+          <n-flex vertical>
+            <n-flex align="center" justify="space-between">
               <NuxtLink
                 :to="`/view/${item.identifier}`"
-                class="text-xl font-medium text-sky-500 transition-all hover:text-sky-400"
+                class="font-inter text-xl font-medium text-sky-500 transition-all hover:text-sky-400"
               >
                 {{ item.collection.title }}
               </NuxtLink>
@@ -62,21 +62,21 @@ const requestNewPage = (newPage: number) => {
               <n-tag type="success" :bordered="false" size="small">
                 Version {{ item.name }}
               </n-tag>
-            </n-space>
+            </n-flex>
 
             <p class="line-clamp-3 text-lg">
               {{ item.collection.description }}
             </p>
 
             <div class="mt-2 flex items-center justify-between">
-              <n-space align="center">
-                <p class="text-base">
+              <n-flex align="center">
+                <p class="font-inter text-base">
                   Published on
                   {{ displayStandardDate(item.published_on!) }}
                 </p>
-              </n-space>
+              </n-flex>
 
-              <n-space align="center">
+              <n-flex align="center">
                 <div class="flex items-center space-x-2">
                   <Icon name="mingcute:eye-line" size="20" />
 
@@ -92,11 +92,11 @@ const requestNewPage = (newPage: number) => {
                     {{ item.stars }}
                   </span>
                 </div>
-              </n-space>
+              </n-flex>
             </div>
-          </n-space>
+          </n-flex>
         </div>
-      </n-space>
+      </n-flex>
 
       <div class="flex justify-center py-5">
         <n-pagination

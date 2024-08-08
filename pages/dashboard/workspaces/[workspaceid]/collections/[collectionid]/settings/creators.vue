@@ -252,7 +252,7 @@ const confirmEdits = (e: MouseEvent) => {
               </div>
 
               <div class="flex w-full items-center justify-between py-3 pr-3">
-                <n-space align="center">
+                <n-flex align="center">
                   <Icon
                     v-if="element.nameType === 'Personal'"
                     name="material-symbols:person"
@@ -299,9 +299,9 @@ const confirmEdits = (e: MouseEvent) => {
                   >
                     <Icon name="academicons:isni" size="25" />
                   </NuxtLink>
-                </n-space>
+                </n-flex>
 
-                <n-space>
+                <n-flex>
                   <n-button
                     type="info"
                     size="small"
@@ -334,7 +334,7 @@ const confirmEdits = (e: MouseEvent) => {
 
                     Remove
                   </n-button>
-                </n-space>
+                </n-flex>
               </div>
             </div>
           </template>
@@ -378,7 +378,7 @@ const confirmEdits = (e: MouseEvent) => {
           label-placement="top"
           class="pr-4"
         >
-          <n-space vertical size="large">
+          <n-flex vertical size="large">
             <n-form-item
               label="Name Type"
               :show-label="false"
@@ -482,7 +482,7 @@ const confirmEdits = (e: MouseEvent) => {
                 clearable
               />
             </n-form-item>
-          </n-space>
+          </n-flex>
         </n-form>
 
         <template #footer>

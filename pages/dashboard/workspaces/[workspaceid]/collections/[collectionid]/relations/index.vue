@@ -567,13 +567,13 @@ const selectRelationResourceType = (resourceid: string) => {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <n-space vertical>
-          <n-space align="center">
+        <n-flex vertical>
+          <n-flex align="center">
             <h1>Relations</h1>
 
             <n-tag type="warning">beta</n-tag>
-          </n-space>
-        </n-space>
+          </n-flex>
+        </n-flex>
 
         <div class="flex items-center space-x-2">
           <n-button
@@ -611,7 +611,7 @@ const selectRelationResourceType = (resourceid: string) => {
       >
       </n-empty>
 
-      <n-space v-else vertical size="large" class="w-full">
+      <n-flex v-else vertical size="large" class="w-full">
         <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
           <div flex class="flex items-center justify-between pt-10">
             <h2>{{ gr1.name }} {{ resourceName }}</h2>
@@ -648,7 +648,7 @@ const selectRelationResourceType = (resourceid: string) => {
               <h3>{{ getRelationName(name as string) }}</h3>
             </div>
 
-            <n-space vertical size="large" class="w-full">
+            <n-flex vertical size="large" class="w-full">
               <div
                 v-for="(relation, id) of gr || []"
                 :key="id"
@@ -663,7 +663,7 @@ const selectRelationResourceType = (resourceid: string) => {
                   'border-blue-300 bg-cyan-50/20': relation.action === 'create',
                 }"
               >
-                <n-space vertical size="large">
+                <n-flex vertical size="large">
                   <div class="group w-max">
                     <NuxtLink
                       v-if="relation.external"
@@ -704,7 +704,7 @@ const selectRelationResourceType = (resourceid: string) => {
                       v-if="!currentCollection?.version?.published"
                       class="flex items-center space-x-4"
                     >
-                      <n-space>
+                      <n-flex>
                         <n-tag
                           v-if="relation.action === 'create'"
                           type="info"
@@ -740,7 +740,7 @@ const selectRelationResourceType = (resourceid: string) => {
                           </template>
                           Marked for deletion
                         </n-tag>
-                      </n-space>
+                      </n-flex>
 
                       <div>
                         <n-divider
@@ -787,12 +787,12 @@ const selectRelationResourceType = (resourceid: string) => {
                       </n-button>
                     </div>
                   </div>
-                </n-space>
+                </n-flex>
               </div>
-            </n-space>
+            </n-flex>
           </div>
         </div>
-      </n-space>
+      </n-flex>
     </div>
 
     <ModalNewCollection />
