@@ -75,6 +75,24 @@ const logout = async () => {
 
             <HeadlessMenuItem v-slot="{ active }">
               <NuxtLink
+                to="/view"
+                :class="{
+                  'bg-blue-500 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
+              >
+                <Icon
+                  name="bx:bxs-book-open"
+                  class="mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Catalog
+              </NuxtLink>
+            </HeadlessMenuItem>
+
+            <HeadlessMenuItem v-slot="{ active }">
+              <NuxtLink
                 to="/account"
                 :class="{
                   'bg-teal-500 text-white': active,
@@ -95,7 +113,7 @@ const logout = async () => {
               <NuxtLink
                 to="/starred"
                 :class="{
-                  'bg-teal-500 text-white': active,
+                  'bg-yellow-500 text-white': active,
                   'text-gray-900': !active,
                 }"
                 class="group flex w-full cursor-pointer items-center rounded-md px-2 py-2 text-sm transition-all"
