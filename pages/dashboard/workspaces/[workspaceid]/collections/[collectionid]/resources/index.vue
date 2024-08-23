@@ -179,7 +179,7 @@ const addResource = async () => {
             <n-divider vertical />
 
             <div class="flex w-full flex-col space-y-1">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between gap-2">
                 <span class="text-lg font-medium leading-5">
                   {{ resource.title || "No title provided" }}
                 </span>

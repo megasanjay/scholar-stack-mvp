@@ -52,13 +52,13 @@ export default defineEventHandler(async (event) => {
   );
 
   if (!uploadResponse.ok) {
+    console.error(await uploadResponse.text());
+
     throw createError({
       message: "Failed to upload file to Bunny",
       statusCode: 500,
     });
   }
-
-  console.log(file);
 
   const newImageUrl = `https://sciconnect-test.b-cdn.net/collection/${newFileName}`;
 

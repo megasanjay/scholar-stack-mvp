@@ -275,7 +275,7 @@ const updateThumbnail = async (evt: any) => {
                 :src="collectionImage"
                 :size="100"
                 alt="Collection Thumbnail"
-                class="cursor-pointer transition-all hover:opacity-70"
+                class="cursor-pointer bg-transparent transition-all hover:opacity-70"
               />
             </label>
 
