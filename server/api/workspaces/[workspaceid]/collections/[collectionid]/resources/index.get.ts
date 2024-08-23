@@ -89,7 +89,6 @@ export default defineEventHandler(async (event) => {
     // Update the original resource with the updated resource data
     // originalResource.title = resource.title;
     // originalResource.version_label = resource.version_label;
-    // originalResource.relation_resource_type = resource.relation_resource_type;
     // originalResource.action = resource.action;
   }
 
@@ -157,7 +156,6 @@ export default defineEventHandler(async (event) => {
         "original_resource_id" in resource
           ? resource.original_resource_id
           : null,
-      relationResourceType: resource.relation_resource_type,
       value: resource.id,
       versionLabel: resource.version_label,
     };

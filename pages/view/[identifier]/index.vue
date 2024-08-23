@@ -383,12 +383,12 @@ const removeCollectionStar = async () => {
                   class="flex w-full flex-grow flex-col rounded-md border border-stone-200 bg-white px-6 pt-4 dark:bg-stone-800"
                 >
                   <div class="flex w-full items-center justify-start pb-2">
-                    <span class="text-lg font-medium">
+                    <h3 class="text-lg font-semibold">
                       {{ resource.title || "No title provided" }}
-                    </span>
+                    </h3>
                   </div>
 
-                  <p class="border-t border-dashed py-3">
+                  <p class="border-t border-dashed py-3 font-normal">
                     {{ resource.description || "No description provided" }}
                   </p>
 
@@ -433,15 +433,9 @@ const removeCollectionStar = async () => {
                       </div>
                     </n-flex>
 
-                    <n-flex justify="space-between" align="center">
-                      <n-tag type="info" round :bordered="false">
-                        <template #icon>
-                          <Icon name="ic:baseline-bookmark" size="16" />
-                        </template>
-
-                        Cited {{ Math.floor(Math.random() * 1000) }} times
-                      </n-tag>
-                    </n-flex>
+                    <DiscoverResourceMetrics
+                      :resource-type="resource.resource_type"
+                    />
                   </div>
                 </div>
               </n-flex>

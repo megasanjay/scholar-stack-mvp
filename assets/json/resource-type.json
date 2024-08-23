@@ -80,14 +80,24 @@
     "icon": "ri:article-fill"
   },
   {
-    "label": "conferencePresentation",
-    "value": "Conference Presentation",
+    "label": "Software",
+    "value": "software",
+    "icon": "eos-icons:application"
+  },
+  {
+    "value": "conferencePresentation",
+    "label": "Conference Presentation",
     "icon": "carbon:group-presentation"
   },
   {
-    "label": "webArticle",
-    "value": "Web Article",
+    "value": "webArticle",
+    "label": "Web Article",
     "icon": "ri:article-line"
+  },
+  {
+    "value": "webPage",
+    "label": "Web Page",
+    "icon": "mdi:web"
   },
   { "label": "video", "value": "video", "icon": "mdi:video" },
   {
