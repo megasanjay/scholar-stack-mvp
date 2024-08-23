@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
   //   },
   // );
 
-  // const url = `https://upload.scitrace.io/avatar?token=${token}`;
+  // const url = `https://upload.sciconnect.io/avatar?token=${token}`;
 
   return {
     // signedUrl: url,

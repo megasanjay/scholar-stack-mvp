@@ -31,7 +31,7 @@ const logout = async () => {
         >
           <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-          <span class="text-xl font-bold"> SciTrace </span>
+          <span class="text-xl font-bold"> SciConnect </span>
         </NuxtLink>
 
         <div class="flex items-center space-x-3 lg:order-2">
@@ -164,7 +164,7 @@ const logout = async () => {
           >
             <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
 
-            <span class="text-xl font-bold">SciTrace</span>
+            <span class="text-xl font-bold">SciConnect</span>
           </NuxtLink>
         </div>
 

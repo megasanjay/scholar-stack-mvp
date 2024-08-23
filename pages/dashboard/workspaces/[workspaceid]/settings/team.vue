@@ -332,7 +332,7 @@ const inviteMember = () => {
                   (workspacePermission !== 'owner' &&
                     workspacePermission !== 'admin')
                 "
-                placeholder="hi@scitrace.io"
+                placeholder="hi@sciconnect.io"
               />
             </n-form-item>
           </div>
@@ -347,7 +347,7 @@ const inviteMember = () => {
         </p>
 
         <p v-else class="text-sm font-medium text-stone-500">
-          An invited user who already has an account on SciTrace will be
+          An invited user who already has an account on SciConnect will be
           automatically added to your workspace.
         </p>
 
