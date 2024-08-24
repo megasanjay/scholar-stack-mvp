@@ -85,6 +85,11 @@
     "icon": "eos-icons:application"
   },
   {
+    "label": "Person",
+    "value": "person",
+    "icon": "carbon:user-avatar-filled"
+  },
+  {
     "value": "conferencePresentation",
     "label": "Conference Presentation",
     "icon": "carbon:group-presentation"
@@ -100,6 +105,7 @@
     "icon": "mdi:web"
   },
   { "label": "video", "value": "video", "icon": "mdi:video" },
+
   {
     "label": "Other",
     "value": "other",

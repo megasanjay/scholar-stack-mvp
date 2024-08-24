@@ -2,6 +2,8 @@
 import type { FormInst } from "naive-ui";
 import { faker } from "@faker-js/faker";
 
+import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
+
 import { useCollectionStore } from "@/stores/collection";
 
 const route = useRoute();
@@ -10,12 +12,15 @@ const collectionStore = useCollectionStore();
 
 const { workspaceid } = route.params as { workspaceid: string };
 
+const collectionTypeOptions = COLLECTION_TYPE_JSON;
+
 const formRef = ref<FormInst | null>(null);
 const loading = ref(false);
 
 const formValue = reactive({
   name: faker.commerce.product(),
   description: faker.lorem.paragraph(),
+  type: "project",
 });
 
 const rules = {
@@ -23,6 +28,11 @@ const rules = {
     message: "Name is required",
     required: true,
     trigger: ["input", "blur"],
+  },
+  type: {
+    message: "Collection type is required",
+    required: true,
+    trigger: ["change"],
   },
 };
 
@@ -148,6 +158,15 @@ const createCollection = () => {
                       :maxlength="350"
                       :rows="7"
                       show-count
+                    />
+                  </n-form-item>
+
+                  <n-form-item label="Collection Type" path="type">
+                    <n-select
+                      v-model:value="formValue.type"
+                      filterable
+                      clearable
+                      :options="collectionTypeOptions"
                     />
                   </n-form-item>
                 </n-form>

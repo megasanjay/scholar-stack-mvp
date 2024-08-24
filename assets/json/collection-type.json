@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Person",
+    "value": "person",
+    "icon": "charm:person"
+  },
+  {
+    "label": "Project",
+    "value": "project",
+    "icon": "la:project-diagram"
+  },
+  {
+    "label": "Organization",
+    "value": "organization",
+    "icon": "la:building"
+  },
+  {
+    "label": "Other",
+    "value": "other",
+    "icon": "bi:collection-fill"
+  }
+]
