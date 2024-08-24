@@ -349,7 +349,7 @@ const copyToClipboard = (input: string) => {
 
               <n-flex align="center">
                 <div class="flex items-center space-x-2">
-                  <Icon name="simple-icons:doi" size="20" />
+                  <Icon name="simple-icons:doi" size="25" />
 
                   <NuxtLink
                     :to="`https://doi.org/10.5281/${data?.collection.identifier}`"
@@ -385,7 +385,7 @@ const copyToClipboard = (input: string) => {
 
               <n-flex align="center">
                 <div class="flex items-center space-x-2">
-                  <Icon name="ph:link-bold" size="20" />
+                  <Icon name="ph:link-bold" size="25" />
 
                   <NuxtLink
                     :to="`https://sciconnect.io/view/${data?.collection.identifier}`"
