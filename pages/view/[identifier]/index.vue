@@ -2,6 +2,7 @@
 import { useClipboard } from "@vueuse/core";
 import dayjs from "dayjs";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
 definePageMeta({
   layout: "public",
@@ -17,6 +18,7 @@ const starredStatus = ref(false);
 const starCount = ref(0);
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const collectionTypeOptions = COLLECTION_TYPE_JSON;
 
 const { identifier } = route.params as { identifier: string };
 
@@ -50,6 +52,22 @@ const selectIcon = (type: string) => {
   return {
     name: "Unknown",
     icon: "mdi:file-question",
+  };
+};
+
+const selectCollectionType = (type: string) => {
+  const collectionType = collectionTypeOptions.find(
+    (collectionType) => collectionType.value === type,
+  );
+
+  if (collectionType) {
+    return collectionType;
+  }
+
+  return {
+    icon: "mdi:file-question",
+    label: "Unknown",
+    value: "unknown",
   };
 };
 
@@ -253,6 +271,23 @@ const copyToClipboard = (input: string) => {
 
           <n-tag type="info" :bordered="false">
             {{ dayjs(data?.published_on).format("MMMM DD, YYYY") || "N/A" }}
+          </n-tag>
+
+          <n-tag
+            :color="{
+              color: '#3498db',
+              textColor: '#ffffff',
+              borderColor: '#2980b9',
+            }"
+            :bordered="false"
+          >
+            <template #icon>
+              <Icon
+                :name="selectCollectionType(data?.collection.type || '').icon"
+                size="18"
+              />
+            </template>
+            {{ selectCollectionType(data?.collection.type || "").label }}
           </n-tag>
         </n-flex>
 
@@ -463,7 +498,7 @@ const copyToClipboard = (input: string) => {
                 <div
                   v-for="(resource, idx) of group || []"
                   :key="idx"
-                  class="flex w-full flex-grow flex-col rounded-md border border-stone-200 bg-white px-6 pt-4 dark:bg-stone-800"
+                  class="flex w-full flex-grow flex-col rounded-md border border-stone-200 bg-white px-6 pt-4 shadow-sm dark:bg-stone-800"
                 >
                   <div class="flex w-full items-center justify-start pb-2">
                     <h3 class="text-lg font-semibold">
@@ -475,11 +510,7 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <n-flex
-                    align="center"
-                    justify="space-between"
-                    class="pb-4 pt-3"
-                  >
+                  <n-flex align="center" justify="space-between" class="pb-4">
                     <n-flex align="center">
                       <n-tag
                         :type="resource.identifier_type ? 'info' : 'error'"

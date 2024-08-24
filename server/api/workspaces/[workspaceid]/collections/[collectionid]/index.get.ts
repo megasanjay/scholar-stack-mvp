@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
     image_url: collection.image_url,
     private: collection.private,
     resources,
+    type: collection.type,
     updated: collection.updated,
     version:
       version.length > 0

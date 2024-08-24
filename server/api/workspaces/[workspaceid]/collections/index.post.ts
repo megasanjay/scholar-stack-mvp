@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     .object({
       title: z.string().min(1),
       description: z.string().max(350),
+      type: z.string(),
     })
     .strict();
 
@@ -39,7 +40,7 @@ export default defineEventHandler(async (event) => {
 
   const { workspaceid } = event.context.params as { workspaceid: string };
 
-  const { title, description } = parsedBody.data;
+  const { title, description, type } = parsedBody.data;
 
   const collection = await prisma.collection.create({
     data: {
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
       description,
       identifier: `c${nanoid(8)}`,
       image_url: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
+      type,
       workspace_id: workspaceid,
     },
   });

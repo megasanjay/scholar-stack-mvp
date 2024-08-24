@@ -16,6 +16,7 @@ export type Collection = {
     title: Generated<string>;
     description: Generated<string>;
     detailed_description: Generated<string>;
+    type: Generated<string>;
     image_url: Generated<string>;
     created: Generated<Timestamp>;
     updated: Timestamp;

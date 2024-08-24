@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import sanitizeHtml from "sanitize-html";
 import { MdEditor, config } from "md-editor-v3";
+import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
 import TargetBlankExtension from "@/utils/TargetBlankExtension";
 
@@ -10,6 +11,8 @@ config({
   },
 });
 
+const collectionTypeOptions = COLLECTION_TYPE_JSON;
+
 const files = ref();
 
 const versionId = ref("");
@@ -17,6 +20,7 @@ const collectionImage = ref("");
 const collectionName = ref("");
 const collectionDescription = ref("");
 const collectionDetailedDescription = ref("");
+const collectionType = ref("");
 const discardVersionModalIsOpen = ref(false);
 
 const discardVersionLoading = ref(false);
@@ -53,6 +57,7 @@ if (collection.value) {
   collectionDescription.value = collection.value.description;
   collectionDetailedDescription.value = collection.value.detailedDescription;
   collectionImage.value = `${collection.value.image_url}?t=${collection.value.updated}`;
+  collectionType.value = collection.value.type;
 
   versionId.value = collection.value.version?.id || "N/A";
 }
@@ -154,6 +159,7 @@ const updateCollectionDetails = async () => {
       title: collectionName.value.trim(),
       description: collectionDescription.value.trim(),
       detailedDescription: collectionDetailedDescription.value.trim(),
+      type: collectionType.value,
     }),
     headers: useRequestHeaders(["cookie"]),
     method: "PUT",
@@ -391,6 +397,36 @@ const updateThumbnail = async (evt: any) => {
             color="black"
             :loading="saveLoading"
             :disabled="collectionDetailedDescription.trim() === ''"
+            @click="updateCollectionDetails"
+          >
+            <template #icon>
+              <Icon name="ic:round-save" />
+            </template>
+            Save
+          </n-button>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Collection Type">
+      <p class="my-3 text-sm">
+        You can select the type of collection here. Selecting the appropriate
+        type will help users understand the purpose of your collection.
+      </p>
+
+      <n-select
+        v-model:value="collectionType"
+        filterable
+        size="large"
+        :options="collectionTypeOptions"
+      />
+
+      <template #action>
+        <div class="flex items-center justify-end">
+          <n-button
+            type="primary"
+            color="black"
+            :loading="saveLoading"
             @click="updateCollectionDetails"
           >
             <template #icon>
