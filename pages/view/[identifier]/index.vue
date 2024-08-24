@@ -475,8 +475,10 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <div
-                    class="flex w-full flex-col items-start justify-between space-x-1 space-y-5 border-t pb-4 pt-3 md:flex-row md:items-center md:space-y-0"
+                  <n-flex
+                    align="center"
+                    justify="space-between"
+                    class="pb-4 pt-3"
                   >
                     <n-flex align="center">
                       <n-tag
@@ -519,7 +521,7 @@ const copyToClipboard = (input: string) => {
                     <DiscoverResourceMetrics
                       :resource-type="resource.resource_type"
                     />
-                  </div>
+                  </n-flex>
                 </div>
               </n-flex>
             </div>
