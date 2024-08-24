@@ -75,6 +75,10 @@ if (error.value) {
 
       <DataDisplay title="Identifier" :content="collection?.identifier" />
 
+      <DataDisplay title="Collection Type">
+        <n-tag type="info">{{ collection?.type }}</n-tag>
+      </DataDisplay>
+
       <DataDisplay title="Visibility">
         <n-tag v-if="collection?.private" type="warning"> Private </n-tag>
 

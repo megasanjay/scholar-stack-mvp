@@ -8,6 +8,7 @@ interface CollectionGETAPIResponse {
   identifier: string;
   image_url: string;
   private: boolean;
+  type: string;
   resources: ResourceType[];
   version: Version | null;
 }
