@@ -510,7 +510,11 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <n-flex align="center" justify="space-between" class="pb-4">
+                  <n-flex
+                    align="center"
+                    justify="space-between"
+                    class="pb-4 pt-2"
+                  >
                     <n-flex align="center">
                       <n-tag
                         :type="resource.identifier_type ? 'info' : 'error'"

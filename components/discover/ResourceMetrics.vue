@@ -56,7 +56,14 @@ const generateRandomNumber = (min: number, max: number) => {
       Has {{ generateRandomNumber(2, 23) }} stars
     </n-tag>
 
-    <n-tag v-if="resourceType === 'poster'" type="info" round :bordered="false">
+    <n-tag
+      v-if="
+        resourceType === 'poster' || resourceType === 'conferencePresentation'
+      "
+      type="info"
+      round
+      :bordered="false"
+    >
       <template #icon>
         <Icon name="solar:eye-bold" size="16" />
       </template>
@@ -75,6 +82,14 @@ const generateRandomNumber = (min: number, max: number) => {
       </template>
 
       {{ generateRandomNumber(545, 15234) }} clicks
+    </n-tag>
+
+    <n-tag v-if="resourceType === 'person'" type="info" round :bordered="false">
+      <template #icon>
+        <Icon name="mingcute:paper-line" size="16" />
+      </template>
+
+      Has {{ generateRandomNumber(2, 15) }} works
     </n-tag>
   </n-flex>
 </template>
