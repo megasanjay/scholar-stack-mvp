@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useClipboard } from "@vueuse/core";
 import dayjs from "dayjs";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
@@ -193,6 +194,23 @@ const removeCollectionStar = async () => {
       starLoading.value = false;
     });
 };
+
+const copyToClipboard = (input: string) => {
+  console.log("Copying to clipboard", input);
+  const source = input;
+
+  const { copied, copy, isSupported } = useClipboard({ source });
+
+  if (!isSupported) {
+    push.error("The Clipboard API is not supported by your browser");
+  }
+
+  copy(source);
+
+  if (copied) {
+    push.success("Your URL was copied to the clipboard");
+  }
+};
 </script>
 
 <template>
@@ -322,14 +340,79 @@ const removeCollectionStar = async () => {
               {{ data?.collection.description || "No description provided." }}
             </p>
 
-            <p class="text-base">
-              Published on
-              {{
-                data?.published_on
-                  ? displayStandardDate(data.published_on as string)
-                  : "Unknown"
-              }}
-            </p>
+            <n-divider />
+
+            <n-flex vertical>
+              <p class="mb-2 w-max border-b pr-3 text-lg font-bold">
+                Links to this collection
+              </p>
+
+              <n-flex align="center">
+                <div class="flex items-center space-x-2">
+                  <Icon name="simple-icons:doi" size="20" />
+
+                  <NuxtLink
+                    :to="`https://doi.org/10.5281/${data?.collection.identifier}`"
+                    target="_blank"
+                    class="text-base font-bold text-blue-600 transition-all hover:text-blue-700 hover:underline"
+                  >
+                    10.5281/{{ data?.collection.identifier }}
+                  </NuxtLink>
+                </div>
+
+                <n-button
+                  strong
+                  circle
+                  class="dark:text-white"
+                  size="small"
+                  @click="
+                    copyToClipboard(
+                      `https://doi.org/${data?.collection.identifier}`,
+                    )
+                  "
+                >
+                  <template #icon>
+                    <Icon name="solar:copy-bold" size="15" />
+                  </template>
+                </n-button>
+
+                <n-button strong circle class="dark:text-white" size="small">
+                  <template #icon>
+                    <Icon name="fluent:qr-code-20-regular" size="15" />
+                  </template>
+                </n-button>
+              </n-flex>
+
+              <n-flex align="center">
+                <div class="flex items-center space-x-2">
+                  <Icon name="ph:link-bold" size="20" />
+
+                  <NuxtLink
+                    :to="`https://sciconnect.io/view/${data?.collection.identifier}`"
+                    target="_blank"
+                    class="text-base font-bold text-blue-600 transition-all hover:text-blue-700 hover:underline"
+                  >
+                    https://sciconnect.io/view/{{ data?.collection.identifier }}
+                  </NuxtLink>
+                </div>
+
+                <n-button
+                  strong
+                  circle
+                  class="dark:text-white"
+                  size="small"
+                  @click="
+                    copyToClipboard(
+                      `https://sciconnect.io/view/${data?.collection.identifier}`,
+                    )
+                  "
+                >
+                  <template #icon>
+                    <Icon name="solar:copy-bold" size="15" />
+                  </template>
+                </n-button>
+              </n-flex>
+            </n-flex>
           </n-flex>
         </div>
 
