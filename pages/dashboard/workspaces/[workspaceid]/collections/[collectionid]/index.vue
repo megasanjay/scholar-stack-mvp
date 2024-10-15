@@ -70,7 +70,7 @@ if (error.value) {
           :content="collection?.detailedDescription || ''"
         />
 
-        <p v-else class="text-lg">No detailed description provided</p>
+        <p v-else class="text-base">No detailed description provided</p>
       </DataDisplay>
 
       <DataDisplay title="Identifier" :content="collection?.identifier" />

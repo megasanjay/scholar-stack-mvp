@@ -124,23 +124,64 @@ export default defineEventHandler(async (event) => {
   );
 
   for (const updatedResource of updatedResources) {
+    // We are assuming edits should have its own version
+
     if (updatedResource.original_resource_id) {
-      await prisma.resource.update({
-        data: {
-          title: updatedResource.title,
-          description: updatedResource.description,
-          resource_type: updatedResource.resource_type,
-          Version: {
-            connect: {
-              id: draftVersion.id,
-            },
-          },
-          version_label: updatedResource.version_label,
-        },
+      // get the original resource
+      const originalResource = await prisma.resource.findUnique({
         where: {
           id: updatedResource.original_resource_id,
         },
       });
+
+      if (!originalResource) {
+        throw createError({
+          message: "Original resource not found",
+          statusCode: 404,
+        });
+      }
+
+      // Remove the original resource if it exists from the draft version
+      await prisma.version.update({
+        data: {
+          Resources: {
+            disconnect: {
+              id: originalResource.id,
+            },
+          },
+        },
+        where: {
+          id: draftVersion.id,
+        },
+      });
+
+      if (originalResource.back_link_id) {
+        await prisma.resource.update({
+          data: {
+            back_link_id: originalResource.back_link_id,
+          },
+          where: {
+            id: updatedResource.id,
+          },
+        });
+      }
+
+      // await prisma.resource.update({
+      //   data: {
+      //     title: updatedResource.title,
+      //     description: updatedResource.description,
+      //     resource_type: updatedResource.resource_type,
+      //     Version: {
+      //       connect: {
+      //         id: draftVersion.id,
+      //       },
+      //     },
+      //     version_label: updatedResource.version_label,
+      //   },
+      //   where: {
+      //     id: updatedResource.original_resource_id,
+      //   },
+      // });
     }
   }
 
@@ -170,6 +211,7 @@ export default defineEventHandler(async (event) => {
   );
 
   for (const newVersionResource of newVersionResources) {
+    // A new version of a resource should always have a back link
     if (newVersionResource.back_link_id) {
       const oldResource = await prisma.resource.findUnique({
         where: {
@@ -562,14 +604,14 @@ export default defineEventHandler(async (event) => {
   /**
    * Delete the updated resources after the relations have been mapped
    */
-  for (const updatedResource of updatedResources) {
-    // delete the updated staging resource
-    await prisma.resource.delete({
-      where: {
-        id: updatedResource.id,
-      },
-    });
-  }
+  // for (const updatedResource of updatedResources) {
+  //   // delete the updated staging resource
+  //   await prisma.resource.delete({
+  //     where: {
+  //       id: updatedResource.id,
+  //     },
+  //   });
+  // }
 
   // publish the the version
   await prisma.version.update({

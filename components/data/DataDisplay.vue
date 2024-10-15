@@ -17,7 +17,7 @@ const hasContent = computed(() => props.content.length > 0);
   <div>
     <h3 class="pb-2 pt-5">{{ title }}</h3>
 
-    <p v-if="hasContent" class="text-lg">{{ content }}</p>
+    <p v-if="hasContent" class="text-base text-slate-800">{{ content }}</p>
 
     <slot v-else />
   </div>

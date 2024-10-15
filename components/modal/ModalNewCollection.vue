@@ -46,6 +46,7 @@ const createCollection = () => {
         body: JSON.stringify({
           title: formValue.name.trim(),
           description: formValue.description.trim(),
+          type: formValue.type,
         }),
         headers: useRequestHeaders(["cookie"]),
         method: "POST",
