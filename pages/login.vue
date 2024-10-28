@@ -101,6 +101,11 @@ const signIn = (e: MouseEvent) => {
         throw error;
       });
 
+      push.success({
+        title: "Login Successful",
+        message: "Please wait while we redirect you to your dashboard",
+      });
+
       // redirect to projects page
       window.location.href = "/dashboard";
     } else {
