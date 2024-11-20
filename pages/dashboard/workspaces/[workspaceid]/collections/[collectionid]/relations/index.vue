@@ -606,6 +606,34 @@ const selectRelationResourceType = (resourceid: string) => {
     selectedRelation.value.resource_type = resource.relationResourceType;
   }
 };
+
+const mirrorRelationExists = computed(() => {
+  if (!selectedRelation.value.source) {
+    return false;
+  }
+
+  if (!selectedRelation.value.external) {
+    // TODO: Check if the relation exists in the source resource
+    console.log(selectedRelation.value);
+
+    return false;
+  }
+
+  return false;
+});
+
+const duplicationRelationExists = computed(() => {
+  if (!selectedRelation.value.source) {
+    return false;
+  }
+
+  if (!selectedRelation.value.external) {
+    // TODO: Check if the relation exists in the source resource
+    return false;
+  }
+
+  return false;
+});
 </script>
 
 <template>
@@ -651,14 +679,23 @@ const selectRelationResourceType = (resourceid: string) => {
         class="py-4"
       />
 
-      <n-flex v-else vertical size="large" class="w-full">
+      <n-flex
+        v-else
+        vertical
+        size="large"
+        class="divide w-full divide-y divide-stone-200"
+      >
         <!-- <pre>
           {{ groupedResources }}
         </pre> -->
 
-        <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
-          <div class="flex items-center justify-between pt-10">
-            <h2>{{ gr1.name }}</h2>
+        <div
+          v-for="(gr1, resourceName, idx) in groupedResources"
+          :key="idx"
+          class="py-10"
+        >
+          <div class="flex items-center justify-between">
+            <h2 class="border-b pb-1 pr-4">{{ gr1.name }}</h2>
 
             <div class="flex items-center space-x-2">
               <n-button
@@ -692,7 +729,7 @@ const selectRelationResourceType = (resourceid: string) => {
           </div>
 
           <div v-for="(gr, name, index) in gr1.relations" :key="index">
-            <div flex class="flex items-center justify-between pb-5 pt-5">
+            <div class="flex items-center justify-between pb-1 pt-5">
               <h3>{{ getRelationName(name as string) }}</h3>
             </div>
 
@@ -927,8 +964,7 @@ const selectRelationResourceType = (resourceid: string) => {
               :render-label="renderLabel"
               :disabled="
                 !!selectedRelation.original_relation_id ||
-                targetResourceListLoadingIndicator ||
-                drawerAction === 'Edit'
+                targetResourceListLoadingIndicator
               "
               :loading="targetResourceListLoadingIndicator"
               :options="targetResourceList || []"
@@ -1003,6 +1039,16 @@ const selectRelationResourceType = (resourceid: string) => {
             />
           </n-form-item>
         </n-form>
+
+        <n-alert
+          v-if="mirrorRelationExists || duplicationRelationExists"
+          type="warning"
+          class="mt-4"
+        >
+          This relation might already exist. We found an inverse relation for
+          this source and target resource. Please check if you want to create a
+          new relation in this instance.
+        </n-alert>
 
         <!-- <pre>
           {{ selectedRelation }}

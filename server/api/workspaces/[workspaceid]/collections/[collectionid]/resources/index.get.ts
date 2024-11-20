@@ -143,6 +143,7 @@ export default defineEventHandler(async (event) => {
 
   for (const resource of resources) {
     const item = {
+      action: resource.action,
       disabled:
         !!(
           currentResource &&
