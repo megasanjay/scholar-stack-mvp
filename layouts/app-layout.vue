@@ -48,11 +48,11 @@ const currentLayout = computed(() => {
             }"
           />
 
-          <HeaderResourcesSubMenu
+          <!-- <HeaderResourcesSubMenu
             v-if="currentLayout === 'resource-layout'"
             :key="$route.fullPath"
             class="px-4 lg:px-6"
-          />
+          /> -->
         </div>
 
         <div class="flex w-full items-center justify-between px-4 lg:px-6">
