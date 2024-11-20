@@ -15,7 +15,7 @@ const hasContent = computed(() => props.content.length > 0);
 
 <template>
   <div>
-    <h3 class="pb-2 pt-5">{{ title }}</h3>
+    <h3 class="pb-1 pt-5">{{ title }}</h3>
 
     <p v-if="hasContent" class="text-base">{{ content }}</p>
 

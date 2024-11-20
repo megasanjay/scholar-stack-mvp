@@ -676,7 +676,7 @@ const duplicationRelationExists = computed(() => {
       <n-empty
         v-if="Object.keys(groupedResources).length === 0"
         description="No relations for this resource"
-        class="py-4"
+        class="py-10"
       />
 
       <n-flex
