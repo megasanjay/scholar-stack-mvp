@@ -84,7 +84,10 @@ const rules = {
   },
 };
 
-const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const resourceTypeOptions = RESOURCE_TYPE_JSON.filter(
+  (resourceType) => resourceType.show,
+);
+
 const identifierTypeOptions = PREFIX_JSON;
 
 // Reorganize resource type options in alphabetical order
@@ -350,10 +353,20 @@ const saveResourceData = () => {
             />
 
             <n-collapse-transition :show="!!formData.identifier">
-              <p class="mt-2 text-sm text-slate-500">
-                Click here to see if your linked resource is available and
-                resolves correctly.
-              </p>
+              <NuxtLink
+                :to="
+                  formData.identifier_type === 'url'
+                    ? formData.identifier
+                    : `https://identifiers.org/${formData.identifier_type}:${formData.identifier}`
+                "
+                target="_blank"
+                class="text-slate-500 transition-all hover:text-blue-700"
+              >
+                <p class="mt-2 text-sm">
+                  Click here to see if your linked resource is available and
+                  resolves correctly.
+                </p>
+              </NuxtLink>
             </n-collapse-transition>
           </div>
         </n-form-item>
@@ -367,12 +380,20 @@ const saveResourceData = () => {
         </n-form-item>
 
         <n-form-item label="Description" path="description">
-          <n-input
-            v-model:value="formData.description"
-            placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
-            type="textarea"
-            clearable
-          />
+          <n-flex vertical class="w-full">
+            <n-input
+              v-model:value="formData.description"
+              placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
+              type="textarea"
+              clearable
+            />
+
+            <n-collapse-transition :show="!!formData.description">
+              <p class="text-xs text-slate-500">
+                You can use markdown to format your description.
+              </p>
+            </n-collapse-transition>
+          </n-flex>
         </n-form-item>
 
         <n-form-item label="Version" path="version">

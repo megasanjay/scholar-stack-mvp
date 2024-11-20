@@ -32,11 +32,14 @@ const editRelationLoading = ref(false);
 const drawerAction = ref<"Add" | "Edit">("Add");
 
 const formRef = ref<FormInst | null>(null);
+
 // const groupedRelations = ref<GroupedRelations>({});
+
 const selectedRelation = ref<GroupedRelation>({
   id: "",
   created: new Date(),
   external: true,
+  original_relation_id: null,
   resource_type: null,
   source: null,
   target: null,
@@ -76,25 +79,36 @@ if (error.value) {
 }
 
 const groupedResources = computed(() => {
-  const grouped = {};
+  const grouped: GGR = {};
 
   if (relations.value) {
     // Create a list of source resources
     for (const relation of relations.value) {
-      if (relation.source_id in grouped) {
-        // do nothing
-      } else {
-        grouped[relation.source_id] = {
-          name: relation.source_name,
+      if (!relation.source) {
+        continue;
+      }
+
+      // if relation.source not in grouped, add it
+      if (!(relation.source in grouped)) {
+        grouped[relation.source] = {
+          name: relation.source_name || "Untitled Resource",
           relations: {},
         };
       }
 
+      const formattedRelation = {
+        ...relation,
+        created: new Date(relation.created),
+        updated: new Date(relation.updated),
+      };
+
       // Create a nested list under the source resource but for relation type
-      if (relation.type in grouped[relation.source_id].relations) {
-        grouped[relation.source_id].relations[relation.type].push(relation);
+      if (relation.type in grouped[relation.source].relations) {
+        grouped[relation.source].relations[relation.type].push(
+          formattedRelation,
+        );
       } else {
-        grouped[relation.source_id].relations[relation.type] = [relation];
+        grouped[relation.source].relations[relation.type] = [formattedRelation];
       }
     }
   }
@@ -267,10 +281,11 @@ const openEditRelationDrawer = (id: string) => {
       id: relation.id,
       created: new Date(),
       external: relation.external,
+      original_relation_id: relation.original_relation_id,
       resource_type: relation.resource_type,
-      source: relation.source_id,
+      source: relation.source,
       target: relation.target,
-      target_type: relation.external ? relation.target_type : null,
+      target_type: relation.external ? (relation.target_type ?? null) : null,
       type: relation.type,
       updated: new Date(),
     };
@@ -283,6 +298,8 @@ const openEditRelationDrawer = (id: string) => {
   }
 };
 
+const relationBeingDeleted = ref("");
+
 const deleteRelation = async (relationid: string) => {
   const relation = relations.value?.find((r) => r.id === relationid);
 
@@ -291,6 +308,8 @@ const deleteRelation = async (relationid: string) => {
 
     return;
   }
+
+  relationBeingDeleted.value = relationid;
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
@@ -324,6 +343,9 @@ const deleteRelation = async (relationid: string) => {
     .catch((error) => {
       console.error(error);
       push.error("Something went wrong");
+    })
+    .finally(() => {
+      relationBeingDeleted.value = "";
     });
 };
 
@@ -351,10 +373,21 @@ const addNewRelation = () => {
         );
 
         addNewRelationLoading.value = false;
+        console.log(newExternalRelation);
 
         if (newExternalRelation) {
           // Also add the relation to the main relations array
-          relations.value?.push(newExternalRelation);
+          relations.value?.push({
+            ...newExternalRelation,
+            action: newExternalRelation.action ?? null, // Ensure action is not undefined
+            created: newExternalRelation.created,
+            original_relation_id:
+              newExternalRelation.original_relation_id ?? null,
+            source_name: null,
+            source_original_id: null,
+            type: newExternalRelation.type || "",
+            updated: newExternalRelation.updated,
+          });
 
           push.success("Your relation has been added");
 
@@ -383,7 +416,16 @@ const addNewRelation = () => {
           .then((response) => {
             if (response.statusCode === 201) {
               // Also add the relation to the main relations array
-              relations.value?.push(response.data);
+              relations.value?.push({
+                ...response.data,
+                action: response.data.action ?? null, // Ensure action is not undefined
+                created: response.data.created,
+                original_relation_id:
+                  response.data.original_relation_id ?? null,
+                source_name: null,
+                source_original_id: null,
+                type: response.data.type || "",
+              });
 
               push.success("Your relation has been added");
 
@@ -421,7 +463,7 @@ const editRelation = () => {
         editRelationLoading.value = true;
 
         await $fetch(
-          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/external/${selectedRelation.value.id}`,
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/external/${selectedRelation.value.id}`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
@@ -468,7 +510,7 @@ const editRelation = () => {
         editRelationLoading.value = true;
 
         await $fetch(
-          `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/relations/internal/${selectedRelation.value.id}`,
+          `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/internal/${selectedRelation.value.id}`,
           {
             body: JSON.stringify(d),
             headers: useRequestHeaders(["cookie"]),
@@ -513,6 +555,8 @@ const editRelation = () => {
   });
 };
 
+const relationBeingRestored = ref("");
+
 const restoreRelation = async (relationid: string) => {
   const relation = relations.value?.find((r) => r.id === relationid);
 
@@ -521,6 +565,8 @@ const restoreRelation = async (relationid: string) => {
 
     return;
   }
+
+  relationBeingRestored.value = relationid;
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
@@ -541,6 +587,9 @@ const restoreRelation = async (relationid: string) => {
     .catch((error) => {
       console.error(error);
       push.error("Something went wrong");
+    })
+    .finally(() => {
+      relationBeingRestored.value = "";
     });
 };
 
@@ -550,7 +599,7 @@ const selectRelationResourceType = (resourceid: string) => {
   }
 
   const resource = targetResourceList.value?.find(
-    (r) => r.value === resourceid,
+    (r: any) => r.value === resourceid,
   );
 
   if (resource) {
@@ -576,11 +625,7 @@ const selectRelationResourceType = (resourceid: string) => {
         </n-flex>
 
         <div class="flex items-center space-x-2">
-          <n-button
-            size="large"
-            color="black"
-            @click="openAddRelationDrawer('external')"
-          >
+          <n-button color="black" @click="openAddRelationDrawer('external')">
             <template #icon>
               <Icon name="material-symbols-light:rebase-edit-rounded" />
             </template>
@@ -588,13 +633,9 @@ const selectRelationResourceType = (resourceid: string) => {
             Add external relation
           </n-button>
 
-          <n-button
-            size="large"
-            color="black"
-            @click="openAddRelationDrawer('internal')"
-          >
+          <n-button color="black" @click="openAddRelationDrawer('internal')">
             <template #icon>
-              <Icon name="material-symbols-light:rebase-edit-rounded" />
+              <Icon name="icon-park-outline:internal-expansion" />
             </template>
 
             Add internal relation
@@ -608,19 +649,24 @@ const selectRelationResourceType = (resourceid: string) => {
         v-if="Object.keys(groupedResources).length === 0"
         description="No relations for this resource"
         class="py-4"
-      >
-      </n-empty>
+      />
 
       <n-flex v-else vertical size="large" class="w-full">
+        <!-- <pre>
+          {{ groupedResources }}
+        </pre> -->
+
         <div v-for="(gr1, resourceName, idx) in groupedResources" :key="idx">
-          <div flex class="flex items-center justify-between pt-10">
-            <h2>{{ gr1.name }} {{ resourceName }}</h2>
+          <div class="flex items-center justify-between pt-10">
+            <h2>{{ gr1.name }}</h2>
 
             <div class="flex items-center space-x-2">
               <n-button
                 size="small"
                 color="black"
-                @click="openAddRelationDrawer('external', resourceName)"
+                @click="
+                  openAddRelationDrawer('external', resourceName as string)
+                "
               >
                 <template #icon>
                   <Icon name="material-symbols-light:rebase-edit-rounded" />
@@ -632,10 +678,12 @@ const selectRelationResourceType = (resourceid: string) => {
               <n-button
                 size="small"
                 color="black"
-                @click="openAddRelationDrawer('internal', resourceName)"
+                @click="
+                  openAddRelationDrawer('internal', resourceName as string)
+                "
               >
                 <template #icon>
-                  <Icon name="material-symbols-light:rebase-edit-rounded" />
+                  <Icon name="icon-park-outline:internal-expansion" />
                 </template>
 
                 Add internal relation
@@ -666,7 +714,7 @@ const selectRelationResourceType = (resourceid: string) => {
                 <n-flex vertical size="large">
                   <div class="group w-max">
                     <NuxtLink
-                      v-if="relation.external"
+                      v-if="relation.external && relation.target"
                       :to="
                         relation.target_type !== 'url'
                           ? `https://identifiers.org/${relation.target_type}:${relation.target}`
@@ -765,6 +813,7 @@ const selectRelationResourceType = (resourceid: string) => {
                       <n-button
                         v-if="relation.action !== 'delete'"
                         type="error"
+                        :loading="relationBeingDeleted === relation.id"
                         @click="deleteRelation(relation.id)"
                       >
                         <template #icon>
@@ -777,6 +826,7 @@ const selectRelationResourceType = (resourceid: string) => {
                       <n-button
                         v-if="relation.action === 'delete'"
                         type="warning"
+                        :loading="relationBeingRestored === relation.id"
                         @click="restoreRelation(relation.id)"
                       >
                         <template #icon>
@@ -802,6 +852,7 @@ const selectRelationResourceType = (resourceid: string) => {
         :title="`${drawerAction} an ${selectedRelation.external ? 'external' : 'internal'} relation`"
         :mask-closable="!addNewRelationLoading && !editRelationLoading"
         :close-on-esc="!addNewRelationLoading && !editRelationLoading"
+        :closable="!addNewRelationLoading && !editRelationLoading"
       >
         <n-form ref="formRef" :model="selectedRelation" size="large">
           <n-form-item
@@ -953,10 +1004,9 @@ const selectRelationResourceType = (resourceid: string) => {
           </n-form-item>
         </n-form>
 
-        <pre>
+        <!-- <pre>
           {{ selectedRelation }}
-           
-        </pre>
+        </pre> -->
 
         <template #footer>
           <n-button

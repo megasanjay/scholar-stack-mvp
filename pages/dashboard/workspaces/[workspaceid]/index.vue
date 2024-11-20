@@ -71,11 +71,11 @@ if (error.value) {
             class="flex w-full items-center justify-between gap-x-3 border-b pb-3"
           >
             <div class="flex flex-col">
-              <p class="text-lg font-medium leading-tight">
+              <p class="font-inter text-lg font-medium leading-tight">
                 {{ collection.title }}
               </p>
 
-              <span class="mt-1 text-sm text-slate-500">
+              <span class="text-sm text-slate-500">
                 Updated on
                 {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
               </span>

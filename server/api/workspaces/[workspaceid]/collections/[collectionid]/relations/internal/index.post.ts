@@ -158,14 +158,16 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const responseObject: GroupedRelation = {
+  const responseObject: AllRelationsItem = {
     id: internalRelation.id,
     action: "create",
     created: internalRelation.created,
     external: false,
+    original_relation_id: internalRelation.original_relation_id,
     resource_type: internalRelation.resource_type,
-    source_id: source,
+    source: sourceResource.id,
     source_name: sourceResource.title,
+    source_original_id: sourceResource.original_resource_id,
     target: internalRelation.target_id,
     target_name: targetResource.title,
     target_type: null,

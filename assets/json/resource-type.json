@@ -2,113 +2,134 @@
   {
     "label": "GitHub Repository",
     "value": "gitHubRepository",
-    "icon": "mdi:github"
+    "icon": "mdi:github",
+    "show": true
   },
   {
     "label": "Git Repository",
     "value": "gitRepository",
-    "icon": "mdi:git"
+    "icon": "mdi:git",
+    "show": false
   },
   {
     "label": "GitLab Repository",
     "value": "gitLabRepository",
-    "icon": "ri:gitlab-fill"
+    "icon": "ri:gitlab-fill",
+    "show": false
   },
   {
     "label": "Dataset",
     "value": "dataset",
-    "icon": "material-symbols:dataset"
+    "icon": "material-symbols:dataset",
+    "show": true
   },
   {
     "label": "Journal Article",
     "value": "journalArticle",
-    "icon": "ooui:journal-ltr"
+    "icon": "ooui:journal-ltr",
+    "show": true
   },
   {
     "label": "Presentation",
     "value": "presentation",
-    "icon": "tabler:presentation"
+    "icon": "tabler:presentation",
+    "show": true
   },
   {
     "label": "Poster",
     "value": "poster",
-    "icon": "ep:data-board"
+    "icon": "ep:data-board",
+    "show": true
   },
   {
     "label": "Genomic Data",
     "value": "genomicData",
-    "icon": "solar:dna-bold"
+    "icon": "solar:dna-bold",
+    "show": true
   },
   {
     "label": "Clinical Data",
     "value": "clinicalData",
-    "icon": "material-symbols:clinical-notes"
+    "icon": "material-symbols:clinical-notes",
+    "show": false
   },
   {
     "label": "Taxonomy",
     "value": "taxonomy",
-    "icon": "icon-park-twotone:children-pyramid"
+    "icon": "icon-park-twotone:children-pyramid",
+    "show": false
   },
   {
     "label": "Amazon Product",
     "value": "amazonProduct",
-    "icon": "ion:logo-amazon"
+    "icon": "ion:logo-amazon",
+    "show": false
   },
   {
     "label": "Antibody",
     "value": "antibody",
-    "icon": "game-icons:antibody"
+    "icon": "game-icons:antibody",
+    "show": false
   },
   {
     "label": "Adverse Outcome Pathways",
     "value": "adverseOutcomePathways",
-    "icon": "material-symbols:view-timeline"
+    "icon": "material-symbols:view-timeline",
+    "show": false
   },
   {
     "label": "Peptide",
     "value": "peptide",
-    "icon": "lets-icons:molecule-light"
+    "icon": "lets-icons:molecule-light",
+    "show": false
   },
   {
     "label": "Grant",
     "value": "grant",
-    "icon": "solar:hand-money-bold"
+    "icon": "solar:hand-money-bold",
+    "show": true
   },
   {
-    "label": "preprint",
-    "value": "Preprint",
-    "icon": "ri:article-fill"
+    "label": "Preprint",
+    "value": "preprint",
+    "icon": "ri:article-fill",
+    "show": true
   },
   {
     "label": "Software",
     "value": "software",
-    "icon": "eos-icons:application"
+    "icon": "eos-icons:application",
+    "show": true
   },
   {
     "label": "Person",
     "value": "person",
-    "icon": "carbon:user-avatar-filled"
+    "icon": "carbon:user-avatar-filled",
+    "show": true
   },
   {
-    "value": "conferencePresentation",
     "label": "Conference Presentation",
-    "icon": "carbon:group-presentation"
+    "value": "conferencePresentation",
+    "icon": "carbon:group-presentation",
+    "show": true
   },
   {
-    "value": "webArticle",
     "label": "Web Article",
-    "icon": "ri:article-line"
+    "value": "webArticle",
+    "icon": "ri:article-line",
+    "show": true
   },
   {
-    "value": "webPage",
     "label": "Web Page",
-    "icon": "mdi:web"
+    "value": "webPage",
+    "icon": "mdi:web",
+    "show": true
   },
-  { "label": "video", "value": "video", "icon": "mdi:video" },
-
+  { "label": "Video", "value": "video", "icon": "mdi:video", "show": true },
   {
     "label": "Other",
     "value": "other",
-    "icon": "mdi:resource-description-framework"
+    "icon": "mdi:resource-description-framework",
+    "show": true
   }
 ]

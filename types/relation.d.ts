@@ -76,3 +76,32 @@ interface CatalogRelations {
   internal: CatalogInternalRelation[];
   external: CatalogExternalRelation[];
 }
+
+interface AllRelationsItem {
+  id: string;
+  action: string | null;
+  created: Date;
+  external: boolean;
+  original_relation_id: string | null;
+  resource_type: string | null;
+  source: string | null;
+  source_name: string | null;
+  source_original_id: string | null;
+  target: string | null;
+  target_name?: string | null;
+  target_original_id?: string | null;
+  target_type?: string | null;
+  type: string;
+  updated: Date;
+}
+
+type GR = {
+  [relationKey: string]: AllRelationsItem[];
+};
+
+type GGR = {
+  [key: string]: {
+    name: string;
+    relations: GR;
+  };
+};

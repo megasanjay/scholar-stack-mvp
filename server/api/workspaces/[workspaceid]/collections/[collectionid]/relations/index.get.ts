@@ -47,41 +47,45 @@ export default defineEventHandler(async (event) => {
   }
 
   // get all the relations for the collection
-  const internalRelations = version.InternalRelations.map((relation) => ({
-    id: relation.id,
-    action: relation.action || null,
-    created: relation.created,
-    external: false,
-    original_relation_id: relation.original_relation_id || null,
-    resource_type: relation.resource_type,
-    source_id: relation.source_id,
-    source_name: relation.source.title,
-    source_original_id: relation.source.original_resource_id,
-    target: relation.target_id,
-    target_name: relation.target.title || null,
-    target_original_id: relation.target.original_resource_id || null,
-    target_type: null,
-    type: relation.type,
-    updated: relation.updated,
-  }));
+  const internalRelations: AllRelationsItem[] = version.InternalRelations.map(
+    (relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      created: relation.created,
+      external: false,
+      original_relation_id: relation.original_relation_id || null,
+      resource_type: relation.resource_type,
+      source: relation.source_id,
+      source_name: relation.source.title,
+      source_original_id: relation.source.original_resource_id,
+      target: relation.target_id,
+      target_name: relation.target.title || null,
+      target_original_id: relation.target.original_resource_id || null,
+      target_type: null,
+      type: relation.type,
+      updated: relation.updated,
+    }),
+  );
 
-  const externalRelations = version.ExternalRelations.map((relation) => ({
-    id: relation.id,
-    action: relation.action || null,
-    created: relation.created,
-    external: true,
-    original_relation_id: relation.original_relation_id || null,
-    resource_type: relation.resource_type,
-    source_id: relation.source_id,
-    source_name: relation.source.title,
-    source_original_id: relation.source.original_resource_id,
-    target: relation.target,
-    target_type: relation.target_type,
-    type: relation.type,
-    updated: relation.updated,
-  }));
+  const externalRelations: AllRelationsItem[] = version.ExternalRelations.map(
+    (relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      created: relation.created,
+      external: true,
+      original_relation_id: relation.original_relation_id || null,
+      resource_type: relation.resource_type,
+      source: relation.source_id,
+      source_name: relation.source.title,
+      source_original_id: relation.source.original_resource_id,
+      target: relation.target,
+      target_type: relation.target_type,
+      type: relation.type,
+      updated: relation.updated,
+    }),
+  );
 
-  const relations: GroupedRelation[] = [
+  const relations: AllRelationsItem[] = [
     ...internalRelations,
     ...externalRelations,
   ];

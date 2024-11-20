@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
 
   const bodySchema = z
     .object({
-      id: z.string().optional(),
       resourceType: z.string(),
       target: z.string(),
       type: z.string(),
@@ -15,7 +14,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   // Check if the body is present
-
   if (!body) {
     throw createError({
       message: "Missing required fields",
@@ -35,11 +33,9 @@ export default defineEventHandler(async (event) => {
 
   await collectionMinEditorPermission(event);
 
-  const { collectionid, relationid, resourceid, workspaceid } = event.context
-    .params as {
+  const { collectionid, relationid, workspaceid } = event.context.params as {
     collectionid: string;
     relationid: string;
-    resourceid: string;
     workspaceid: string;
   };
 
@@ -54,60 +50,55 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if the resource exists and is part of the draft version of the collection
-  const resource = await prisma.resource.findUnique({
+  // Check if the relation is part of the draft version
+  const relation = await prisma.internalRelation.findFirst({
     where: {
-      id: resourceid,
-      Version: { some: { collection_id: collectionid, published: false } },
+      id: relationid,
+      Version: {
+        some: {
+          published: false,
+        },
+      },
     },
   });
 
-  if (!resource) {
+  if (!relation) {
     throw createError({
-      message: "Resource not found",
+      message: "Relations can only be edited in the draft version",
       statusCode: 404,
     });
   }
 
-  // Check if the relation exists and is part of the resource
-  const currentRelation = await prisma.internalRelation.findUnique({
-    where: { id: relationid, source_id: resourceid },
-  });
-
-  if (!currentRelation) {
+  // Check if the relation has the 'deleted' action
+  if (relation.action !== "delete") {
     throw createError({
-      message: "Relation not found",
-      statusCode: 404,
+      message:
+        "Relation is marked for deletion. Restore the relation to edit it",
+      statusCode: 400,
     });
   }
 
   const { resourceType, target, type } = parsedBody.data;
 
-  if (target === resourceid) {
+  if (target === relation.source_id) {
     throw createError({
       message: "Cannot create a relation to itself",
       statusCode: 400,
     });
   }
 
-  // Get the original relation information
-  if (currentRelation.original_relation_id) {
+  if (relation.original_relation_id) {
+    // This would mean the relation is a clone
+    // Only update the resource type and relation type
+
     const originalRelation = await prisma.internalRelation.findUnique({
-      where: { id: currentRelation.original_relation_id },
+      where: { id: relation.original_relation_id },
     });
 
     if (!originalRelation) {
       throw createError({
         message: "Original relation not found",
         statusCode: 404,
-      });
-    }
-
-    if (originalRelation.action === "delete") {
-      throw createError({
-        message:
-          "Relation marked for deletion. Restore the relation to edit it",
-        statusCode: 400,
       });
     }
 
@@ -139,13 +130,16 @@ export default defineEventHandler(async (event) => {
       });
     }
   } else {
-    // Check if the target resource exists and is part of the collection
+    // This would mean the relation is a new relation
+
+    // Check if the target resource exists and is part of the draft version of the collection
     const targetResource = await prisma.resource.findUnique({
       where: {
         id: target,
         Version: {
           some: {
             collection_id: collectionid,
+            published: false,
           },
         },
       },
@@ -175,18 +169,32 @@ export default defineEventHandler(async (event) => {
     where: { id: relationid },
   });
 
+  if (!updatedRelation) {
+    throw createError({
+      message: "Something went wrong",
+      statusCode: 404,
+    });
+  }
+
+  const sourceResource = await prisma.resource.findUnique({
+    where: { id: updatedRelation?.source_id },
+  });
+
   return {
     data: {
-      id: updatedRelation?.id,
-      action: updatedRelation?.action || null,
-      created: updatedRelation?.created,
+      id: updatedRelation!.id,
+      action: updatedRelation!.action || null,
+      created: updatedRelation!.created,
       external: false,
-      original_relation_id: updatedRelation?.original_relation_id || null,
-      resource_type: updatedRelation?.resource_type,
-      target: updatedRelation?.target_id,
+      original_relation_id: updatedRelation!.original_relation_id || null,
+      resource_type: updatedRelation!.resource_type,
+      source: updatedRelation!.source_id,
+      source_name: sourceResource!.title,
+      source_original_id: sourceResource!.original_resource_id,
+      target: updatedRelation!.target_id,
       target_type: null,
-      type: updatedRelation?.type,
-      updated: updatedRelation?.updated,
+      type: updatedRelation!.type,
+      updated: updatedRelation!.updated,
     },
     message: "Relation updated",
     statusCode: 200,
