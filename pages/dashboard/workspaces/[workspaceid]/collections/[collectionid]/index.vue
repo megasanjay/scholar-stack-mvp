@@ -54,10 +54,10 @@ if (error.value) {
       </div>
     </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between pb-5 pt-10">
+    <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
+      <!-- <div class="flex items-center justify-between pb-5 pt-10">
         <h2>About</h2>
-      </div>
+      </div> -->
 
       <DataDisplay
         title="Overview"
@@ -70,13 +70,21 @@ if (error.value) {
           :content="collection?.detailedDescription || ''"
         />
 
-        <p v-else class="text-base">No detailed description provided</p>
+        <p v-else class="text-lg">No detailed description provided</p>
       </DataDisplay>
 
       <DataDisplay title="Identifier" :content="collection?.identifier" />
 
       <DataDisplay title="Collection Type">
-        <n-tag type="info">{{ collection?.type }}</n-tag>
+        <n-tag type="info">{{
+          collection?.type === "project"
+            ? "Project"
+            : collection?.type === "person"
+              ? "Person"
+              : collection?.type === "organization"
+                ? "Organization"
+                : "Other"
+        }}</n-tag>
       </DataDisplay>
 
       <DataDisplay title="Visibility">

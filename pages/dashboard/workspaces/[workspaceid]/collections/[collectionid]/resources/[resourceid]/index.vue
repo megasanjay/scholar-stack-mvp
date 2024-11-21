@@ -318,7 +318,7 @@ const createNewVersion = async () => {
         :content="displayLongDate(resource?.updated as string)"
       />
 
-      <DataDisplay title="Internal ID" :content="resource?.id" />
+      <DataDisplay title="Internal ID" :content="resource?.id" secondary />
     </div>
 
     <ModalNewCollection />

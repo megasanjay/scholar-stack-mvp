@@ -50,6 +50,7 @@ export default defineNuxtConfig({
     "nuxt-headlessui",
     "@nuxt/ui",
     "dayjs-nuxt",
+    // "@sentry/nuxt/module",
     [
       "@nuxtjs/google-fonts",
       {

@@ -275,6 +275,7 @@ const addResource = async () => {
                     vertical
                   />
 
+                  <!-- TODO: Unable the restore function -->
                   <n-button
                     v-if="resource.action === 'delete'"
                     type="error"
