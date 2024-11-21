@@ -234,6 +234,7 @@ const confirmEdits = (e: MouseEvent) => {
                 collectionPermissionGetLoading ||
                 !collectionPermissionAbility.includes('edit')
               "
+              :loading="loading"
               @click="openAddCreatorDrawer"
             >
               <template #icon>
@@ -249,8 +250,6 @@ const confirmEdits = (e: MouseEvent) => {
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pt-10 lg:px-20">
       <div class="flex flex-col">
-        <h2 class="text-xl">Creators</h2>
-
         <p class="mb-6 pt-1 text-slate-700">
           You can add or remove creators from this collection. The people and/or
           organizations listed here are also shown on the public catalog page.
@@ -276,11 +275,12 @@ const confirmEdits = (e: MouseEvent) => {
                     :class="{
                       'handle cursor-move': !loading,
                       'cursor-wait': loading,
+                      'animate-pulse': loading,
                     }"
                   >
-                    <n-spin :show="loading" size="small">
-                      <Icon name="icon-park-outline:drag" size="20" />
-                    </n-spin>
+                    <!-- <n-spin :show="loading" size="small"> -->
+                    <Icon name="icon-park-outline:drag" size="20" />
+                    <!-- </n-spin> -->
                   </div>
 
                   <div class="py-3">
