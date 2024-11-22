@@ -54,7 +54,7 @@
     "tailwindcss-debug-screens": "2.2.1",
     "ts-node": "10.9.2",
     "tsx": "4.16.2",
-    "typescript": "5.5.2"
+    "typescript": "5.7.2"
   },
   "dependencies": {
     "@codemirror/view": "6.26.3",
