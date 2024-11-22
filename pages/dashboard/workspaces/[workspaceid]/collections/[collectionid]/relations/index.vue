@@ -12,6 +12,8 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const devMode = process.env.NODE_ENV === "development";
+
 const route = useRoute();
 
 const collectionStore = useCollectionStore();
@@ -203,6 +205,55 @@ const getRelationName = (relationType: string) => {
   return relation?.label || relationType;
 };
 
+const getResourceTypeName = (resourceType: string) => {
+  // First we need to flatten the resourceTypeOptions array
+  const flattenedResourceTypeOptions = resourceTypeOptions.reduce(
+    (acc, curr) => {
+      if (curr.children) {
+        // Attach the parent label as a prefix to the child labels
+        acc.push(
+          ...curr.children.map((child) => ({
+            ...child,
+            label: `${curr.label} - ${child.label}`,
+          })),
+        );
+      } else {
+        acc.push(curr);
+      }
+
+      return acc;
+    },
+    [] as any[],
+  );
+
+  // Then we need to find the resourceType in the flattened array
+  const resourceTypeOption = flattenedResourceTypeOptions.find(
+    (r) => r.value === resourceType,
+  );
+
+  if (resourceTypeOption) {
+    return resourceTypeOption.label;
+  }
+
+  return resourceType;
+
+  // const resource = resourceTypeOptions.find((r) => r.value === resourceType);
+
+  // return resource?.label || resourceType;
+};
+
+const getResourceIdentifierTypeName = (identifierType: string) => {
+  const identifierTypeOption = typeOptions.find(
+    (r) => r.value === identifierType,
+  );
+
+  if (identifierTypeOption) {
+    return identifierTypeOption.label;
+  }
+
+  return identifierType;
+};
+
 const selectedIdentifier = computed(() => {
   return typeOptions.find(
     (prefix) => prefix.value === selectedRelation.value.target_type,
@@ -226,6 +277,17 @@ const selectedIdentiferValidator = (rule: FormItemRule, value: string) => {
 
   return true;
 };
+
+const addRelationFromDropdownOptions = [
+  {
+    key: "external",
+    label: "Add an external relation",
+  },
+  {
+    key: "internal",
+    label: "Add an internal relation",
+  },
+];
 
 const openAddRelationDrawer = (
   targetLocation: string,
@@ -608,15 +670,33 @@ const selectRelationResourceType = (resourceid: string) => {
 };
 
 const mirrorRelationExists = computed(() => {
-  if (!selectedRelation.value.source) {
-    return false;
-  }
+  if (
+    selectedRelation.value.source &&
+    selectedRelation.value.target &&
+    selectedRelation.value.type &&
+    !selectedRelation.value.external
+  ) {
+    const sourceResource = selectedRelation.value.source;
+    const targetResource = selectedRelation.value.target;
+    const relation = selectedRelation.value.type;
+    const mirrorRelation =
+      relationTypeOptions.find((r) => r.value === relation)?.mirror || "";
 
-  if (!selectedRelation.value.external) {
-    // TODO: Check if the relation exists in the source resource
-    console.log(selectedRelation.value);
+    console.log(sourceResource, targetResource, relation, mirrorRelation);
 
-    return false;
+    if (sourceResource === targetResource) {
+      return false;
+    }
+
+    if (targetResource in groupedResources.value) {
+      const relations = groupedResources.value[targetResource].relations;
+
+      if (relations[mirrorRelation]) {
+        if (relations[mirrorRelation].find((r) => r.id === sourceResource)) {
+          return true;
+        }
+      }
+    }
   }
 
   return false;
@@ -658,7 +738,7 @@ const duplicationRelationExists = computed(() => {
               <Icon name="material-symbols-light:rebase-edit-rounded" />
             </template>
 
-            Add external relation
+            Add an external relation
           </n-button>
 
           <n-button color="black" @click="openAddRelationDrawer('internal')">
@@ -666,7 +746,7 @@ const duplicationRelationExists = computed(() => {
               <Icon name="icon-park-outline:internal-expansion" />
             </template>
 
-            Add internal relation
+            Add an internal relation
           </n-button>
         </div>
       </div>
@@ -685,46 +765,75 @@ const duplicationRelationExists = computed(() => {
         size="large"
         class="divide w-full divide-y divide-stone-200"
       >
-        <!-- <pre>
-          {{ groupedResources }}
-        </pre> -->
+        <!--
+          <pre>
+            {{ groupedResources }}
+          </pre>
+          -->
+
+        <pre>
+          {{ targetResourceList }}
+        </pre>
 
         <div
-          v-for="(gr1, resourceName, idx) in groupedResources"
+          v-for="(gr1, resourceID, idx) in groupedResources"
           :key="idx"
           class="py-10"
         >
           <div class="flex items-center justify-between">
-            <h2 class="border-b pb-1 pr-4">{{ gr1.name }}</h2>
+            <h2 class="border-b pb-1 pr-4">
+              {{ gr1.name }}
+              <span v-if="devMode" class="text-xs">
+                {{ resourceID }}
+              </span>
+            </h2>
 
             <div class="flex items-center space-x-2">
-              <n-button
+              <n-dropdown
+                trigger="hover"
+                :options="addRelationFromDropdownOptions"
+                placement="bottom-end"
+                @select="
+                  (key: string) => {
+                    openAddRelationDrawer(key, resourceID as string);
+                  }
+                "
+              >
+                <n-button>
+                  <template #icon>
+                    <Icon name="mdi:plus" />
+                  </template>
+                  Add a relation to this resource</n-button
+                >
+              </n-dropdown>
+
+              <!-- <n-button
                 size="small"
-                color="black"
+                primary
                 @click="
-                  openAddRelationDrawer('external', resourceName as string)
+                  openAddRelationDrawer('external', resourceID as string)
                 "
               >
                 <template #icon>
                   <Icon name="material-symbols-light:rebase-edit-rounded" />
                 </template>
 
-                Add external relation
+                Add an external relation to this resource
               </n-button>
 
               <n-button
                 size="small"
-                color="black"
+                primary
                 @click="
-                  openAddRelationDrawer('internal', resourceName as string)
+                  openAddRelationDrawer('internal', resourceID as string)
                 "
               >
                 <template #icon>
                   <Icon name="icon-park-outline:internal-expansion" />
                 </template>
 
-                Add internal relation
-              </n-button>
+                Add an internal relation to this resource
+              </n-button> -->
             </div>
           </div>
 
@@ -773,15 +882,22 @@ const duplicationRelationExists = computed(() => {
                     <div v-else class="flex items-center font-medium">
                       <!-- {{ getResourceName(relation.target) }} -->
                       {{ relation.target_name }}
+                      <span v-if="devMode" class="text-xs">
+                        {{ relation.target }}
+                      </span>
                     </div>
                   </div>
 
                   <div class="flex items-center justify-between space-x-4">
                     <div class="flex items-center justify-start space-x-4">
-                      <n-tag type="info"> {{ relation?.resource_type }} </n-tag>
+                      <n-tag type="info">
+                        {{ getResourceTypeName(relation?.resource_type || "") }}
+                      </n-tag>
 
                       <n-tag v-if="relation.target_type" type="success">
-                        {{ relation.target_type }}
+                        {{
+                          getResourceIdentifierTypeName(relation.target_type)
+                        }}
                       </n-tag>
                     </div>
 
@@ -1050,9 +1166,9 @@ const duplicationRelationExists = computed(() => {
           new relation in this instance.
         </n-alert>
 
-        <!-- <pre>
+        <pre v-if="devMode">
           {{ selectedRelation }}
-        </pre> -->
+        </pre>
 
         <template #footer>
           <n-button

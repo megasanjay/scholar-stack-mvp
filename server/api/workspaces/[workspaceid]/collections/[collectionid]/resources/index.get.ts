@@ -1,3 +1,5 @@
+// TODO: Update this to only use the latest version of the collection
+
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinEditorPermission(event);
@@ -144,6 +146,7 @@ export default defineEventHandler(async (event) => {
   for (const resource of resources) {
     const item = {
       action: resource.action,
+      currentResource,
       disabled:
         !!(
           currentResource &&
@@ -157,6 +160,7 @@ export default defineEventHandler(async (event) => {
         "original_resource_id" in resource
           ? resource.original_resource_id
           : null,
+      resource,
       value: resource.id,
       versionLabel: resource.version_label,
     };
