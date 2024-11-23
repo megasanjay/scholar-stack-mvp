@@ -152,15 +152,17 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  console.log("currentResource", currentResource, resourceid);
+
   for (const resource of allResources) {
     const item = {
       action: resource.action,
-
+      currentResource,
       disabled:
         !!(
           currentResource &&
           "original_resource_id" in currentResource &&
-          currentResource.original_resource_id === resource.id
+          currentResource.id === resource.id
         ) ||
         (resource.action && resource.action === "delete"),
       label: resource.title,
@@ -168,6 +170,7 @@ export default defineEventHandler(async (event) => {
         "original_resource_id" in resource
           ? resource.original_resource_id
           : null,
+      resource,
 
       value: resource.id,
       verionLabel: resource.version_label,

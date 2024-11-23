@@ -294,7 +294,7 @@ const openAddRelationDrawer = (
   sourceid: string = "",
 ) => {
   getSourceResourceList();
-  getTargetResourceList("");
+  getTargetResourceList(sourceid);
 
   selectedRelation.value = {
     id: nanoid(),
@@ -333,7 +333,7 @@ const openEditRelationDrawer = (id: string) => {
     console.log(relation);
 
     getSourceResourceList();
-    getTargetResourceList("");
+    getTargetResourceList(relation.source || "");
 
     /**
      * TODO: the dates need to be fixed. Not sure where ts thinks the dates are strings
