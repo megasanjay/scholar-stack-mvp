@@ -24,107 +24,116 @@ export default defineEventHandler(async (event) => {
 
   // get all the versions for the collection
   const versions = await prisma.version.findMany({
+    include: {
+      Resources: true,
+    },
     where: {
       collection_id: collectionid,
+      published: false,
     },
   });
 
   const response: ResourcesList = [];
-
   const allResources = [];
-  const allResourceIds = [];
 
-  const updatedResources = [];
+  for (const resource of versions[0].Resources) {
+    allResources.push(resource);
+  }
+
+  // const allResources = [];
+  // const allResourceIds = [];
+
+  // const updatedResources = [];
 
   // get the resources for each version
-  for (const version of versions) {
-    const resources = await prisma.resource.findMany({
-      where: {
-        Version: {
-          some: {
-            id: version.id,
-          },
-        },
-      },
-    });
+  // for (const version of versions) {
+  //   const resources = await prisma.resource.findMany({
+  //     where: {
+  //       Version: {
+  //         some: {
+  //           id: version.id,
+  //         },
+  //       },
+  //     },
+  //   });
 
-    for (const resource of resources) {
-      if (resource.original_resource_id) {
-        // if the resource is an update, add it to the updatedResources list
-        if (resource.action === "update") {
-          updatedResources.push(resource);
-        }
+  //   for (const resource of resources) {
+  //     if (resource.original_resource_id) {
+  //       // if the resource is an update, add it to the updatedResources list
+  //       if (resource.action === "update") {
+  //         updatedResources.push(resource);
+  //       }
 
-        continue;
-      }
+  //       continue;
+  //     }
 
-      if (resourceid && resource.id === resourceid) {
-        continue;
-      }
+  //     if (resourceid && resource.id === resourceid) {
+  //       continue;
+  //     }
 
-      if (
-        resource.action &&
-        (resource.action === "delete" || resource.action === "oldVersion")
-      ) {
-        continue;
-      }
+  //     if (
+  //       resource.action &&
+  //       (resource.action === "delete" || resource.action === "oldVersion")
+  //     ) {
+  //       continue;
+  //     }
 
-      allResources.push({
-        ...resource,
-        versionName: version.name,
-      });
-      allResourceIds.push(resource.id);
-    }
-  }
+  //     allResources.push({
+  //       ...resource,
+  //       versionName: version.name,
+  //     });
+  //     allResourceIds.push(resource.id);
+  //   }
+  // }
 
-  for (const resource of updatedResources) {
-    // find the original resource
-    const originalResource = allResources.find(
-      (r) => r.id === resource.original_resource_id,
-    );
+  // for (const resource of updatedResources) {
+  //   // find the original resource
+  //   const originalResource = allResources.find(
+  //     (r) => r.id === resource.original_resource_id,
+  //   );
 
-    if (!originalResource) {
-      continue;
-    }
+  //   if (!originalResource) {
+  //     continue;
+  //   }
 
-    // TODO: Fix this
-    // Update the original resource with the updated resource data
-    // originalResource.title = resource.title;
-    // originalResource.version_label = resource.version_label;
-    // originalResource.action = resource.action;
-  }
+  //   // TODO: Fix this
+  //   // Update the original resource with the updated resource data
+  //   // originalResource.title = resource.title;
+  //   // originalResource.version_label = resource.version_label;
+  //   // originalResource.action = resource.action;
+  // }
 
   // Get a unique list of all the resource ids keeping the order of the first occurrence that is not the draft version
-  const uniqueResourceIds = allResourceIds.filter(
-    (value, index, self) => self.indexOf(value) === index,
-  );
+  // const uniqueResourceIds = allResourceIds.filter(
+  //   (value, index, self) => self.indexOf(value) === index,
+  // );
 
   // Remove the resources that are not in the collection
-  const filteredResources = allResources.filter((resource) =>
-    uniqueResourceIds.includes(resource.id),
-  );
+  // const filteredResources = allResources.filter((resource) =>
+  //   uniqueResourceIds.includes(resource.id),
+  // );
 
   // sort the resources by the version name in descending order
-  filteredResources.sort((a, b) => {
-    if (a.versionName < b.versionName) {
-      return 1;
-    }
-    if (a.versionName > b.versionName) {
-      return -1;
-    }
+  // filteredResources.sort((a, b) => {
+  //   if (a.versionName < b.versionName) {
+  //     return 1;
+  //   }
+  //   if (a.versionName > b.versionName) {
+  //     return -1;
+  //   }
 
-    return 0;
-  });
+  //   return 0;
+  // });
 
   // remove earlier versions of the same resource
-  const seen = new Set();
-  const resources = filteredResources.filter((resource) => {
-    const duplicate = seen.has(resource.id);
+  // const seen = new Set();
+  // const resources = filteredResources.filter((resource) => {
+  //   const duplicate = seen.has(resource.id);
 
-    seen.add(resource.id);
+  //   seen.add(resource.id);
 
-    return !duplicate;
-  });
+  //   return !duplicate;
+  // });
 
   let currentResource = null;
 
@@ -143,10 +152,10 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  for (const resource of resources) {
+  for (const resource of allResources) {
     const item = {
       action: resource.action,
-      currentResource,
+
       disabled:
         !!(
           currentResource &&
@@ -155,14 +164,13 @@ export default defineEventHandler(async (event) => {
         ) ||
         (resource.action && resource.action === "delete"),
       label: resource.title,
-      latestCollectionVersionName: resource.versionName,
       orignalResourceId:
         "original_resource_id" in resource
           ? resource.original_resource_id
           : null,
-      resource,
+
       value: resource.id,
-      versionLabel: resource.version_label,
+      verionLabel: resource.version_label,
     };
 
     response.push(item);

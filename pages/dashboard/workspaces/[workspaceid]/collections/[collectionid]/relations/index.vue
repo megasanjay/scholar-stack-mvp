@@ -714,6 +714,10 @@ const duplicationRelationExists = computed(() => {
 
   return false;
 });
+
+onMounted(() => {
+  getTargetResourceList("");
+});
 </script>
 
 <template>
