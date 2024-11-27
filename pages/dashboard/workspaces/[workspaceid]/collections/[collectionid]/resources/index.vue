@@ -7,6 +7,8 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const devMode = process.env.NODE_ENV === "development";
+
 const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
@@ -348,6 +350,12 @@ const addResource = async () => {
           </div>
         </NuxtLink>
       </n-flex>
+
+      <n-collapse v-if="devMode" class="mt-10">
+        <n-collapse-item title="resources" name="resources">
+          <pre>{{ collection?.resources }}</pre>
+        </n-collapse-item>
+      </n-collapse>
     </div>
 
     <ModalNewCollection />

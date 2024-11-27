@@ -152,9 +152,8 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  console.log("currentResource", currentResource, resourceid);
-
   for (const resource of allResources) {
+    console.log("resource", resource.original_resource_id);
     const item = {
       action: resource.action,
       currentResource,

@@ -738,10 +738,10 @@ const duplicationRelationExists = computed(() => {
       return false;
     }
 
-    if (selectedRelation.value.external) {
-      if (sourceResource in groupedResources.value) {
-        const relations = groupedResources.value[sourceResource].relations;
+    if (sourceResource in groupedResources.value) {
+      const relations = groupedResources.value[sourceResource].relations;
 
+      if (selectedRelation.value.external) {
         if (relation in relations) {
           if (
             relations[relation].find(
@@ -753,11 +753,14 @@ const duplicationRelationExists = computed(() => {
             return true;
           }
         }
-      }
-    } else if (sourceResource in groupedResources.value) {
-      const relations = groupedResources.value[sourceResource].relations;
+      } else if (
+        relations[relation].find((r) => {
+          console.log(r);
+          console.log(targetResource);
 
-      if (relations[relation].find((r) => r.target === targetResource)) {
+          return r.target === targetResource;
+        })
+      ) {
         return true;
       }
     }
@@ -818,7 +821,7 @@ onMounted(() => {
         v-else
         vertical
         size="large"
-        class="divide w-full divide-y divide-stone-200"
+        class="divide w-full divide-y divide-dashed divide-stone-200"
       >
         <pre>{{ groupedResources }}</pre>
 
@@ -1227,6 +1230,7 @@ onMounted(() => {
             type="info"
             :loading="addNewRelationLoading || editRelationLoading"
             size="large"
+            :disabled="duplicationRelationExists"
             @click="
               () => {
                 drawerAction === 'Add' ? addNewRelation() : editRelation();
