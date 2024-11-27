@@ -171,7 +171,6 @@ export default defineEventHandler(async (event) => {
           ? resource.original_resource_id
           : null,
       resource,
-
       value: resource.id,
       verionLabel: resource.version_label,
     };

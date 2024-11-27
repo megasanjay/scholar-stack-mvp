@@ -166,6 +166,28 @@ const getTargetResourceList = async (resourceid: string) => {
     });
 };
 
+const generateTargetResourceListOptions = () => {
+  const selectedSourceResource = selectedRelation.value.source;
+
+  if (!selectedSourceResource) {
+    return [];
+  }
+
+  const newTargetResourceListOptions = targetResourceList.value.map(
+    (resource: any) => {
+      return {
+        ...resource,
+        disabled:
+          resource.value === selectedSourceResource ||
+          resource.action === "delete" ||
+          resource.action === "oldVersion",
+      };
+    },
+  );
+
+  return newTargetResourceListOptions || [];
+};
+
 const renderLabel = (option: SelectOption): any => {
   return [
     option.versionLabel &&
@@ -682,8 +704,6 @@ const mirrorRelationExists = computed(() => {
     const mirrorRelation =
       relationTypeOptions.find((r) => r.value === relation)?.mirror || "";
 
-    console.log(sourceResource, targetResource, relation, mirrorRelation);
-
     if (sourceResource === targetResource) {
       return false;
     }
@@ -691,8 +711,10 @@ const mirrorRelationExists = computed(() => {
     if (targetResource in groupedResources.value) {
       const relations = groupedResources.value[targetResource].relations;
 
-      if (relations[mirrorRelation]) {
-        if (relations[mirrorRelation].find((r) => r.id === sourceResource)) {
+      if (mirrorRelation in relations) {
+        if (
+          relations[mirrorRelation].find((r) => r.source === targetResource)
+        ) {
           return true;
         }
       }
@@ -703,13 +725,42 @@ const mirrorRelationExists = computed(() => {
 });
 
 const duplicationRelationExists = computed(() => {
-  if (!selectedRelation.value.source) {
-    return false;
-  }
+  if (
+    selectedRelation.value.source &&
+    selectedRelation.value.target &&
+    selectedRelation.value.type
+  ) {
+    const sourceResource = selectedRelation.value.source;
+    const targetResource = selectedRelation.value.target;
+    const relation = selectedRelation.value.type;
 
-  if (!selectedRelation.value.external) {
-    // TODO: Check if the relation exists in the source resource
-    return false;
+    if (sourceResource === targetResource) {
+      return false;
+    }
+
+    if (selectedRelation.value.external) {
+      if (sourceResource in groupedResources.value) {
+        const relations = groupedResources.value[sourceResource].relations;
+
+        if (relation in relations) {
+          if (
+            relations[relation].find(
+              (r) =>
+                r.target === targetResource &&
+                r.target_type === selectedRelation.value.target_type,
+            )
+          ) {
+            return true;
+          }
+        }
+      }
+    } else if (sourceResource in groupedResources.value) {
+      const relations = groupedResources.value[sourceResource].relations;
+
+      if (relations[relation].find((r) => r.target === targetResource)) {
+        return true;
+      }
+    }
   }
 
   return false;
@@ -769,15 +820,9 @@ onMounted(() => {
         size="large"
         class="divide w-full divide-y divide-stone-200"
       >
-        <!--
-          <pre>
-            {{ groupedResources }}
-          </pre>
-          -->
+        <pre>{{ groupedResources }}</pre>
 
-        <pre>
-          {{ targetResourceList }}
-        </pre>
+        <!-- <pre>{{ targetResourceList }}</pre> -->
 
         <div
           v-for="(gr1, resourceID, idx) in groupedResources"
@@ -1084,10 +1129,11 @@ onMounted(() => {
               :render-label="renderLabel"
               :disabled="
                 !!selectedRelation.original_relation_id ||
-                targetResourceListLoadingIndicator
+                targetResourceListLoadingIndicator ||
+                !selectedRelation.source
               "
               :loading="targetResourceListLoadingIndicator"
-              :options="targetResourceList || []"
+              :options="generateTargetResourceListOptions()"
               @update:value="selectRelationResourceType"
             />
           </n-form-item>
@@ -1160,14 +1206,16 @@ onMounted(() => {
           </n-form-item>
         </n-form>
 
-        <n-alert
-          v-if="mirrorRelationExists || duplicationRelationExists"
-          type="warning"
-          class="mt-4"
-        >
+        <n-alert v-if="mirrorRelationExists" type="warning" class="mt-4">
           This relation might already exist. We found an inverse relation for
           this source and target resource. Please check if you want to create a
           new relation in this instance.
+        </n-alert>
+
+        <n-alert v-if="duplicationRelationExists" type="warning" class="mt-4">
+          This relation might already exist. We found a relation for this source
+          and target resource. Please check if you want to create a new relation
+          in this instance.
         </n-alert>
 
         <pre v-if="devMode">

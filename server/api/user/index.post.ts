@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { serverSupabaseUser } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
@@ -35,6 +36,50 @@ export default defineEventHandler(async (event) => {
       return {
         statusCode: 500,
       };
+    }
+
+    const workspaces = await prisma.workspaceMember.findMany({
+      select: {
+        workspace: {
+          select: {
+            id: true,
+            title: true,
+            created: true,
+            description: true,
+            personal: true,
+            type: true,
+          },
+        },
+      },
+      where: {
+        user_id: userId,
+      },
+    });
+
+    // Create a personal workspace for the user if it doesn't exist
+    const personalWorkspaceExists = workspaces.some(
+      (workspace) => workspace.workspace.personal,
+    );
+
+    const workspaceId = nanoid();
+
+    if (!personalWorkspaceExists) {
+      await prisma.workspace.create({
+        data: {
+          id: workspaceId,
+          title: "My workspace",
+          description: "This is my personal workspace",
+          personal: true,
+          type: "personal",
+          WorkspaceMember: {
+            create: {
+              admin: false,
+              owner: true,
+              user_id: userId,
+            },
+          },
+        },
+      });
     }
 
     return {
