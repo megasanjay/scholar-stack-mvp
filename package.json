@@ -37,7 +37,7 @@
     "@types/validator": "^13.7.17",
     "@typescript-eslint/parser": "^7.0.0",
     "axios": "^1.4.0",
-    "dayjs-nuxt": "2.1.9",
+    "dayjs-nuxt": "2.1.11",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.1.3",
