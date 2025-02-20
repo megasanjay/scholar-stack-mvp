@@ -90,7 +90,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       <UForm
         :schema="schema"
         :state="state"
-        class="mt-6 gap-4 space-y-4"
+        class="mt-6 flex flex-col gap-4"
         @submit="onSubmit"
       >
         <UFormField label="Email Address" name="emailAddress">
