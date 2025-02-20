@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { serverSupabaseUser } from "#supabase/server";
+import workspaceMinAdminPermission from "~/server/utils/workspace/workspaceMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
 
-  const loggedInUser = await serverSupabaseUser(event);
-  const loggedInUserId = loggedInUser?.id as string;
+  const { user } = session;
+  const loggedInUserId = user.id as string;
 
   const bodySchema = z
     .object({
@@ -45,15 +45,15 @@ export default defineEventHandler(async (event) => {
     const workspaceOwner = await prisma.workspaceMember.findFirst({
       where: {
         owner: true,
-        user_id: userid,
-        workspace_id: workspaceid,
+        userId: userid,
+        workspaceId: workspaceid,
       },
     });
 
     if (workspaceOwner) {
       throw createError({
-        message: "You cannot remove yourself from the workspace",
         statusCode: 400,
+        statusMessage: "You cannot remove yourself from the workspace",
       });
     }
   } else {
@@ -73,8 +73,8 @@ export default defineEventHandler(async (event) => {
 
   if (personalWorkspace) {
     throw createError({
-      message: "You cannot remove members from a personal workspace",
       statusCode: 400,
+      statusMessage: "You cannot remove members from a personal workspace",
     });
   }
 
@@ -82,8 +82,8 @@ export default defineEventHandler(async (event) => {
   const workspaceOwner = await prisma.workspaceMember.findFirst({
     where: {
       owner: true,
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -97,8 +97,8 @@ export default defineEventHandler(async (event) => {
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -112,8 +112,8 @@ export default defineEventHandler(async (event) => {
   // Delete the workspace member
   await prisma.workspaceMember.deleteMany({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 

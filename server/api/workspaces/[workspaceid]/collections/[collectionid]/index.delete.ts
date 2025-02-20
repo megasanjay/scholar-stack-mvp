@@ -3,6 +3,8 @@
  * TODO: DELETE THIS ENDPOINT
  */
 
+import workspaceMinOwnerPermission from "~/server/utils/workspace/workspaceMinOwnerPermission";
+
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await workspaceMinOwnerPermission(event);
@@ -12,8 +14,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -26,7 +30,7 @@ export default defineEventHandler(async (event) => {
   // todo: should this even be allowed?
 
   const deletedCollection = await prisma.collection.delete({
-    where: { id: collectionid },
+    where: { id: collectionId },
   });
 
   if (!deletedCollection) {

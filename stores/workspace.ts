@@ -56,9 +56,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const getWorkspacePermission = async (workspaceid: string) => {
     workspacePermissionGetLoading.value = true;
 
-    await fetch(`/api/workspaces/${workspaceid}/permissions`, {
-      headers: useRequestHeaders(["cookie"]),
-    })
+    await fetch(`/api/workspaces/${workspaceid}/permissions`, {})
       .then((response) => response.json())
       .then((data) => {
         workspacePermissionGetLoading.value = false;

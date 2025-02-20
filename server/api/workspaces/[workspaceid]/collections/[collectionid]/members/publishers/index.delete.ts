@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   await collectionMinAdminPermission(event);
 
@@ -38,13 +39,15 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const { userid } = parsedBody.data;
 
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -67,17 +70,17 @@ export default defineEventHandler(async (event) => {
   // Get the collection access record for the user
   const collectionRoleRecord = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId: userid,
     },
   });
 
   if (!collectionRoleRecord) {
     await prisma.collectionAccess.create({
       data: {
-        collection_id: collectionid,
+        collectionId,
         role: "editor",
-        user_id: userid,
+        userId: userid,
       },
     });
   } else {
@@ -86,9 +89,9 @@ export default defineEventHandler(async (event) => {
         role: "editor",
       },
       where: {
-        user_id_collection_id: {
-          collection_id: collectionid,
-          user_id: userid,
+        userId_collectionId: {
+          collectionId,
+          userId: userid,
         },
       },
     });

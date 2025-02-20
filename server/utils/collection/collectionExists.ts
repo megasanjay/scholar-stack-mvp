@@ -1,44 +1,45 @@
-import { serverSupabaseUser } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
+
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
 
   // Check if the user is part of the workspace
-  const user = await serverSupabaseUser(event);
-
-  const userid = user?.id as string;
-
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId,
+      workspaceId: workspaceid,
     },
   });
 
   if (!workspaceMember) {
     throw createError({
-      message: "Unauthorized",
       statusCode: 401,
+      statusMessage: "Unauthorized",
     });
   }
+
+  const collectionId = parseInt(collectionid);
 
   // Check if the collection exists in the workspace
   const collection = await prisma.collection.findUnique({
     where: {
-      id: collectionid,
-      workspace_id: workspaceid,
+      id: collectionId,
+      workspaceId: workspaceid,
     },
   });
 
   if (!collection) {
     throw createError({
-      message: "Collection not found",
       statusCode: 404,
+      statusMessage: "Collection not found",
     });
   }
 
-  return collectionid;
+  return collectionId;
 });

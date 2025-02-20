@@ -4,6 +4,11 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+useSeoMeta({
+  title: "Collections",
+});
+
+const toast = useToast();
 const route = useRoute();
 
 const { collectionid, workspaceid } = route.params as {
@@ -13,17 +18,17 @@ const { collectionid, workspaceid } = route.params as {
 
 const { data: collection, error } = await useFetch<CollectionGETAPIResponse>(
   `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your collectionss",
+    color: "error",
+    description: "We couldn't load your collectionss",
+    icon: "material-symbols:error",
   });
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
@@ -37,26 +42,22 @@ if (error.value) {
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
         <div class="flex w-full items-center justify-between space-x-2">
-          <h1>
+          <h1 class="text-4xl font-black">
             {{ collection?.title || "Untitled Collection" }}
           </h1>
 
-          <NuxtLink :to="`/view/${collection?.identifier}`" target="__blank">
-            <n-button size="large" color="black">
-              <template #icon>
-                <Icon name="mdi:open-in-new" size="20" />
-              </template>
-
+          <ULink :to="`/view/c${collection?.id}`" target="__blank">
+            <UButton size="lg" color="primary" icon="mdi:open-in-new">
               View in Catalog
-            </n-button>
-          </NuxtLink>
+            </UButton>
+          </ULink>
         </div>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between pb-5 pt-10">
-        <h2>About</h2>
+      <div class="flex items-center justify-between pt-10 pb-5">
+        <h2 class="text-2xl font-bold">About</h2>
       </div>
 
       <DataDisplay
@@ -73,16 +74,14 @@ if (error.value) {
         <p v-else class="text-lg">No detailed description provided</p>
       </DataDisplay>
 
-      <DataDisplay title="Identifier" :content="collection?.identifier" />
-
       <DataDisplay title="Collection Type">
-        <n-tag type="info">{{ collection?.type }}</n-tag>
+        <UBadge color="info">{{ collection?.type }}</UBadge>
       </DataDisplay>
 
       <DataDisplay title="Visibility">
-        <n-tag v-if="collection?.private" type="warning"> Private </n-tag>
+        <UBadge v-if="collection?.private" color="warning"> Private </UBadge>
 
-        <n-tag v-else type="success"> Public </n-tag>
+        <UBadge v-else color="success"> Public </UBadge>
       </DataDisplay>
 
       <DataDisplay
@@ -96,8 +95,8 @@ if (error.value) {
       />
 
       <DataDisplay title="Image">
-        <n-image
-          :src="`${collection?.image_url}?t=${collection?.updated}`"
+        <NuxtImg
+          :src="`${collection?.imageUrl}?t=${collection?.updated}`"
           :alt="collection?.title"
           class="h-[200px] w-auto"
         />

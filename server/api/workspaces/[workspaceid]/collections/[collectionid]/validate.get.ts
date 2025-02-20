@@ -1,3 +1,6 @@
+import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
+import validateCollectionDraftVersion from "~/server/utils/collection/validateCollectionDraftVersion";
+
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinViewerPermission(event);
@@ -7,8 +10,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {

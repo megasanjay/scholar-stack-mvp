@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { displayLongDate } from "~/utils/displayDates";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 
 definePageMeta({
@@ -7,11 +6,10 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const toast = useToast();
 const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
-
-const newResourceLoading = ref(false);
 
 const { collectionid, workspaceid } = route.params as {
   collectionid: string;
@@ -20,17 +18,17 @@ const { collectionid, workspaceid } = route.params as {
 
 const { data: collection, error } = await useFetch<CollectionGETAPIResponse>(
   `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your collectionss",
+    color: "error",
+    description: "We couldn't load your collectionss",
+    icon: "material-symbols:error",
   });
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
@@ -50,53 +48,6 @@ const selectIcon = (type: string) => {
 
   return "mdi:file-question";
 };
-
-const addResource = async () => {
-  newResourceLoading.value = true;
-
-  await $fetch(
-    `/api/workspaces/${workspaceid}/collections/${collectionid}/resources`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "POST",
-    },
-  )
-    .then((response) => {
-      newResourceLoading.value = false;
-
-      if (response.statusCode === 201) {
-        push.success({
-          title: "Success",
-          message: "We created a new resource",
-        });
-
-        // navigate to the new resource
-        navigateTo(
-          `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${response.resourceId}/edit`,
-        );
-      } else {
-        console.log(response);
-
-        push.error({
-          title: "Something went wrong",
-          message: "We couldn't create a new resource",
-        });
-      }
-    })
-    .catch((error) => {
-      newResourceLoading.value = false;
-
-      console.log(error);
-
-      push.error({
-        title: "Something went wrong",
-        message: "We couldn't create a new resource",
-      });
-    })
-    .finally(() => {
-      newResourceLoading.value = false;
-    });
-};
 </script>
 
 <template>
@@ -106,50 +57,46 @@ const addResource = async () => {
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2 lg:px-20"
       >
         <div class="flex items-center space-x-2">
-          <h1>Resources</h1>
+          <h1 class="text-4xl font-black">Resources</h1>
         </div>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 py-10">
-        <n-input placeholder="Search..." size="large">
-          <template #prefix>
-            <Icon name="iconamoon:search-duotone" size="20" class="mr-2" />
-          </template>
-        </n-input>
+      <div class="flex items-center justify-between gap-4 py-10">
+        <UInput
+          placeholder="Search..."
+          icon="iconamoon:search-duotone"
+          size="lg"
+          type="search"
+        />
 
-        <n-button
-          v-if="collection?.version"
-          size="large"
-          color="black"
+        <UButton
+          color="primary"
+          icon="mdi:plus"
+          size="lg"
           :disabled="
             !collection?.version ||
             collection?.version?.published ||
             !collectionPermissionAbility.includes('edit') ||
             collectionPermissionGetLoading
           "
-          :loading="newResourceLoading"
-          @click="addResource"
+          :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/new`"
         >
-          <template #icon>
-            <Icon name="mdi:plus" />
-          </template>
-          Add a new resource
-        </n-button>
+          <span class="w-max"> Add a new resource </span>
+        </UButton>
       </div>
 
       <div
         v-if="collection?.version === null"
         class="rounded-lg border border-dashed px-4 py-8"
       >
-        <n-empty size="large" description="No resources found"> </n-empty>
+        No resources found
       </div>
 
-      <n-flex
+      <div
         v-if="collection?.version && collection?.resources"
-        vertical
-        :size="20"
+        class="flex flex-col gap-4"
       >
         <NuxtLink
           v-for="resource in collection?.resources"
@@ -168,123 +115,116 @@ const addResource = async () => {
             'border-blue-300 bg-cyan-50/20': resource.action === 'create',
             'border-emerald-400 bg-emerald-50/20': resource.action === 'update',
             'border-cyan-400 bg-cyan-50/20': resource.action === 'newVersion',
-            'border-red-600 bg-white': resource.filled_in === false,
+            'border-red-600 bg-white': resource.filledIn === false,
           }"
         >
-          <div class="flex w-full items-center justify-start pb-2">
-            <div>
-              <Icon :name="selectIcon(resource.resource_type)" size="35" />
-            </div>
+          <div class="flex w-full items-center justify-start gap-2 pb-2">
+            <UIcon :name="selectIcon(resource.resourceType)" class="size-6" />
 
-            <n-divider vertical />
+            <USeparator orientation="vertical" class="h-5" />
 
-            <div class="flex w-full flex-col space-y-1">
+            <div class="flex w-full flex-col gap-1">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-lg font-medium leading-5">
+                <span class="text-lg leading-5 font-medium">
                   {{ resource.title || "No title provided" }}
                 </span>
 
                 <div class="flex items-center justify-end space-x-2">
-                  <n-tag
-                    v-if="resource.filled_in === false"
-                    type="error"
-                    size="medium"
+                  <UBadge
+                    v-if="resource.filledIn === false"
+                    color="error"
+                    size="md"
+                    variant="outline"
+                    icon="mdi:alert"
                   >
-                    <Icon name="mdi:alert" size="16" />
                     Needs to be filled in
-                  </n-tag>
+                  </UBadge>
 
-                  <n-tooltip
-                    v-if="
-                      resource.action === 'create' ||
-                      resource.action === 'update' ||
-                      resource.action === 'delete' ||
-                      resource.action === 'oldVersion'
+                  <UTooltip
+                    :disabled="
+                      !(
+                        resource.action === 'create' ||
+                        resource.action === 'update' ||
+                        resource.action === 'delete' ||
+                        resource.action === 'oldVersion'
+                      )
                     "
-                    trigger="hover"
-                    placement="bottom-end"
                   >
-                    <template #trigger>
-                      <n-flex>
-                        <n-tag
-                          v-if="resource.action === 'create'"
-                          type="info"
-                          size="medium"
-                        >
-                          <template #icon>
-                            <Icon name="mdi:new-box" size="16" />
-                          </template>
-                          New Resource
-                        </n-tag>
+                    <div class="flex gap-2">
+                      <UBadge
+                        v-if="resource.action === 'create'"
+                        type="info"
+                        size="md"
+                        variant="outline"
+                        icon="mdi:new-box"
+                      >
+                        New Resource
+                      </UBadge>
 
-                        <n-tag
-                          v-if="
-                            resource.action === 'delete' ||
-                            resource.action === 'oldVersion'
-                          "
-                          type="error"
-                          size="medium"
-                        >
-                          <template #icon>
-                            <Icon name="jam:delete" size="16" />
-                          </template>
-                          Marked for deletion
-                        </n-tag>
+                      <UBadge
+                        v-if="
+                          resource.action === 'delete' ||
+                          resource.action === 'oldVersion'
+                        "
+                        type="error"
+                        size="md"
+                        variant="outline"
+                        icon="jam:delete"
+                      >
+                        Marked for deletion
+                      </UBadge>
 
-                        <n-tag
-                          v-if="resource.action === 'update'"
-                          type="success"
-                          size="medium"
-                        >
-                          <template #icon>
-                            <Icon name="uil:edit-alt" size="16" />
-                          </template>
+                      <UBadge
+                        v-if="resource.action === 'update'"
+                        type="success"
+                        size="md"
+                        variant="outline"
+                        icon="clarity:new-solid"
+                      >
+                        Updated
+                      </UBadge>
+                    </div>
 
-                          Updated
-                        </n-tag>
-                      </n-flex>
+                    <template #content>
+                      <span>
+                        Last modified on {{ displayLongDate(resource.updated) }}
+                      </span>
                     </template>
-                    Last modified on {{ displayLongDate(resource.updated) }}
-                  </n-tooltip>
+                  </UTooltip>
 
-                  <n-tag
+                  <UBadge
                     v-if="resource.action === 'oldVersion'"
-                    type="warning"
-                    size="medium"
+                    color="warning"
+                    size="md"
+                    variant="outline"
+                    icon="ic:round-history"
                   >
-                    <template #icon>
-                      <Icon name="ic:round-history" size="16" />
-                    </template>
                     Newer Version Available
-                  </n-tag>
+                  </UBadge>
 
-                  <n-tag
+                  <UBadge
                     v-if="resource.action === 'newVersion'"
-                    type="info"
-                    size="medium"
+                    color="info"
+                    size="md"
+                    variant="outline"
+                    icon="clarity:new-solid"
                   >
-                    <template #icon>
-                      <Icon name="clarity:new-solid" size="16" />
-                    </template>
-
                     New Version
-                  </n-tag>
+                  </UBadge>
 
-                  <n-divider
+                  <USeparator
                     v-if="resource.action && resource.action !== 'oldVersion'"
-                    vertical
+                    orientation="vertical"
                   />
 
-                  <n-button
+                  <UButton
                     v-if="resource.action === 'delete'"
-                    type="error"
-                    size="small"
+                    size="sm"
+                    color="error"
+                    icon="mdi:undo"
                   >
-                    <template #icon>
-                      <Icon name="mdi:undo" />
-                    </template>
                     Undo delete
-                  </n-button>
+                  </UButton>
 
                   <NuxtLink
                     v-if="
@@ -294,40 +234,37 @@ const addResource = async () => {
                     "
                     :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}/edit`"
                   >
-                    <n-button type="info" size="small">
-                      <template #icon>
-                        <Icon name="akar-icons:edit" />
-                      </template>
+                    <UButton size="sm" icon="akar-icons:edit" color="primary">
                       Edit
-                    </n-button>
+                    </UButton>
                   </NuxtLink>
                 </div>
               </div>
             </div>
           </div>
 
-          <p class="border-t border-dashed py-3">
+          <p class="border-t border-dashed border-slate-300 py-3">
             {{ resource.description || "No description provided" }}
           </p>
 
-          <div class="flex w-full items-center space-x-1 border-t pb-4 pt-3">
-            <n-tag
-              :type="resource.identifier_type ? 'info' : 'error'"
-              size="small"
-              class=""
+          <div
+            class="flex w-full items-center gap-2 border-t border-slate-400 pt-3 pb-4"
+          >
+            <UBadge
+              :color="resource.identifierType ? 'info' : 'error'"
+              size="sm"
+              variant="outline"
             >
-              {{ resource.identifier_type || "No identifier provided" }}
-            </n-tag>
+              {{ resource.identifierType || "No identifier provided" }}
+            </UBadge>
 
-            <div>
-              <n-divider vertical />
-            </div>
+            <USeparator orientation="vertical" class="h-5" />
 
             <div class="group w-max">
-              <NuxtLink
+              <ULink
                 :to="
-                  resource.identifier_type !== 'url'
-                    ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
+                  resource.identifierType !== 'url'
+                    ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
                     : resource.identifier
                 "
                 class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
@@ -337,16 +274,16 @@ const addResource = async () => {
                 {{ resource.identifier }}
 
                 <Icon
-                  v-if="resource.identifier_type"
+                  v-if="resource.identifierType"
                   name="mdi:external-link"
                   size="16"
                   class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
                 />
-              </NuxtLink>
+              </ULink>
             </div>
           </div>
         </NuxtLink>
-      </n-flex>
+      </div>
     </div>
 
     <ModalNewCollection />

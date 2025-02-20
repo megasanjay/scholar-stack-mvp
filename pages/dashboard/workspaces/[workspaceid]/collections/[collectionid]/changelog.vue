@@ -3,6 +3,7 @@ import sanitizeHtml from "sanitize-html";
 import { MdEditor, config } from "md-editor-v3";
 
 import TargetBlankExtension from "@/utils/TargetBlankExtension";
+import { UButton } from "#components";
 
 config({
   markdownItConfig(md) {
@@ -15,6 +16,7 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const toast = useToast();
 const route = useRoute();
 
 const changelog = ref("");
@@ -29,17 +31,17 @@ const { collectionid, workspaceid } = route.params as {
 
 const { data, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your changelog.",
+    color: "error",
+    description: "We couldn't load your changelog",
+    icon: "material-symbols:error",
   });
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
@@ -77,16 +79,18 @@ const saveChangelog = async () => {
       body: JSON.stringify({
         changelog: changelog.value,
       }),
-      headers: useRequestHeaders(["cookie"]),
+
       method: "PUT",
     },
   )
     .then((_res) => {
       saveLoading.value = false;
 
-      push.success({
-        title: "Success",
-        message: "We saved your changelog.",
+      toast.add({
+        title: "Changelog saved",
+        color: "success",
+        description: "We've saved your changelog",
+        icon: "material-symbols:check-bold",
       });
     })
     .catch((error) => {
@@ -94,9 +98,11 @@ const saveChangelog = async () => {
 
       console.log(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't save your changelog.",
+        color: "error",
+        description: "We couldn't save your changelog",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -112,29 +118,27 @@ const saveChangelog = async () => {
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
         <div class="flex w-full items-center justify-between">
-          <h1>Changelog</h1>
+          <h1 class="text-4xl font-black">Changelog</h1>
         </div>
 
         <div class="flex items-center space-x-2">
-          <n-button
+          <UButton
             v-if="!data?.version?.published"
-            size="large"
-            color="black"
+            size="lg"
+            color="primary"
             :loading="saveLoading"
             :disabled="disableChangelogFeature"
+            icon="material-symbols:save"
             @click="saveChangelog"
           >
-            <template #icon>
-              <Icon name="material-symbols:save" />
-            </template>
             Save changelog
-          </n-button>
+          </UButton>
         </div>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pb-5 pt-10">
+      <div class="flex items-center justify-between space-x-4 pt-10 pb-5">
         <MdEditor
           v-model="changelog"
           class="mt-0"
@@ -146,7 +150,5 @@ const saveChangelog = async () => {
         />
       </div>
     </div>
-
-    <ModalNewCollection />
   </main>
 </template>

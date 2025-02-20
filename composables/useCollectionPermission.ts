@@ -10,9 +10,7 @@ export default async function getCollectionPermission(
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/permissions`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   )
     .then((data) => {
       collectionPermissionGetLoading.value = false;

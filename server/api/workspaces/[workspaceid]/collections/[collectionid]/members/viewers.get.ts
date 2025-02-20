@@ -1,5 +1,7 @@
+import collectionExists from "~/server/utils/collection/collectionExists";
+
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   await collectionExists(event);
 
@@ -8,37 +10,39 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   // Get the workspace members who are not admins or owners of the workspace
   const workspaceMembers = await prisma.workspaceMember.findMany({
     select: {
       user: {
-        select: { username: true, name: true, email_address: true },
+        select: { emailAddress: true, familyName: true, givenName: true },
       },
-      user_id: true,
+      userId: true,
     },
     where: {
       admin: false,
       owner: false,
-      workspace_id: workspaceid,
+      workspaceId: workspaceid,
     },
   });
 
   const collectionAcessTeamUserIds = await prisma.collectionAccess.findMany({
-    select: { user_id: true },
-    where: { collection_id: collectionid, role: { in: ["admin", "editor"] } },
+    select: { userId: true },
+    where: { collectionId, role: { in: ["admin", "editor"] } },
   });
 
   // remove workspace members who are already collection admins or editors
   const viewers = workspaceMembers.filter(
     (member) =>
       !collectionAcessTeamUserIds.some(
-        (collectionMember) => collectionMember.user_id === member.user_id,
+        (collectionMember) => collectionMember.userId === member.userId,
       ),
   );
 
   return viewers.map((viewer) => ({
-    email_address: viewer.user.email_address,
-    label: viewer.user.name || viewer.user.username,
-    value: viewer.user_id,
+    email_address: viewer.user.emailAddress,
+    label: `${viewer.user.givenName} ${viewer.user.familyName}`,
+    value: viewer.userId,
   }));
 });

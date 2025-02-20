@@ -1,42 +1,69 @@
-# Nuxt 3 Minimal Starter
+# SciConnect
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Getting started
 
-## Setup
+### Prerequisites/Dependencies
 
-Make sure to install the dependencies:
+You will need the following installed on your system:
+
+- Node.js
+- Yarn
+- Docker
+- Volta (optional)
+
+### Setup
+
+1. Clone the repository
+
+   ```bash
+   git clone https://github.com/eyeact/envision-portal.git
+   ```
+
+2. Install the dependencies
+
+   ```bash
+   yarn install
+   ```
+
+3. Add your environment variables. An example is provided at `.env.example`
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Start the development server
+
+   ```bash
+   yarn dev
+   ```
+
+5. Open the application in your browser
+
+   ```bash
+   open http://localhost:3000
+   ```
+
+## Development
+
+### Database
+
+The application uses a PostgreSQL database for storing data. You can use Docker to run these services locally.
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install
+docker-compose -f ./dev-docker-compose.yaml up
+docker-compose -f ./dev-docker-compose.yaml up -d # if you want the db to run in the background
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`
+Close the database with:
 
 ```bash
-npm run dev
+docker-compose -f ./dev-docker-compose.yaml down
 ```
 
-## Production
+### Prisma
 
-Build the application for production:
+The application uses Prisma to interact with the database.
 
-```bash
-npm run build
-```
+### UI
 
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+The application uses [Nuxt UI](https://ui.nuxt.com) to build the UI components. It also uses [Tailwind CSS](https://tailwindcss.com) for styling.

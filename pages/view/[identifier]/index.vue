@@ -4,14 +4,14 @@ import dayjs from "dayjs";
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
+const { loggedIn } = useUserSession();
+
 definePageMeta({
   layout: "public",
 });
 
+const toast = useToast();
 const route = useRoute();
-const user = useSupabaseUser();
-
-const loggedIn = computed(() => user.value);
 
 const starLoading = ref(false);
 const starredStatus = ref(false);
@@ -22,18 +22,52 @@ const collectionTypeOptions = COLLECTION_TYPE_JSON;
 
 const { identifier } = route.params as { identifier: string };
 
+const tabItems = [
+  {
+    icon: "fluent:text-bullet-list-square-16-filled",
+    label: "Resources",
+    slot: "resources",
+  },
+  {
+    icon: "tabler:circles-relation",
+    label: "Relations",
+    slot: "relations",
+  },
+  {
+    icon: "fluent:history-24-filled",
+    label: "Changelog",
+    slot: "changelog",
+  },
+  {
+    icon: "mingcute:version-fill",
+    label: "Versions",
+    slot: "versions",
+  },
+  {
+    icon: "bi:bar-chart-fill",
+    label: "Analytics",
+    slot: "analytics",
+  },
+  {
+    icon: "ph:list-heart",
+    label: "Impact",
+    slot: "impact",
+  },
+];
+
 const { data, error } = await useFetch(
   `/api/discover/collections/${identifier}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
+    color: "error",
+    description: "We couldn't load the collection",
+    icon: "material-symbols:error",
   });
 }
 
@@ -72,15 +106,15 @@ const selectCollectionType = (type: string) => {
 };
 
 const groupedResources = computed(() => {
-  const resources = data.value?.Resources || [];
+  const resources = data.value?.Resource || [];
   const grouped: { [key: string]: any[] } = {};
 
   for (const resource of resources) {
-    if (resource.resource_type) {
-      if (resource.resource_type in grouped) {
-        grouped[resource.resource_type].push(resource);
+    if (resource.resourceType) {
+      if (resource.resourceType in grouped) {
+        grouped[resource.resourceType].push(resource);
       } else {
-        grouped[resource.resource_type] = [resource];
+        grouped[resource.resourceType] = [resource];
       }
     }
   }
@@ -131,17 +165,15 @@ const selectedVersionIdentifier = computed(() => {
 
   if (type === "c") {
     // Select the latest version of the collection
-    return data.value?.Versions[0].identifier;
+    return data.value?.Versions[0].id;
+  } else {
+    return parseInt(identifier.substring(1));
   }
-
-  return identifier;
 });
 
 const { data: starStatusData, error: starStatusError } = await useFetch(
-  `/api/discover/collections/${data.value?.collection.identifier}/star`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  `/api/discover/collections/${data.value?.collection.id}/star`,
+  {},
 );
 
 if (starStatusError.value) {
@@ -156,16 +188,15 @@ if (starStatusData.value) {
 const starCollection = async () => {
   starLoading.value = true;
 
-  await $fetch(
-    `/api/discover/collections/${data.value?.collection.identifier}/star`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "POST",
-    },
-  )
+  await $fetch(`/api/discover/collections/${data.value?.collection.id}/star`, {
+    method: "POST",
+  })
     .then(() => {
-      push.success({
+      toast.add({
         title: "Collection starred",
+        color: "success",
+        description: "This collection has been starred",
+        icon: "material-symbols:check-circle",
       });
 
       starredStatus.value = true;
@@ -174,8 +205,11 @@ const starCollection = async () => {
     .catch((error) => {
       console.error(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
+        color: "error",
+        description: "We couldn't star this collection",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -186,16 +220,15 @@ const starCollection = async () => {
 const removeCollectionStar = async () => {
   starLoading.value = true;
 
-  await $fetch(
-    `/api/discover/collections/${data.value?.collection.identifier}/star`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-      method: "DELETE",
-    },
-  )
+  await $fetch(`/api/discover/collections/${data.value?.collection.id}/star`, {
+    method: "DELETE",
+  })
     .then(() => {
-      push.success({
+      toast.add({
         title: "Collection unstarred",
+        color: "success",
+        description: "This collection has been unstarred",
+        icon: "material-symbols:check-circle",
       });
 
       starredStatus.value = false;
@@ -204,8 +237,11 @@ const removeCollectionStar = async () => {
     .catch((error) => {
       console.error(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
+        color: "error",
+        description: "We couldn't unstar this collection",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -220,19 +256,29 @@ const copyToClipboard = (input: string) => {
   const { copied, copy, isSupported } = useClipboard({ source });
 
   if (!isSupported) {
-    push.error("The Clipboard API is not supported by your browser");
+    toast.add({
+      title: "The Clipboard API is not supported by your browser",
+      color: "error",
+      description: "Please use a different browser",
+      icon: "material-symbols:error",
+    });
   }
 
   copy(source);
 
   if (copied) {
-    push.success("Your URL was copied to the clipboard");
+    toast.add({
+      title: "URL copied to clipboard",
+      color: "success",
+      description: "The URL has been copied to your clipboard",
+      icon: "material-symbols:check-circle",
+    });
   }
 };
 </script>
 
 <template>
-  <main class="relative w-full grow overflow-auto px-2 py-10 sm:px-6">
+  <main class="relative w-full grow px-2 py-10 sm:px-6">
     <div class="relative mx-auto max-w-screen-2xl">
       <div
         class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
@@ -263,79 +309,90 @@ const copyToClipboard = (input: string) => {
         />
       </div>
 
-      <div class="flex items-center justify-between pl-5 pr-5">
-        <n-flex align="center">
-          <n-tag type="success" :bordered="false">
+      <div class="flex items-center justify-between pr-5 pl-5">
+        <div class="flex items-center gap-2">
+          <UBadge color="success" size="sm" variant="outline">
             Version {{ data?.name || "N/A" }}
-          </n-tag>
+          </UBadge>
 
-          <n-tag type="info" :bordered="false">
-            {{ dayjs(data?.published_on).format("MMMM DD, YYYY") || "N/A" }}
-          </n-tag>
+          <UBadge color="info" size="sm" variant="outline">
+            {{ dayjs(data?.publishedOn).format("MMMM DD, YYYY") || "N/A" }}
+          </UBadge>
 
-          <n-tag
-            :color="{
-              color: '#3498db',
-              textColor: '#ffffff',
-              borderColor: '#2980b9',
-            }"
-            :bordered="false"
+          <UBadge
+            color="info"
+            size="sm"
+            variant="outline"
+            :icon="selectCollectionType(data?.collection.type || '').icon"
           >
-            <template #icon>
-              <Icon
-                :name="selectCollectionType(data?.collection.type || '').icon"
-                size="18"
-              />
-            </template>
             {{ selectCollectionType(data?.collection.type || "").label }}
-          </n-tag>
-        </n-flex>
+          </UBadge>
+        </div>
 
-        <n-popover trigger="hover" :disabled="!!loggedIn">
-          <template #trigger>
-            <n-button
-              class="dark:text-white"
-              :loading="starLoading"
-              @click="
-                loggedIn
-                  ? starredStatus
-                    ? removeCollectionStar()
-                    : starCollection()
-                  : null
-              "
-            >
-              <template #icon>
-                <Icon
-                  name="ic:round-star"
-                  size="18"
-                  :class="{
-                    'text-yellow-400': starredStatus,
-                  }"
-                />
-              </template>
+        <UPopover v-if="!loggedIn" mode="hover">
+          <UButton
+            label="Open"
+            color="neutral"
+            variant="subtle"
+            :loading="starLoading"
+            to="/login"
+          >
+            <div class="flex items-center gap-2">
+              <Icon name="material-symbols:star-rounded" size="20" />
 
-              <div class="flex items-center">
-                <span>
-                  {{ starredStatus ? "Starred" : "Star" }}
-                </span>
+              <span> Star </span>
 
-                <div>
-                  <n-divider vertical />
-                </div>
+              <USeparator orientation="vertical" class="h-5" />
 
-                <span class="pl-1"> {{ starCount }} </span>
-              </div>
-            </n-button>
+              <span class="pl-1"> {{ starCount }} </span>
+            </div>
+          </UButton>
+
+          <template #content>
+            <span class="px-2 py-1">
+              You must be logged in to star this collection.
+            </span>
           </template>
+        </UPopover>
 
-          <span> You must be logged in to star this collection. </span>
-        </n-popover>
+        <UButton
+          v-else
+          label="Open"
+          color="neutral"
+          variant="subtle"
+          :loading="starLoading"
+          @click="
+            loggedIn
+              ? starredStatus
+                ? removeCollectionStar()
+                : starCollection()
+              : null
+          "
+        >
+          <div class="flex items-center gap-2">
+            <Icon
+              name="material-symbols:star-rounded"
+              size="20"
+              :class="{
+                'text-yellow-400': starredStatus,
+              }"
+            />
+
+            <span>
+              {{ starredStatus ? "Starred" : "Star" }}
+            </span>
+
+            <USeparator orientation="vertical" class="h-5" />
+
+            <span class="pl-1"> {{ starCount }} </span>
+          </div>
+        </UButton>
       </div>
 
-      <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-5">
+      <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-3">
         <div class="col-span-9">
-          <n-flex vertical>
-            <h1 class="mb-2">
+          <div class="flex flex-col gap-3">
+            <h1 class="text-4xl font-black">
               {{ data?.collection.title || "Collection Title Unavailable" }}
             </h1>
 
@@ -351,150 +408,134 @@ const copyToClipboard = (input: string) => {
                 []"
                 :key="creator.creatorIndex"
               >
-                <n-popover trigger="hover" placement="bottom">
-                  <template #trigger>
-                    <span
-                      class="cursor-help rounded-md p-[2px] text-sm transition-all hover:bg-orange-200/50"
-                      >{{ creator.creatorName }};</span
-                    >
-                  </template>
+                <UPopover mode="hover">
+                  <span
+                    class="cursor-help rounded-md p-[2px] text-sm transition-all hover:bg-orange-200/50"
+                    >{{ creator.creatorName }};</span
+                  >
 
-                  <span>
-                    {{ creator.affiliation || "No affiliation provided." }}
-                  </span>
-                </n-popover>
+                  <template #content>
+                    <span>
+                      {{ creator.affiliation || "No affiliation provided." }}
+                    </span>
+                  </template>
+                </UPopover>
               </li>
             </ul>
 
             <MarkdownRender
-              v-if="data?.collection.detailed_description"
-              :content="data?.collection.detailed_description"
+              v-if="data?.collection.detailedDescription"
+              :content="data?.collection.detailedDescription"
             />
 
-            <p v-else>
+            <p v-else class="text-lg">
               {{ data?.collection.description || "No description provided." }}
             </p>
 
-            <n-divider />
+            <USeparator class="" />
 
-            <n-flex vertical>
-              <p class="mb-2 w-max border-b pr-3 text-lg font-bold">
+            <div class="flex flex-col gap-2">
+              <p
+                class="mb-2 w-max border-b border-gray-200 pr-3 text-lg font-medium"
+              >
                 Links to this collection
               </p>
 
-              <n-flex align="center">
+              <div class="flex items-center gap-2">
                 <div class="flex items-center space-x-2">
-                  <Icon name="simple-icons:doi" size="25" />
+                  <Icon name="simple-icons:doi" size="20" />
 
-                  <NuxtLink
-                    :to="`https://doi.org/10.5281/${data?.collection.identifier}`"
+                  <ULink
+                    :to="`https://doi.org/10.5281/c${data?.collection.id}`"
                     target="_blank"
-                    class="text-base font-bold text-blue-600 transition-all hover:text-blue-700 hover:underline"
                   >
-                    10.5281/{{ data?.collection.identifier }}
-                  </NuxtLink>
+                    10.5281/c{{ data?.collection.id }}
+                  </ULink>
                 </div>
 
-                <n-button
-                  strong
-                  circle
-                  class="dark:text-white"
-                  size="small"
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="solar:copy-bold"
                   @click="
-                    copyToClipboard(
-                      `https://doi.org/${data?.collection.identifier}`,
-                    )
+                    copyToClipboard(`https://doi.org/c${data?.collection.id}`)
                   "
-                >
-                  <template #icon>
-                    <Icon name="solar:copy-bold" size="15" />
-                  </template>
-                </n-button>
+                />
 
-                <n-button strong circle class="dark:text-white" size="small">
-                  <template #icon>
-                    <Icon name="fluent:qr-code-20-regular" size="15" />
-                  </template>
-                </n-button>
-              </n-flex>
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="fluent:qr-code-20-regular"
+                />
+              </div>
 
-              <n-flex align="center">
+              <div class="flex items-center gap-2">
                 <div class="flex items-center space-x-2">
-                  <Icon name="ph:link-bold" size="25" />
+                  <Icon name="ph:link-bold" size="20" />
 
-                  <NuxtLink
-                    :to="`https://sciconnect.io/view/${data?.collection.identifier}`"
+                  <ULink
+                    :to="`https://sciconnect.io/view/c${data?.collection.id}`"
                     target="_blank"
-                    class="text-base font-bold text-blue-600 transition-all hover:text-blue-700 hover:underline"
                   >
-                    https://sciconnect.io/view/{{ data?.collection.identifier }}
-                  </NuxtLink>
+                    https://sciconnect.io/view/c{{ data?.collection.id }}
+                  </ULink>
                 </div>
 
-                <n-button
-                  strong
-                  circle
-                  class="dark:text-white"
-                  size="small"
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="solar:copy-bold"
                   @click="
                     copyToClipboard(
-                      `https://sciconnect.io/view/${data?.collection.identifier}`,
+                      `https://sciconnect.io/view/c${data?.collection.id}`,
                     )
                   "
-                >
-                  <template #icon>
-                    <Icon name="solar:copy-bold" size="15" />
-                  </template>
-                </n-button>
-              </n-flex>
-            </n-flex>
-          </n-flex>
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="relative col-span-3 pt-4">
           <NuxtImg
-            :src="`${data?.collection.image_url}?t=${data?.collection.updated}`"
+            :src="`${data?.collection.imageUrl}?t=${data?.collection.updated}`"
             :alt="data?.collection.title"
             class="h-auto w-full rounded-lg"
           />
         </div>
       </div>
 
-      <n-divider />
+      <USeparator class="my-5" />
 
-      <n-tabs
-        type="line"
-        animated
-        default-value="resources"
-        class="px-3 md:px-7"
+      <UTabs
+        :items="tabItems"
+        orientation="horizontal"
+        variant="link"
+        class="w-full gap-4"
+        :ui="{ trigger: 'cursor-pointer' }"
       >
-        <n-tab-pane name="resources" tab="Resources">
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="fluent:text-bullet-list-square-16-filled" size="18" />
-
-              <span class="font-medium"> Resources</span>
-            </n-flex>
-          </template>
-
-          <n-flex vertical>
+        <template #resources>
+          <div class="flex w-full items-center gap-2">
             <div
               v-for="(group, name, index) in groupedResources"
               :key="index"
-              class="py-10"
+              class="w-full py-5"
             >
               <div class="flex items-center justify-between pb-5">
-                <n-flex align="center">
-                  <Icon :name="selectIcon(name as string).icon" size="35" />
+                <div class="flex items-center gap-2">
+                  <Icon :name="selectIcon(name as string).icon" size="30" />
 
-                  <h2>
+                  <h2 class="text-xl font-semibold">
                     {{ selectIcon(name as string).name }}
                     <span> ({{ group.length }}) </span>
                   </h2>
-                </n-flex>
+                </div>
               </div>
 
-              <n-flex vertical class="w-full">
+              <div class="flex w-full flex-col gap-3">
                 <div
                   v-for="(resource, idx) of group || []"
                   :key="idx"
@@ -510,31 +551,25 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <n-flex
-                    align="center"
-                    justify="space-between"
-                    class="pb-4 pt-2"
-                  >
-                    <n-flex align="center">
-                      <n-tag
-                        :type="resource.identifier_type ? 'info' : 'error'"
-                        size="small"
-                        class=""
+                  <div class="flex items-center justify-between pt-2 pb-4">
+                    <div class="flex items-center gap-2">
+                      <UBadge
+                        :color="resource.identifierType ? 'info' : 'error'"
+                        size="sm"
+                        variant="outline"
                       >
                         {{
-                          resource.identifier_type || "No identifier provided"
+                          resource.identifierType || "No identifier provided"
                         }}
-                      </n-tag>
+                      </UBadge>
 
-                      <div>
-                        <n-divider vertical />
-                      </div>
+                      <USeparator orientation="vertical" class="h-5" />
 
                       <div class="group w-max">
                         <NuxtLink
                           :to="
                             resource.identifier_type !== 'url'
-                              ? `https://identifiers.org/${resource.identifier_type}/${resource.identifier}`
+                              ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
                               : resource.identifier
                           "
                           class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
@@ -551,109 +586,59 @@ const copyToClipboard = (input: string) => {
                           />
                         </NuxtLink>
                       </div>
-                    </n-flex>
+                    </div>
 
                     <DiscoverResourceMetrics
-                      :resource-type="resource.resource_type"
+                      :resource-type="resource.resourceType"
                     />
-                  </n-flex>
+                  </div>
                 </div>
-              </n-flex>
+              </div>
             </div>
-          </n-flex>
-        </n-tab-pane>
+          </div>
+        </template>
 
-        <n-tab-pane
-          name="relations"
-          tab="Relations"
-          display-directive="show:lazy"
-        >
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="tabler:circles-relation" size="18" />
-
-              <span class="font-medium"> Relations</span>
-            </n-flex>
-          </template>
-
+        <template #relations>
           <FlowRelationsGraph
             class="vbackdrop-blur-xl vbackdrop-grayscale py-10"
             :relations="{
               internal:
-                (data?.InternalRelations as unknown as CatalogInternalRelation[]) ||
+                (data?.InternalRelation as unknown as CatalogInternalRelation[]) ||
                 [],
               external:
-                (data?.ExternalRelations as unknown as CatalogExternalRelation[]) ||
+                (data?.ExternalRelation as unknown as CatalogExternalRelation[]) ||
                 [],
             }"
-            :resources="(data?.Resources as unknown as ResourceType[]) || []"
+            :resources="(data?.Resource as unknown as ResourceType[]) || []"
           />
-        </n-tab-pane>
+        </template>
 
-        <n-tab-pane
-          name="changelog"
-          tab="Changelog"
-          display-directive="show:lazy"
-        >
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="fluent:history-24-filled" size="18" />
-
-              <span class="font-medium"> Changelog</span>
-            </n-flex>
-          </template>
-
+        <template #changelog>
           <MarkdownRender :content="data?.changelog" />
-        </n-tab-pane>
+        </template>
 
-        <n-tab-pane name="versions" tab="Versions">
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="mingcute:version-fill" size="18" />
-
-              <span class="font-medium"> Versions </span>
-            </n-flex>
-          </template>
-
+        <template #versions>
           <DiscoverVersionSelector
-            :selected-version-identifier="selectedVersionIdentifier || ''"
+            :selected-version-identifier="selectedVersionIdentifier || 0"
             :versions="(data?.Versions as Version[]) || []"
-            :collection-identifier="data?.collection.identifier || ''"
+            :collection-identifier="data?.collection.id || 0"
           />
-        </n-tab-pane>
+        </template>
 
-        <n-tab-pane name="analytics" tab="Analytics">
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="bi:bar-chart-fill" size="18" />
-
-              <span class="font-medium"> Analytics</span>
-            </n-flex>
-          </template>
-
+        <template #analytics>
           <DiscoverCollectionViewsChart
             class="py-5"
-            :collection-identifier="data?.collection.identifier || ''"
+            :collection-identifier="data?.collection.id || 0"
           />
 
           <DiscoverVersionResolutionsChart
             class="py-5"
-            :version-identifier="data?.identifier || ''"
+            :version-identifier="data?.id || 0"
           />
-        </n-tab-pane>
+        </template>
 
-        <n-tab-pane name="impact" tab="Impact">
-          <template #tab>
-            <n-flex align="center" class="px-2">
-              <Icon name="ph:list-heart" size="18" />
-
-              <span class="font-medium"> Impact</span>
-            </n-flex>
-          </template>
-
-          <DiscoverImpactCloud />
-        </n-tab-pane>
-      </n-tabs>
+        <template #impact> <DiscoverImpactCloud /> </template>
+      </UTabs>
     </div>
 
     <div
@@ -684,7 +669,5 @@ const copyToClipboard = (input: string) => {
         "
       ></div>
     </div>
-
-    <n-back-top />
   </main>
 </template>

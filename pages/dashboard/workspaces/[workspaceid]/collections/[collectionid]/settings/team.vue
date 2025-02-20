@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { SelectRenderTag, SelectRenderLabel } from "naive-ui";
-import { NAvatar, NText } from "naive-ui";
+const { user } = useUserSession();
 
-const user = useSupabaseUser();
+const toast = useToast();
 
-const userToInvite = ref<string | null>(null);
+const userToInvite = ref<string | undefined>(undefined);
 
 const inviteLoading = ref(false);
-
 const permissionChangeLoading = ref("");
 
 const publishAccess = ref<CollectionAccessTeam>([]);
@@ -22,17 +20,17 @@ const { collectionid, workspaceid } = useRoute().params as {
 
 const { data: members, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/members`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your workspace details",
+    color: "error",
+    description: "We couldn't load your workspace details",
+    icon: "material-symbols:error",
   });
 }
 
@@ -63,40 +61,66 @@ const { workspacePermission, workspacePermissionGetLoading } =
 
 const generatePublisherDropdownOptions = (memberid: string) => {
   return [
-    {
-      disabled: workspacePermission.value !== "owner",
-      key: "removePublisher",
-      label: "Remove publisher",
-      show: memberid !== user.value?.id,
-    },
-    {
-      disabled:
-        workspacePermission.value === "owner" ||
-        workspacePermission.value === "admin",
-      key: "giveUpPublisherAccess",
-      label: "Give up publisher access",
-      show: memberid === user.value?.id,
-    },
+    ...(memberid !== user.value?.id
+      ? [
+          {
+            disabled: workspacePermission.value !== "owner",
+            key: "removePublisher",
+            label: "Remove publisher",
+            onSelect: () => {
+              publisherManageMember("removePublisher");
+            },
+          },
+        ]
+      : []),
+    ...(memberid === user.value?.id
+      ? [
+          {
+            disabled:
+              workspacePermission.value === "owner" ||
+              workspacePermission.value === "admin",
+            key: "giveUpPublisherAccess",
+            label: "Give up publisher access",
+            onSelect: () => {
+              publisherManageMember("giveUpPublisherAccess");
+            },
+          },
+        ]
+      : []),
   ];
 };
 
 const generateEditorDropdownOptions = (memberid: string) => {
   return [
-    {
-      key: "makeAdmin",
-      label: "Assign as administrator",
-      show: collectionPermission.value === "admin",
-    },
-    {
-      key: "removeEditor",
-      label: "Remove editor",
-      show: collectionPermission.value === "admin",
-    },
-    {
-      key: "leaveCollection",
-      label: "Leave collection",
-      show: memberid === user.value?.id,
-    },
+    ...(collectionPermission.value === "admin"
+      ? [
+          {
+            key: "makeAdmin",
+            label: "Assign as administrator",
+            onSelect: () => {
+              editorManageMember("makeAdmin");
+            },
+          },
+          {
+            key: "removeEditor",
+            label: "Remove editor",
+            onSelect: () => {
+              editorManageMember("removeEditor");
+            },
+          },
+        ]
+      : []),
+    ...(memberid === user.value?.id
+      ? [
+          {
+            key: "leaveCollection",
+            label: "Leave collection",
+            onSelect: () => {
+              editorManageMember("leaveCollection");
+            },
+          },
+        ]
+      : []),
   ];
 };
 
@@ -107,7 +131,6 @@ const {
 } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/members/viewers`,
   {
-    headers: useRequestHeaders(["cookie"]),
     lazy: true,
     server: false,
   },
@@ -116,71 +139,13 @@ const {
 if (viewersError.value) {
   console.log(viewersError.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load the viewers of this collection",
+    color: "error",
+    description: "We couldn't load the viewers of this collection",
+    icon: "material-symbols:error",
   });
 }
-
-const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
-  return h(
-    "div",
-    {
-      style: {
-        alignItems: "center",
-        display: "flex",
-      },
-    },
-    [
-      h(NAvatar, {
-        round: true,
-        size: 24,
-        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
-        style: {
-          marginRight: "12px",
-        },
-      }),
-      option.label as string,
-    ],
-  );
-};
-
-const renderLabel: SelectRenderLabel = (option) => {
-  return h(
-    "div",
-    {
-      style: {
-        alignItems: "center",
-        display: "flex",
-      },
-    },
-    [
-      h(NAvatar, {
-        round: true,
-        src: `https://api.dicebear.com/6.x/thumbs/svg?seed=${option.value}`,
-      }),
-      h(
-        "div",
-        {
-          style: {
-            marginLeft: "12px",
-            padding: "4px 0",
-          },
-        },
-        [
-          h("div", null, [option.label as string]),
-          h(
-            NText,
-            { depth: 3, tag: "div" },
-            {
-              default: () => option.email_address,
-            },
-          ),
-        ],
-      ),
-    ],
-  );
-};
 
 const publisherManageMember = async (key: string) => {
   if (key === "removePublisher") {
@@ -197,9 +162,11 @@ const publisherManageMember = async (key: string) => {
       (workspacePermission.value === "owner" ||
         workspacePermission.value === "admin")
     ) {
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "You don't have permission to remove this publisher",
+        color: "error",
+        description: "You don't have permission to remove this publisher",
+        icon: "material-symbols:error",
       });
 
       return;
@@ -215,14 +182,17 @@ const publisherManageMember = async (key: string) => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/members/publishers`,
       {
         body: JSON.stringify(body),
-        headers: useRequestHeaders(["cookie"]),
+
         method: "DELETE",
       },
     )
       .then(() => {
-        push.success({
-          title: "Success",
-          message: "The publisher permission has been removed from this user",
+        toast.add({
+          title: "Publisher removed",
+          color: "success",
+          description:
+            "The publisher permission has been removed from this user",
+          icon: "material-symbols:check-circle-outline",
         });
 
         // Remove the member from the publish access list
@@ -233,7 +203,6 @@ const publisherManageMember = async (key: string) => {
         // Add the member to the edit access list
         editAccess.value.push({
           id: member.id,
-          username: member.username || "",
           name: member.name || "",
           created: member.created,
           emailAddress: member.emailAddress || "",
@@ -243,9 +212,12 @@ const publisherManageMember = async (key: string) => {
       .catch((error) => {
         console.log(error);
 
-        push.error({
+        toast.add({
           title: "Something went wrong",
-          message: "We couldn't remove the publisher permission from this user",
+          color: "error",
+          description:
+            "We couldn't remove the publisher permission from this user",
+          icon: "material-symbols:error",
         });
       })
       .finally(() => {
@@ -276,23 +248,24 @@ const editorManageMember = async (key: string) => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/members/admin`,
       {
         body: JSON.stringify(body),
-        headers: useRequestHeaders(["cookie"]),
+
         method: "PUT",
       },
     )
       .then((response) => {
-        push.success({
-          title: "Success",
-          message: "This editor has been assigned as an administrator",
+        toast.add({
+          title: "Administrator assigned",
+          color: "success",
+          description: "This editor has been assigned as an administrator",
+          icon: "material-symbols:check-circle-outline",
         });
 
         // Add the member to the publish access list
         publishAccess.value.push({
           id: response.admin.id || "",
-          username: response.admin.username || "",
           name: response.admin.name || "",
           created: new Date().toDateString(),
-          emailAddress: response.admin.email_address || "",
+          emailAddress: response.admin.emailAddress || "",
           role: "collection-admin",
         });
 
@@ -304,9 +277,11 @@ const editorManageMember = async (key: string) => {
       .catch((error) => {
         console.log(error);
 
-        push.error({
+        toast.add({
           title: "Something went wrong",
-          message: "We couldn't assign this editor as an administrator",
+          color: "error",
+          description: "We couldn't assign this editor as an administrator",
+          icon: "material-symbols:error",
         });
       })
       .finally(() => {
@@ -331,14 +306,16 @@ const editorManageMember = async (key: string) => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/members/editors`,
       {
         body: JSON.stringify(body),
-        headers: useRequestHeaders(["cookie"]),
+
         method: "DELETE",
       },
     )
       .then(() => {
-        push.success({
-          title: "Success",
-          message: "This editor has been removed from the collection",
+        toast.add({
+          title: "Editor removed",
+          color: "success",
+          description: "This editor has been removed from the collection",
+          icon: "material-symbols:check-circle-outline",
         });
 
         // Remove the member from the edit access list
@@ -349,7 +326,7 @@ const editorManageMember = async (key: string) => {
         // Add the member to the viewers list
         viewers.value?.push({
           email_address: member.emailAddress,
-          label: member.name || member.username,
+          label: member.name || "",
           value: member.id,
         });
       })
@@ -357,17 +334,21 @@ const editorManageMember = async (key: string) => {
         console.error(error);
 
         if (key === "removeEditor") {
-          push.error({
-            title: "Something went wrong",
-            message: "We couldn't remove this editor from the collection",
+          toast.add({
+            title: "Editor removed",
+            color: "error",
+            description: "We couldn't remove this editor from the collection",
+            icon: "material-symbols:error",
           });
         }
 
         if (key === "leaveCollection") {
-          push.error({
-            title: "Something went wrong",
-            message:
+          toast.add({
+            title: "Editor removed",
+            color: "error",
+            description:
               "We couldn't remove your editor permission from this collection",
+            icon: "material-symbols:error",
           });
         }
       })
@@ -388,23 +369,24 @@ const inviteMember = async () => {
     `/api/workspaces/${workspaceid}/collections/${collectionid}/members/editors`,
     {
       body: JSON.stringify(body),
-      headers: useRequestHeaders(["cookie"]),
+
       method: "POST",
     },
   )
     .then((response) => {
-      push.success({
-        title: "Success",
-        message: "This user has been added as an editor to your workspace",
+      toast.add({
+        title: "Editor added",
+        color: "success",
+        description: "This user has been added as an editor to your workspace",
+        icon: "material-symbols:check-circle-outline",
       });
 
       // Add the user to the edit access list
       editAccess.value.push({
-        id: response.editor.user_id,
-        username: response.editor.username || "",
+        id: response.editor.id,
         name: response.editor.name || "",
         created: response.editor.created,
-        emailAddress: response.editor.email_address || "",
+        emailAddress: response.editor.emailAddress || "",
         role: "collection-editor",
       });
 
@@ -414,14 +396,16 @@ const inviteMember = async () => {
           (viewer) => viewer.value !== userToInvite.value,
         ) || [];
 
-      userToInvite.value = null;
+      userToInvite.value = undefined;
     })
     .catch((error) => {
       console.log(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't invite this user to your workspace",
+        color: "error",
+        description: "We couldn't invite this user to your workspace",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -446,14 +430,13 @@ const inviteMember = async () => {
         class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-5"
       >
         <div class="flex items-center space-x-3">
-          <n-avatar
-            :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${member.id}`"
-            :size="50"
-            round
+          <UAvatar
+            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+            size="xl"
           />
 
           <div class="flex flex-col">
-            <p class="font-bold">{{ member.name || member.username }}</p>
+            <p class="font-bold">{{ member.name }}</p>
 
             <p class="text-sm text-slate-600">
               {{ member.emailAddress }}
@@ -467,41 +450,56 @@ const inviteMember = async () => {
         </div>
 
         <div class="relative flex items-center space-x-6">
-          <n-tag v-if="member.role === 'workspace-admin'" type="info">
-            Workspace Administrator
-          </n-tag>
-
-          <n-tag v-if="member.role === 'workspace-owner'" type="info">
-            Workspace Owner
-          </n-tag>
-
-          <n-tag v-if="member.role === 'collection-admin'" type="info">
-            Administrator
-          </n-tag>
-
-          <n-divider vertical />
-
-          <n-dropdown
-            trigger="click"
-            placement="bottom-end"
-            :options="generatePublisherDropdownOptions(member.id)"
-            @select="publisherManageMember"
+          <UBadge
+            v-if="member.role === 'workspace-admin'"
+            color="info"
+            variant="soft"
           >
-            <n-button
-              secondary
+            Workspace Administrator
+          </UBadge>
+
+          <UBadge
+            v-if="member.role === 'workspace-owner'"
+            color="info"
+            variant="soft"
+          >
+            Workspace Owner
+          </UBadge>
+
+          <UBadge
+            v-if="member.role === 'collection-admin'"
+            color="info"
+            variant="soft"
+          >
+            Administrator
+          </UBadge>
+
+          <USeparator orientation="vertical" class="h-5" />
+
+          <UDropdownMenu
+            :items="generatePublisherDropdownOptions(member.id)"
+            :content="{
+              align: 'end',
+              side: 'bottom',
+              sideOffset: 8,
+            }"
+            :ui="{
+              content: 'w-max',
+            }"
+          >
+            <UButton
+              icon="iconamoon:menu-kebab-vertical-bold"
+              color="neutral"
+              :disabled="workspacePermission === 'viewer'"
               :loading="
                 collectionPermissionGetLoading ||
                 workspacePermissionGetLoading ||
                 permissionChangeLoading === member.id
               "
-              :disabled="workspacePermission === 'viewer'"
+              variant="ghost"
               @click="selectedMember = member.id"
-            >
-              <template #icon>
-                <Icon name="iconamoon:menu-kebab-vertical-bold" />
-              </template>
-            </n-button>
-          </n-dropdown>
+            />
+          </UDropdownMenu>
         </div>
       </div>
     </div>
@@ -519,14 +517,13 @@ const inviteMember = async () => {
         class="flex items-center justify-between border border-slate-200 bg-white p-5"
       >
         <div class="flex items-center space-x-3">
-          <n-avatar
-            :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${member.id}`"
-            :size="50"
-            round
+          <UAvatar
+            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+            size="xl"
           />
 
           <div class="flex flex-col">
-            <p class="font-bold">{{ member.name || member.username }}</p>
+            <p class="font-bold">{{ member.name }}</p>
 
             <p class="text-sm text-slate-600">
               {{ member.emailAddress }}
@@ -540,26 +537,30 @@ const inviteMember = async () => {
         </div>
 
         <div class="relative flex items-center space-x-6">
-          <n-dropdown
-            trigger="click"
-            placement="bottom-end"
-            :options="generateEditorDropdownOptions(member.id)"
+          <UDropdownMenu
+            :items="generateEditorDropdownOptions(member.id)"
+            :content="{
+              align: 'end',
+              side: 'bottom',
+              sideOffset: 8,
+            }"
+            :ui="{
+              content: 'w-48',
+            }"
             @select="editorManageMember"
           >
-            <n-button
-              secondary
+            <UButton
+              icon="iconamoon:menu-kebab-vertical-bold"
+              color="neutral"
               :loading="
                 collectionPermissionGetLoading ||
                 workspacePermissionGetLoading ||
                 permissionChangeLoading === member.id
               "
+              variant="ghost"
               @click="selectedMember = member.id"
-            >
-              <template #icon>
-                <Icon name="iconamoon:menu-kebab-vertical-bold" />
-              </template>
-            </n-button>
-          </n-dropdown>
+            />
+          </UDropdownMenu>
         </div>
       </div>
     </div>
@@ -580,21 +581,19 @@ const inviteMember = async () => {
           <h3 class="text-base font-medium">Add editors to your collection</h3>
         </div>
 
-        <n-divider />
+        <USeparator class="my-4" />
 
-        <n-form-item label="Users" size="large">
-          <n-select
-            v-model:value="userToInvite"
-            :options="viewers || []"
-            :render-label="renderLabel"
-            :render-tag="renderSingleSelectTag"
-            filterable
+        <UFormItem label="Users" size="large">
+          <USelect
+            v-model="userToInvite"
+            :items="viewers || []"
             :loading="viewersLoading"
-            clearable
             :disabled="collectionPermission !== 'admin'"
             placeholder="Search for a user to invite"
+            size="lg"
+            class="w-full"
           />
-        </n-form-item>
+        </UFormItem>
       </div>
 
       <div
@@ -604,19 +603,16 @@ const inviteMember = async () => {
           Lorem ipsum dolor sit amet consectetur, adipisicing elit.
         </p>
 
-        <n-button
-          color="black"
-          size="large"
+        <UButton
+          color="primary"
+          size="lg"
           :loading="inviteLoading"
           :disabled="!userToInvite"
+          icon="mingcute:invite-fill"
           @click="inviteMember"
         >
-          <template #icon>
-            <Icon name="mdi:invite" />
-          </template>
-
           Invite as editor
-        </n-button>
+        </UButton>
       </div>
     </div>
   </div>

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
@@ -42,8 +43,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -55,9 +58,7 @@ export default defineEventHandler(async (event) => {
 
   // get the latest draft version of the collection.
   const version = await prisma.version.findFirst({
-    orderBy: { created: "desc" },
-    take: 1,
-    where: { collection_id: collectionid, published: false },
+    where: { collectionId, published: false },
   });
 
   if (!version) {
@@ -66,17 +67,14 @@ export default defineEventHandler(async (event) => {
       statusCode: 404,
     });
   }
+
   const { resourceType, source, target, targetType, type } = parsedBody.data;
 
   // Check if the resource exists in the collection and is part of the draft version
   const resource = await prisma.resource.findFirst({
     where: {
       id: source,
-      Version: {
-        some: {
-          id: version.id,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -102,16 +100,12 @@ export default defineEventHandler(async (event) => {
   const externalRelation = await prisma.externalRelation.create({
     data: {
       action: "create",
-      resource_type: resourceType,
-      source_id: source,
+      resourceType,
+      sourceId: source,
       target,
-      target_type: targetType,
+      targetType,
       type,
-      Version: {
-        connect: {
-          id: version.id,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -122,18 +116,18 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const responseObject: GroupedRelation = {
+  const responseObject: AllRelationsItem = {
     id: externalRelation.id,
     action: "create",
-    created: externalRelation.created,
     external: true,
-    resource_type: externalRelation.resource_type,
-    source_id: resource.id,
-    source_name: resource.title,
+    originalRelationId: externalRelation.originalRelationId,
+    resourceType: externalRelation.resourceType,
+    source: resource.id,
+    sourceName: resource.title,
+    sourceOriginalId: resource.originalResourceId,
     target: externalRelation.target,
-    target_type: externalRelation.target_type,
+    targetType: externalRelation.targetType,
     type: externalRelation.type,
-    updated: externalRelation.updated,
   };
 
   return {

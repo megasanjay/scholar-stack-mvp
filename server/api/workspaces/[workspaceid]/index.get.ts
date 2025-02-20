@@ -1,9 +1,8 @@
-import { serverSupabaseUser } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
 
-  const user = await serverSupabaseUser(event);
+  const { user } = session;
+  const userId = user.id;
 
   const { workspaceid } = event.context.params as { workspaceid: string };
 
@@ -13,15 +12,15 @@ export default defineEventHandler(async (event) => {
 
   if (!workspace) {
     throw createError({
-      message: "Workspace not found",
       statusCode: 404,
+      statusMessage: "Workspace not found",
     });
   }
 
   const collections = await prisma.collection.findMany({
     include: {
       CollectionAccess: true,
-      Versions: {
+      Version: {
         orderBy: { created: "desc" },
         take: 1,
       },
@@ -30,14 +29,14 @@ export default defineEventHandler(async (event) => {
       updated: "desc",
     },
     where: {
-      workspace_id: workspaceid,
+      workspaceId: workspaceid,
     },
   });
 
   // Remove collections that the user has hidden
   const visibleCollections = collections.filter((collection) => {
     const collectionAccess = collection.CollectionAccess.find(
-      (access) => access.user_id === user?.id,
+      (access) => access.userId === userId,
     );
 
     return !collectionAccess?.hidden;
@@ -45,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const hiddenCollections = collections.filter((collection) => {
     const collectionAccess = collection.CollectionAccess.find(
-      (access) => access.user_id === user?.id,
+      (access) => access.userId === userId,
     );
 
     return collectionAccess?.hidden;
@@ -59,23 +58,21 @@ export default defineEventHandler(async (event) => {
       title: collection.title,
       created: collection.created.toISOString(),
       description: collection.description,
-      detailedDescription: collection.detailed_description,
-      identifier: collection.identifier,
-      image_url: collection.image_url,
+      detailedDescription: collection.detailedDescription,
+      imageUrl: collection.imageUrl,
       updated: collection.updated.toISOString(),
-      version: collection.Versions[0]
+      version: collection.Version[0]
         ? {
-            id: collection.Versions[0].id,
-            name: collection.Versions[0].name,
-            changelog: collection.Versions[0].changelog,
-            collection_id: collection.Versions[0].collection_id,
-            created: collection.Versions[0].created.toISOString(),
-            identifier: collection.Versions[0].identifier,
-            published: collection.Versions[0].published,
-            published_on: collection.Versions[0].published_on
-              ? collection.Versions[0].published_on.toISOString()
+            id: collection.Version[0].id,
+            name: collection.Version[0].name,
+            changelog: collection.Version[0].changelog,
+            collectionId: collection.Version[0].collectionId,
+            created: collection.Version[0].created.toISOString(),
+            published: collection.Version[0].published,
+            publishedOn: collection.Version[0].publishedOn
+              ? collection.Version[0].publishedOn.toISOString()
               : "",
-            updated: collection.Versions[0].updated.toISOString(),
+            updated: collection.Version[0].updated.toISOString(),
           }
         : null,
     })),

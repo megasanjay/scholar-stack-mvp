@@ -1,14 +1,7 @@
 export default defineEventHandler(async (event) => {
   const { identifier } = event.context.params as { identifier: string };
 
-  const regex = /^[cv][a-zA-Z0-9-_]{8,9}$/;
-
-  if (!regex.test(identifier)) {
-    throw createError({
-      message: "Invalid identifier",
-      statusCode: 400,
-    });
-  }
+  const collectionId = parseInt(identifier);
 
   // Get all the views for the collection
   // going to limit this to the last 24 hours
@@ -17,7 +10,7 @@ export default defineEventHandler(async (event) => {
       created: {
         gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
-      identifier,
+      identifier: `c${collectionId}`,
     },
   });
 

@@ -1,16 +1,16 @@
-import { serverSupabaseUser } from "#supabase/server";
 import workspacePermission from "~/server/utils/workspace/workspacePermission";
+import workspaceExists from "~/server/utils/workspace/workspaceExists";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
-
+  const session = await requireUserSession(event);
   await workspaceExists(event);
 
-  const user = await serverSupabaseUser(event);
+  const { user } = session;
+  const userId = user?.id as string;
 
   const { workspaceid } = event.context.params as {
     workspaceid: string;
   };
 
-  return await workspacePermission(workspaceid, user?.id as string);
+  return await workspacePermission(workspaceid, userId);
 });

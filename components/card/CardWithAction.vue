@@ -10,7 +10,7 @@ defineProps({
 <template>
   <div class="rounded-lg border border-slate-200 bg-white shadow-lg">
     <div
-      class="flex items-center justify-between rounded-t-lg px-6 pb-3 pt-5 transition-all"
+      class="flex items-center justify-between rounded-t-lg px-6 pt-5 pb-3 transition-all"
     >
       <h2 class="text-lg font-medium">{{ title }}</h2>
 
@@ -25,7 +25,7 @@ defineProps({
 
     <div
       v-if="$slots.action"
-      class="h-[65px] rounded-b-lg border-t bg-slate-50 px-6 py-3"
+      class="h-[65px] rounded-b-lg border-t border-slate-200 bg-slate-50 px-6 py-3"
     >
       <slot name="action"></slot>
     </div>

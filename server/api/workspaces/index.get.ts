@@ -1,16 +1,14 @@
-import { serverSupabaseUser } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
 
-  const user = await serverSupabaseUser(event);
-  const userid = user?.id as string;
+  const { user } = session;
+  const userId = user.id;
 
   // Get the user's workspaces
   const workspaces = await kysely()
     .selectFrom("WorkspaceMember")
-    .innerJoin("Workspace", "Workspace.id", "WorkspaceMember.workspace_id")
-    .where("user_id", "=", userid)
+    .innerJoin("Workspace", "Workspace.id", "WorkspaceMember.workspaceId")
+    .where("userId", "=", userId)
     .selectAll()
     .execute();
 

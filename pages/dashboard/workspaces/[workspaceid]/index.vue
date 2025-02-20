@@ -6,24 +6,30 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+useSeoMeta({
+  title: "Collections",
+});
+
+const toast = useToast();
 const route = useRoute();
+
 const collectionStore = useCollectionStore();
 
 const { workspaceid } = route.params as { workspaceid: string };
 
 const { data: workspace, error } = await useFetch(
   `/api/workspaces/${workspaceid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your collections",
+    color: "error",
+    description: "We couldn't load your collections",
+    icon: "material-symbols:error",
   });
 
   navigateTo("/dashboard");
@@ -36,55 +42,48 @@ if (error.value) {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <h1>Collections</h1>
+        <h1 class="text-4xl font-black">Collections</h1>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 py-10">
-        <n-input placeholder="Search..." size="large">
-          <template #prefix>
-            <Icon name="iconamoon:search-duotone" size="20" class="mr-2" />
-          </template>
-        </n-input>
+      <div class="flex items-center justify-between gap-4 py-10">
+        <UInput
+          placeholder="Search..."
+          icon="iconamoon:search-duotone"
+          size="lg"
+          type="search"
+        />
 
-        <n-button
-          size="large"
-          color="black"
+        <UButton
+          color="primary"
+          icon="mdi:plus"
           @click="collectionStore.showNewCollectionModal"
         >
-          <template #icon>
-            <Icon name="mdi:plus" />
-          </template>
-          Create a new collection
-        </n-button>
+          <span class="w-max"> Create a new collection </span>
+        </UButton>
       </div>
 
-      <n-flex vertical :size="20">
-        <NuxtLink
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <ULink
           v-for="collection in workspace?.collections"
           :key="collection.id"
           :to="`/dashboard/workspaces/${workspaceid}/collections/${collection.id}`"
-          class="flex flex-col space-y-3 rounded-lg border border-slate-200 bg-white p-6 shadow-md transition-all hover:shadow-lg"
+          class="flex w-full flex-col space-y-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
         >
-          <div
-            class="flex w-full items-center justify-between gap-x-3 border-b pb-3"
-          >
+          <div class="flex w-full items-start justify-between space-x-2">
             <div class="flex flex-col">
-              <p class="text-lg font-medium leading-tight">
+              <p class="text-lg leading-tight font-medium">
                 {{ collection.title }}
               </p>
 
-              <span class="mt-1 text-sm text-slate-500">
+              <span class="text-sm text-slate-500">
                 Updated on
                 {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
               </span>
             </div>
 
-            <NuxtImg
-              :src="collection.image_url"
-              class="mt-1 h-14 w-14 rounded-md"
-            />
+            <UAvatar :src="collection.imageUrl" size="xl" class="rounded-sm" />
           </div>
 
           <div>
@@ -92,10 +91,10 @@ if (error.value) {
               {{ collection.description }}
             </p>
           </div>
-        </NuxtLink>
-      </n-flex>
+        </ULink>
+      </div>
 
-      <n-divider
+      <USeparator
         v-if="
           workspace?.hiddenCollectionsCount &&
           workspace?.hiddenCollectionsCount > 0
@@ -109,7 +108,7 @@ if (error.value) {
           This workspace has {{ workspace?.hiddenCollectionsCount }} hidden
           collection{{ workspace?.hiddenCollectionsCount > 1 ? "s" : "" }}.
         </NuxtLink>
-      </n-divider>
+      </USeparator>
     </div>
 
     <ModalNewCollection />

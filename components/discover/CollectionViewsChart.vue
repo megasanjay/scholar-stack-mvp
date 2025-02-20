@@ -2,9 +2,12 @@
 const props = defineProps({
   collectionIdentifier: {
     required: true,
-    type: String,
+    type: Number,
   },
 });
+
+const toast = useToast();
+
 const pending = ref(true);
 
 const chartOptions = ref({
@@ -31,9 +34,7 @@ const fetchChartData = async () => {
   pending.value = true;
   await $fetch(
     `/api/discover/collections/${props.collectionIdentifier}/views`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   )
     .then((data) => {
       console.log(data);
@@ -50,7 +51,13 @@ const fetchChartData = async () => {
     })
     .catch((error) => {
       console.error(error);
-      push.error("Failed to fetch chart data");
+
+      toast.add({
+        title: "Something went wrong",
+        color: "error",
+        description: "We couldn't load your collection views",
+        icon: "material-symbols:error",
+      });
     })
     .finally(() => {
       pending.value = false;
@@ -60,20 +67,14 @@ const fetchChartData = async () => {
 
 <template>
   <div>
-    <n-flex align="center">
+    <div class="flex items-center">
       <Icon name="ion:eye-sharp" size="25" />
 
       <h2 class="py-2">Collection Views</h2>
-    </n-flex>
+    </div>
 
     <ClientOnly>
-      <n-spin :show="pending">
-        <apexchart
-          type="bar"
-          :options="chartOptions"
-          :series="series"
-        ></apexchart>
-      </n-spin>
+      <apexchart type="bar" :options="chartOptions" :series="series" />
 
       <template #fallback>
         <div class="h-[300px] w-2"></div>

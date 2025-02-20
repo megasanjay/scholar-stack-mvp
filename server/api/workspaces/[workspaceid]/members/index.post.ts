@@ -1,12 +1,13 @@
 import { z } from "zod";
-import isEmail from "validator/lib/isEmail";
+
+import workspaceMinAdminPermission from "~/server/utils/workspace/workspaceMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
 
   const bodySchema = z
     .object({
-      user: z.string().min(1),
+      user: z.string().min(1).email(),
     })
     .strict();
 
@@ -59,26 +60,16 @@ export default defineEventHandler(async (event) => {
   // check if the user exists as username or email
   const userExists = await prisma.user.findFirst({
     where: {
-      OR: [{ username: user }, { email_address: user }],
+      emailAddress: user,
     },
   });
 
   if (!userExists) {
-    // check if user is an email address
-    const isemail = isEmail(user);
-
-    if (!isemail) {
-      throw createError({
-        message: "The provided user does not exist",
-        statusCode: 400,
-      });
-    }
-
     // check if the user is already invited
     const isInvited = await prisma.invite.findFirst({
       where: {
-        email_address: user,
-        workspace_id: workspaceid,
+        emailAddress: user,
+        workspaceId: workspaceid,
       },
     });
 
@@ -92,8 +83,8 @@ export default defineEventHandler(async (event) => {
     // Create an invite for the user
     await prisma.invite.create({
       data: {
-        email_address: user,
-        workspace_id: workspaceid,
+        emailAddress: user,
+        workspaceId: workspaceid,
       },
     });
 
@@ -106,8 +97,8 @@ export default defineEventHandler(async (event) => {
   // check if the user is already a member
   const isMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userExists.id,
-      workspace_id: workspaceid,
+      userId: userExists.id,
+      workspaceId: workspaceid,
     },
   });
 
@@ -122,8 +113,8 @@ export default defineEventHandler(async (event) => {
   await prisma.workspaceMember.create({
     data: {
       admin: false,
-      user_id: userExists.id,
-      workspace_id: workspaceid,
+      userId: userExists.id,
+      workspaceId: workspaceid,
     },
   });
 

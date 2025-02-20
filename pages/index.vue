@@ -1,7 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
-  colorMode: "light",
   layout: "public",
+});
+
+useSeoMeta({
+  title: "Home",
 });
 </script>
 
@@ -61,11 +64,11 @@ definePageMeta({
             </p>
 
             <div
-              class="mb-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0 lg:mb-16"
+              class="mb-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 lg:mb-16"
             >
               <NuxtLink
                 to="/dashboard"
-                class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-5 py-3 text-center text-base font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300"
+                class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 inline-flex items-center justify-center rounded-lg px-5 py-3 text-center text-base font-medium text-white focus:ring-4"
               >
                 Create a collection
                 <svg
@@ -87,7 +90,7 @@ definePageMeta({
                 class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100"
               >
                 <svg
-                  class="-ml-1 mr-2 h-5 w-5"
+                  class="mr-2 -ml-1 h-5 w-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +106,7 @@ definePageMeta({
             <div
               class="mx-auto px-4 pb-5 text-center md:max-w-screen-md lg:max-w-screen-lg lg:px-36"
             >
-              <span class="text-base font-medium uppercase text-gray-800">
+              <span class="text-base font-medium text-gray-800 uppercase">
                 Trusted by research teams around the world
               </span>
             </div>

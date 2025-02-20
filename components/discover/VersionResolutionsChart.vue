@@ -2,9 +2,11 @@
 const props = defineProps({
   versionIdentifier: {
     required: true,
-    type: String,
+    type: Number,
   },
 });
+
+const toast = useToast();
 
 const pending = ref(true);
 
@@ -32,9 +34,7 @@ const fetchChartData = async () => {
   pending.value = true;
   await $fetch(
     `/api/discover/collections/${props.versionIdentifier}/resolutions`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   )
     .then((data) => {
       chartOptions.value = {
@@ -49,7 +49,13 @@ const fetchChartData = async () => {
     })
     .catch((error) => {
       console.error(error);
-      push.error("Failed to fetch chart data");
+
+      toast.add({
+        title: "Something went wrong",
+        color: "error",
+        description: "We couldn't load your version resolutions",
+        icon: "material-symbols:error",
+      });
     })
     .finally(() => {
       pending.value = false;
@@ -59,20 +65,14 @@ const fetchChartData = async () => {
 
 <template>
   <div>
-    <n-flex align="center">
+    <div class="flex items-center">
       <Icon name="ion:eye-sharp" size="25" />
 
       <h2 class="py-2">Version Views</h2>
-    </n-flex>
+    </div>
 
     <ClientOnly>
-      <n-spin :show="pending">
-        <apexchart
-          type="bar"
-          :options="chartOptions"
-          :series="series"
-        ></apexchart>
-      </n-spin>
+      <apexchart type="bar" :options="chartOptions" :series="series" />
     </ClientOnly>
   </div>
 </template>

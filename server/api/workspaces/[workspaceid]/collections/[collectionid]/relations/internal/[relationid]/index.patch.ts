@@ -1,17 +1,20 @@
-export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
+import touchCollection from "~/server/utils/collection/touchCollection";
 
+export default defineEventHandler(async (event) => {
+  await requireUserSession(event);
   await collectionMinEditorPermission(event);
 
   const { collectionid, relationid, workspaceid } = event.context.params as {
     collectionid: string;
     relationid: string;
-
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -21,15 +24,23 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // get the latest draft version of the collection.
+  const version = await prisma.version.findFirst({
+    where: { collectionId, published: false },
+  });
+
+  if (!version) {
+    throw createError({
+      message: "No draft version found",
+      statusCode: 404,
+    });
+  }
+
   // Check if the relation is part of the draft version
   const relation = await prisma.internalRelation.findFirst({
     where: {
       id: relationid,
-      Version: {
-        some: {
-          published: false,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -50,7 +61,7 @@ export default defineEventHandler(async (event) => {
 
   // Check if the relation is a clone
   // Only clones can be restored to their original state
-  if (!relation.original_relation_id) {
+  if (!relation.originalRelationId) {
     throw createError({
       message: "Relation is not a clone",
       statusCode: 404,
@@ -59,7 +70,7 @@ export default defineEventHandler(async (event) => {
 
   // Get the original relation information
   const originalRelation = await prisma.internalRelation.findUnique({
-    where: { id: relation.original_relation_id },
+    where: { id: relation.originalRelationId },
   });
 
   if (!originalRelation) {
@@ -72,7 +83,7 @@ export default defineEventHandler(async (event) => {
   let updatedAction = "";
 
   if (
-    originalRelation.resource_type === relation.resource_type &&
+    originalRelation.resourceType === relation.resourceType &&
     originalRelation.type === relation.type
   ) {
     await prisma.internalRelation.update({
@@ -94,7 +105,7 @@ export default defineEventHandler(async (event) => {
     updatedAction = "update";
   }
 
-  await touchCollection(collectionid);
+  await touchCollection(collectionId);
 
   return {
     message: "Relation updated",

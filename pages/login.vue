@@ -1,248 +1,148 @@
 <script setup lang="ts">
-import type { FormInst } from "naive-ui";
+import { z } from "zod";
+import type { FormSubmitEvent } from "#ui/types";
 
-import isEmail from "validator/es/lib/isEmail";
+const { loggedIn } = useUserSession();
+
+if (loggedIn.value) {
+  await navigateTo("/dashboard");
+}
 
 definePageMeta({
-  layout: "no-header",
+  layout: "auth",
 });
 
-const route = useRoute();
+useSeoMeta({
+  title: "Login",
+});
 
-const user = useSupabaseUser();
-const supabase = useSupabaseClient();
-
+const toast = useToast();
 const loading = ref(false);
 
-const loginFormRef = ref<FormInst | null>(null);
+const showPassword = ref(false);
 
-const loginForm = reactive({
-  emailAddress: "",
-  password: "",
+const schema = z.object({
+  emailAddress: z.string().email(),
+  password: z.string().min(8, "Must be at least 8 characters"),
 });
 
-const loginFormRules = {
-  emailAddress: {
-    message: "Please input your email address",
-    required: true,
-    trigger: ["input"],
-  },
-  password: {
-    message: "Please fill in your password",
-    required: true,
-    trigger: ["input"],
-  },
-};
+type Schema = z.output<typeof schema>;
 
-const invalidEmailAddress = computed(() => {
-  return loginForm.emailAddress === "" || !isEmail(loginForm.emailAddress);
+const state = reactive({
+  emailAddress: "rick@example.com",
+  password: "12345678",
 });
 
-const signIn = (e: MouseEvent) => {
-  e.preventDefault();
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const body = {
+    emailAddress: event.data.emailAddress,
+    password: event.data.password,
+  };
 
-  loginFormRef.value?.validate(async (errors) => {
-    if (!errors) {
-      if (!isEmail(loginForm.emailAddress)) {
-        push.error({
-          title: "Error",
-          message: "Please enter a valid email address",
-        });
+  loading.value = true;
 
-        return;
-      }
-
-      loading.value = true;
-
-      setTimeout(() => {
-        if (route.path === "/login") {
-          push.warning({
-            title: "This is taking longer than expected",
-            message: "Please wait while we sign you in...",
-          });
-
-          // refresh the page
-          window.location.reload();
-        }
-      }, 6000);
-
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email: loginForm.emailAddress,
-        password: loginForm.password,
+  await $fetch("/api/auth/login", {
+    body,
+    method: "POST",
+  })
+    .then(() => {
+      toast.add({
+        title: "Login successful",
+        color: "success",
+        description: "You can now access your account",
+        icon: "material-symbols:check-circle-outline",
       });
 
-      loading.value = false;
-
-      if (loginError) {
-        push.error({
-          title: "Login Error",
-          message: loginError.message,
-        });
-
-        return;
-      }
-
-      // create the user profile if it doesn't exist
-      await $fetch("/api/user", {
-        headers: useRequestHeaders(["cookie"]),
-        method: "POST",
-      }).catch(async (error) => {
-        console.error(error);
-
-        push.error({
-          title: "Profile Error",
-          message: "Could not initialize profile.",
-        });
-
-        // sign out the user if the profile creation fails
-        // prevents any unforeseen issues
-        await supabase.auth.signOut();
-
-        throw error;
-      });
-
-      push.success({
-        title: "Login Successful",
-        message: "Please wait while we redirect you to your dashboard",
-      });
-
-      // redirect to projects page
       window.location.href = "/dashboard";
-    } else {
-      console.log(errors);
-    }
-  });
-};
+    })
+    .catch((error) => {
+      console.error(error.data);
 
-watchEffect(() => {
-  if (user.value) {
-    return navigateTo("/dashboard");
-  }
-});
+      toast.add({
+        title: "Error logging in",
+        color: "error",
+        description: error.data.statusMessage,
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
 </script>
 
 <template>
-  <main class="flex flex-row flex-wrap items-start justify-center">
-    <div class="flex w-1/2 flex-col items-center">
-      <div
-        class="mt-4 w-full max-w-lg space-y-6 rounded-lg bg-white px-4 py-6 sm:px-8 sm:py-8"
-      >
-        <div class="w-full pb-4">
-          <div class="w-max">
-            <NuxtLink to="/">
-              <img src="/logo/logo.svg" alt="logo" class="mb-[60px] h-[80px]" />
-            </NuxtLink>
-          </div>
+  <UCard class="w-full max-w-sm bg-white/75 backdrop-blur dark:bg-white/5">
+    <div class="w-full max-w-sm px-4 py-5 sm:p-6">
+      <div class="flex flex-col items-center justify-center">
+        <Icon name="iconoir:lock" :size="40" />
 
-          <h1 class="mb-3 text-left text-2xl font-bold sm:text-4xl">
-            Welcome back!
-          </h1>
+        <h2 class="my-1 text-2xl font-bold">Welcome back</h2>
 
-          <p>Sign in to your account to continue using our services.</p>
-        </div>
-
-        <n-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginFormRules"
-          size="large"
-          :show-require-mark="false"
-        >
-          <n-form-item path="emailAddress" label="Email Address">
-            <n-input
-              v-model:value="loginForm.emailAddress"
-              placeholder="hello@sciconnect.io"
-              clearable
-              @keydown.enter.prevent
-            />
-          </n-form-item>
-
-          <n-form-item path="password" label="Password">
-            <n-input
-              v-model:value="loginForm.password"
-              placeholder=""
-              type="password"
-              show-password-on="mousedown"
-              @keydown.enter.prevent
-            />
-          </n-form-item>
-
-          <n-form-item>
-            <n-button
-              strong
-              secondary
-              type="primary"
-              size="large"
-              :loading="loading"
-              :disabled="invalidEmailAddress"
-              class="w-full"
-              @click="signIn"
-            >
-              <template #icon>
-                <Icon name="ph:sign-in-bold" />
-              </template>
-              Sign In
-            </n-button>
-          </n-form-item>
-        </n-form>
-
-        <div class="flex justify-center text-sm">
+        <p class="font-medium text-slate-600">
           Don't have an account?
-          <nuxt-link
-            class="ml-1 w-fit text-blue-600 transition-all hover:text-blue-400"
-            to="/register"
-          >
-            Sign Up
-          </nuxt-link>
-        </div>
-
-        <n-divider class="text-slate-400"> or </n-divider>
-
-        <div class="flex flex-col space-y-4">
-          <n-button strong size="large" class="w-full">
-            <template #icon>
-              <Icon name="devicon:google" />
-            </template>
-
-            Sign In with Google
-          </n-button>
-
-          <n-button strong color="black" size="large" class="w-full">
-            <template #icon>
-              <Icon name="ph:github-logo-fill" />
-            </template>
-
-            Sign In with GitHub
-          </n-button>
-
-          <n-button strong size="large" class="w-full">
-            <template #icon>
-              <Icon name="ic:baseline-apple" />
-            </template>
-
-            Sign In with Apple ID
-          </n-button>
-        </div>
-
-        <p class="mx-auto w-9/12 text-center text-sm">
-          By signing in, you agree to our
-          <nuxt-link
-            class="text-blue-600 transition-all hover:text-blue-400"
-            to="/terms"
-          >
-            Terms of Service
-          </nuxt-link>
-          and
-          <nuxt-link
-            class="text-blue-600 transition-all hover:text-blue-400"
-            to="/privacy"
-          >
-            Privacy Policy</nuxt-link
-          >.
+          <NuxtLink to="/signup" class="text-primary-500 font-medium">
+            Sign up
+          </NuxtLink>
         </p>
       </div>
+
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="mt-6 space-y-4"
+        @submit="onSubmit"
+      >
+        <UFormField label="Email Address" name="emailAddress">
+          <UInput v-model="state.emailAddress" type="email" />
+        </UFormField>
+
+        <UFormField label="Password" name="password">
+          <template #hint>
+            <NuxtLink
+              to="/forgot-password"
+              class="font-medium text-sky-500 hover:underline"
+            >
+              Forgot your password?
+            </NuxtLink>
+          </template>
+
+          <UInput
+            v-model="state.password"
+            :type="showPassword ? 'text' : 'password'"
+          >
+            <template #trailing>
+              <Icon
+                name="solar:eye-linear"
+                size="16"
+                class="cursor-pointer text-slate-400 transition-colors hover:text-slate-600"
+                @mousedown="showPassword = true"
+                @mouseup="showPassword = false"
+              />
+            </template>
+          </UInput>
+        </UFormField>
+
+        <UButton
+          type="submit"
+          class="flex w-full justify-center"
+          :loading="loading"
+        >
+          <template #trailing>
+            <Icon name="i-heroicons-arrow-right-20-solid" size="20" />
+          </template>
+          Continue
+        </UButton>
+      </UForm>
     </div>
 
-    <div class="h-full min-h-screen w-1/2 bg-slate-900"></div>
-  </main>
+    <template #footer>
+      <p class="text-center text-sm">
+        By signing in, you agree to our
+        <NuxtLink to="/signup" class="text-primary-500 text-sm font-medium">
+          Terms of Service</NuxtLink
+        >.
+      </p>
+    </template>
+  </UCard>
 </template>

@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   await collectionMinAdminPermission(event);
 
@@ -38,15 +39,15 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
-  const { userid } = parsedBody.data;
+  const collectionId = parseInt(collectionid);
 
-  console.log("userid", userid);
+  const { userid } = parsedBody.data;
 
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -69,8 +70,8 @@ export default defineEventHandler(async (event) => {
   // Check if the user is already has editor or admin permissions for the collection
   const existingMember = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId: userid,
     },
   });
 
@@ -85,9 +86,9 @@ export default defineEventHandler(async (event) => {
   // Create a new collection access record
   const editorAccess = await prisma.collectionAccess.create({
     data: {
-      collection_id: collectionid,
+      collectionId,
       role: "editor",
-      user_id: userid,
+      userId: userid,
     },
   });
 
@@ -95,17 +96,25 @@ export default defineEventHandler(async (event) => {
   const user = await prisma.user.findFirst({
     select: {
       id: true,
-      username: true,
-      name: true,
-      email_address: true,
+      emailAddress: true,
+      familyName: true,
+      givenName: true,
     },
     where: {
       id: userid,
     },
   });
 
+  if (!user) {
+    throw createError({
+      message: "User not found",
+      statusCode: 404,
+    });
+  }
+
   const addedEditor = {
     ...user,
+    name: `${user.givenName} ${user.familyName}`,
     ...editorAccess,
   };
 

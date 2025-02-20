@@ -4,9 +4,7 @@ export default async function getWorkspacePermission(workspaceid: string) {
 
   workspacePermissionGetLoading.value = true;
 
-  await $fetch(`/api/workspaces/${workspaceid}/permissions`, {
-    headers: useRequestHeaders(["cookie"]),
-  })
+  await $fetch(`/api/workspaces/${workspaceid}/permissions`, {})
     .then((data) => {
       workspacePermissionGetLoading.value = false;
 

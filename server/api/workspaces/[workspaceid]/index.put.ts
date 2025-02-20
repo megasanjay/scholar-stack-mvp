@@ -1,7 +1,8 @@
 import { z } from "zod";
+import workspaceMinOwnerPermission from "~/server/utils/workspace/workspaceMinOwnerPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   const bodySchema = z
     .object({
@@ -15,8 +16,8 @@ export default defineEventHandler(async (event) => {
   // Check if the body is present
   if (!body) {
     throw createError({
-      message: "Missing required fields",
       statusCode: 400,
+      statusMessage: "Missing required fields",
     });
   }
 
@@ -27,8 +28,8 @@ export default defineEventHandler(async (event) => {
     console.log(parsedBody.error);
 
     throw createError({
-      message: "The provided parameters are invalid",
       statusCode: 400,
+      statusMessage: "The provided parameters are invalid",
     });
   }
 
@@ -42,8 +43,8 @@ export default defineEventHandler(async (event) => {
 
   if (!workspace) {
     throw createError({
-      message: "Workspace not found",
       statusCode: 404,
+      statusMessage: "Workspace not found",
     });
   }
 
@@ -59,13 +60,13 @@ export default defineEventHandler(async (event) => {
 
   if (!updatedWorkspace) {
     throw createError({
-      message: "Workspace not found",
       statusCode: 404,
+      statusMessage: "Workspace not found",
     });
   }
 
   return {
-    message: "Workspace updated",
     statusCode: 200,
+    statusMessage: "Workspace updated",
   };
 });

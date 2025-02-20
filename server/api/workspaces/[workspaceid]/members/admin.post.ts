@@ -1,7 +1,8 @@
 import { z } from "zod";
+import workspaceMinOwnerPermission from "~/server/utils/workspace/workspaceMinOwnerPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   const bodySchema = z
     .object({
@@ -59,8 +60,8 @@ export default defineEventHandler(async (event) => {
   const workspaceOwner = await prisma.workspaceMember.findFirst({
     where: {
       owner: true,
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -74,8 +75,8 @@ export default defineEventHandler(async (event) => {
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -90,8 +91,8 @@ export default defineEventHandler(async (event) => {
   const workspaceAdmin = await prisma.workspaceMember.findFirst({
     where: {
       admin: true,
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -108,8 +109,8 @@ export default defineEventHandler(async (event) => {
       admin: true,
     },
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 

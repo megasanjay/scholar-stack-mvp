@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { FormInst, FormItemRule, SelectOption } from "naive-ui";
+import type { FormSubmitEvent, FormError } from "#ui/types";
 
-import type { VNodeChild } from "vue";
 import { faker } from "@faker-js/faker";
-import { Icon } from "#components";
 
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
@@ -14,6 +12,11 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+useSeoMeta({
+  title: "Edit resource",
+});
+
+const toast = useToast();
 const route = useRoute();
 
 const { collectionid, resourceid, workspaceid } = route.params as {
@@ -22,97 +25,97 @@ const { collectionid, resourceid, workspaceid } = route.params as {
   workspaceid: string;
 };
 
-const resourceStore = useResourceStore();
+const createForm = useTemplateRef("createForm");
 
-const formRef = ref<FormInst | null>(null);
+const loading = ref(false);
 
-const formData = reactive<ResourceType>({
-  id: resourceid,
-  title: faker.commerce.productName(),
-  back_link_id: "",
-  created: "",
-  description: "",
-  filled_in: false,
-  identifier: "",
-  identifier_type: null,
-  resource_type: "",
-  updated: "",
-  version_label: "",
-});
+const validateForm = (_state: any): FormError[] => {
+  const errrors = [];
 
-const rules = {
-  title: {
-    message: "Please enter a title",
-    required: true,
-    trigger: ["blur", "input"],
-  },
-  description: {
-    message: "Please enter a description",
-    required: true,
-    trigger: ["blur", "input"],
-  },
-  identifier: {
-    required: true,
-    trigger: ["blur", "input"],
-    validator(rule: FormItemRule, value: string) {
-      if (!value) {
-        return new Error("Please enter your identifier");
-      }
+  if (!state.title) {
+    errrors.push({
+      name: "title",
+      message: "Title is required",
+    });
+  }
 
-      if (selectedIdentifier.value && selectedIdentifier.value.pattern) {
-        const pattern = new RegExp(selectedIdentifier.value.pattern);
+  if (!state.description) {
+    errrors.push({
+      name: "description",
+      message: "Description is required",
+    });
+  }
 
-        if (!pattern.test(value)) {
-          return new Error(
-            `Please enter a valid ${selectedIdentifier.value.label} identifier`,
-          );
-        }
-      }
+  if (!state.identifier) {
+    errrors.push({
+      name: "identifier",
+      message: "Identifier is required",
+    });
+  }
 
-      return true;
-    },
-  },
-  identifier_type: {
-    message: "Please enter a type",
-    required: true,
-    trigger: ["blur", "input"],
-  },
-  resource_type: {
-    message: "Please enter a type",
-    required: true,
-    trigger: ["blur", "change"],
-  },
+  if (!state.identifierType) {
+    errrors.push({
+      name: "identifierType",
+      message: "Identifier type is required",
+    });
+  }
+
+  if (state.identifierType && state.identifier) {
+    // run the identifier regex against the identifier
+    const identifierRegex = new RegExp(
+      identifierTypeOptions.find((i) => i.value === state.identifierType)
+        ?.pattern || "",
+    );
+
+    if (!identifierRegex.test(state.identifier)) {
+      errrors.push({
+        name: "identifier",
+        message: "Identifier is not in the correct format",
+      });
+    }
+  }
+
+  if (!state.resourceType) {
+    errrors.push({
+      name: "resourceType",
+      message: "Resource type is required",
+    });
+  }
+
+  return errrors;
 };
 
+const state = reactive({
+  title: faker.commerce.productName(),
+  description: faker.lorem.paragraph(),
+  identifier: faker.internet.url(),
+  identifierType: "url",
+  resourceType: "other",
+  versionLabel: `v${faker.number.int({ max: 10, min: 1 })}.${faker.number.int({
+    max: 10,
+    min: 1,
+  })}.${faker.number.int({ max: 10, min: 1 })}`,
+});
+
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+
 const identifierTypeOptions = PREFIX_JSON;
 
 // Reorganize resource type options in alphabetical order
 resourceTypeOptions.sort((a, b) => a.label.localeCompare(b.label));
 
-const selectedIdentifier = computed(() => {
-  const identifier = identifierTypeOptions.find(
-    (prefix) => prefix.value === formData.identifier_type,
-  );
-
-  return identifier;
-});
-
-const saveResourceLoadingIndicator = ref(false);
-
 const { data: resource, error } = await useFetch(
-  `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  `/api/workspaces/${workspaceid}/collections/${collectionid}/resource/${resourceid}`,
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your resource",
+    color: "error",
+    description: "We couldn't load your resource",
+    icon: "material-symbols:error",
   });
 
   navigateTo(
@@ -127,9 +130,12 @@ if (resource.value && "action" in resource.value) {
     resource.value.action === "delete" ||
     resource.value.action === "oldVersion"
   ) {
-    push.error({
+    toast.add({
       title: "Resource marked for deletion",
-      message: "You will need to undelete this resource before you can view it",
+      color: "error",
+      description:
+        "You will need to undelete this resource before you can view it",
+      icon: "material-symbols:error",
     });
 
     navigateTo(
@@ -139,17 +145,12 @@ if (resource.value && "action" in resource.value) {
     throw new Error("Resource marked for deletion");
   }
 
-  formData.title = resource.value.title || faker.commerce.productName();
-  formData.description = resource.value.description || faker.lorem.paragraph();
-  formData.identifier = resource.value.identifier || faker.internet.url();
-  formData.identifier_type = resource.value.identifier_type || "url";
-  formData.resource_type = resource.value.resource_type || "other";
-  formData.version_label = resource.value.version_label || "";
-
-  formData.created = resource.value.created || "";
-  formData.updated = resource.value.updated || "";
-  formData.filled_in = resource.value.filled_in || false;
-  formData.back_link_id = resource.value.back_link_id || null;
+  state.title = resource.value.title || faker.commerce.productName();
+  state.description = resource.value.description || faker.lorem.paragraph();
+  state.identifier = resource.value.identifier || faker.internet.url();
+  state.identifierType = resource.value.identifierType || "url";
+  state.resourceType = resource.value.resourceType || "other";
+  state.versionLabel = resource.value.versionLabel || "";
 }
 
 const { collectionPermissionAbility, collectionPermissionGetLoading } =
@@ -162,114 +163,56 @@ const disableEditing = computed(() => {
   );
 });
 
-const selectIcon = (type: string) => {
-  const resourceType = resourceTypeOptions.find(
-    (resourceType) => resourceType.value === type,
-  );
+async function onSubmit(event: FormSubmitEvent<any>) {
+  const b = {
+    title: event.data.title || "",
+    description: event.data.description || "",
+    identifier: event.data.identifier || "",
+    identifierType: event.data.identifierType || "",
+    resourceType: event.data.resourceType || "",
+    versionLabel: event.data.versionLabel || "",
+  };
 
-  if (resourceType) {
-    return resourceType.icon;
-  }
+  loading.value = true;
 
-  return "mdi:file-question";
-};
+  await $fetch(
+    `/api/workspaces/${workspaceid}/collections/${collectionid}/resource/${resourceid}`,
+    {
+      body: JSON.stringify(b),
+      method: "PUT",
+    },
+  )
+    .then(() => {
+      loading.value = false;
 
-const renderLabel = (option: SelectOption): VNodeChild => {
-  return [
-    h(
-      Icon,
-      { name: selectIcon(option.value as string), class: "mr-1", size: "20" },
-      {
-        default: () => null,
-      },
-    ),
-    option.label as string,
-  ];
-};
+      toast.add({
+        title: "Success",
+        color: "success",
+        description: "Your resource has been updated",
+        icon: "material-symbols:check-circle-outline",
+      });
 
-const selectResourceType = (value: string) => {
-  if (value === "url") {
-    return;
-  }
+      // navigate to the resource
+      navigateTo(
+        `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
+      );
+    })
+    .catch((error) => {
+      loading.value = false;
 
-  const curi = identifierTypeOptions.find((prefix) => prefix.value === value);
+      console.log(error);
 
-  if (curi && curi.type !== "other") {
-    formData.resource_type = curi.type;
-  }
-};
-
-const saveResourceData = () => {
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      const body = {
-        title: formData.title,
-        description: formData.description,
-        identifier: formData.identifier,
-        identifierType: formData.identifier_type,
-        resourceType: formData.resource_type,
-        versionLabel: formData.version_label,
-      };
-
-      saveResourceLoadingIndicator.value = true;
-
-      await $fetch(
-        `/api/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
-        {
-          body: JSON.stringify(body),
-          headers: useRequestHeaders(["cookie"]),
-          method: "PUT",
-        },
-      )
-        .then((data) => {
-          saveResourceLoadingIndicator.value = false;
-
-          if (data) {
-            push.success({
-              title: "Saved successfully",
-              message: "Your resource has been updated",
-            });
-
-            const updatedResource: ResourceType = {
-              id: resourceid,
-              title: formData.title,
-              back_link_id: formData.back_link_id,
-              created: formData.created,
-              description: formData.description,
-              filled_in: true,
-              identifier: formData.identifier,
-              identifier_type: formData.identifier_type,
-              resource_type: formData.resource_type,
-              updated: formData.updated,
-              version_label: formData.version_label,
-            };
-
-            resourceStore.setResource(updatedResource, resourceid);
-
-            navigateTo(
-              `/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}`,
-            );
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-
-          push.error({
-            title: "Something went wrong",
-            message: "We couldn't save your resource",
-          });
-
-          throw new Error("Something went wrong");
-        })
-        .finally(() => {
-          saveResourceLoadingIndicator.value = false;
-        });
-    } else {
-      console.log(errors);
-      console.log("Invalid");
-    }
-  });
-};
+      toast.add({
+        title: "Something went wrong",
+        color: "error",
+        description: "We couldn't save your resource",
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
 </script>
 
 <template>
@@ -278,130 +221,117 @@ const saveResourceData = () => {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <h1>Edit resource</h1>
+        <h1 class="text-4xl font-black">Edit resource</h1>
 
         <div class="flex items-center space-x-2">
-          <n-button
-            size="large"
-            color="black"
-            :loading="saveResourceLoadingIndicator"
-            :disabled="disableEditing"
-            @click="saveResourceData"
-          >
-            <template #icon>
-              <Icon name="humbleicons:save" />
-            </template>
-
-            Save changes
-          </n-button>
+          <div class="flex items-center space-x-2">
+            <UButton
+              color="primary"
+              icon="humbleicons:save"
+              size="lg"
+              :loading="loading"
+              :disabled="disableEditing"
+              @click="createForm?.submit()"
+            >
+              Save changes
+            </UButton>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 py-10 lg:px-20">
-      <n-form
-        ref="formRef"
-        :label-width="80"
-        :model="formData"
-        :rules="rules"
-        size="large"
+      <UForm
+        ref="createForm"
+        :validate="validateForm"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
       >
-        <n-form-item path="identifier_type" label="Identifier Type">
-          <div class="flex w-full flex-col">
-            <n-select
-              v-model:value="formData.identifier_type"
-              filterable
-              placeholder="DOI"
-              :disabled="
-                !!(
-                  resource &&
-                  'action' in resource &&
-                  (resource?.action === 'clone' ||
-                    resource?.action === 'oldVersion')
-                )
-              "
-              :options="identifierTypeOptions"
-              @update:value="selectResourceType"
-            />
-
-            <p class="mt-2 text-sm text-slate-500">
-              Select the type of identifier you are linking to.
-            </p>
-          </div>
-        </n-form-item>
-
-        <n-form-item path="identifier" label="Resource Identifier">
-          <div class="flex w-full flex-col">
-            <n-input
-              v-model:value="formData.identifier"
-              :placeholder="selectedIdentifier?.placeholder"
-              type="text"
-              :disabled="
-                !formData.identifier_type ||
-                !!(
-                  resource &&
-                  'action' in resource &&
-                  (resource?.action === 'clone' ||
-                    resource?.action === 'oldVersion')
-                )
-              "
-              clearable
-              @keydown.enter.prevent
-            />
-
-            <n-collapse-transition :show="!!formData.identifier">
-              <p class="mt-2 text-sm text-slate-500">
-                Click here to see if your linked resource is available and
-                resolves correctly.
-              </p>
-            </n-collapse-transition>
-          </div>
-        </n-form-item>
-
-        <n-form-item label="Title" path="title">
-          <n-input
-            v-model:value="formData.title"
+        <UFormField label="Title" name="title">
+          <UInput
+            v-model="state.title"
+            size="lg"
             placeholder="My random resource"
-            clearable
           />
-        </n-form-item>
+        </UFormField>
 
-        <n-form-item label="Description" path="description">
-          <n-input
-            v-model:value="formData.description"
+        <UFormField label="Description" name="description">
+          <UTextarea
+            v-model="state.description"
+            :maxrows="4"
+            size="lg"
             placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
-            type="textarea"
-            clearable
           />
-        </n-form-item>
+        </UFormField>
 
-        <n-form-item label="Version" path="version">
-          <div class="flex w-full flex-col">
-            <n-input
-              v-model:value="formData.version_label"
-              placeholder="v1.0.0"
-              clearable
-            />
-
-            <p class="mt-2 text-sm text-slate-500">
-              Adding a version label will allow you to keep track of changes to
-              your resource.
-            </p>
-          </div>
-        </n-form-item>
-
-        <n-form-item path="resource_type" label="Resource Type">
-          <n-select
-            v-model:value="formData.resource_type"
-            filterable
-            clearable
-            :options="resourceTypeOptions"
-            :render-label="renderLabel"
+        <UFormField label="Identifier Type" name="identifierType">
+          <USelect
+            v-model="state.identifierType"
+            :items="identifierTypeOptions"
+            placeholder="DOI"
+            :disabled="
+              !!(
+                resource &&
+                'action' in resource &&
+                (resource?.action === 'clone' ||
+                  resource?.action === 'oldVersion')
+              )
+            "
+            class="w-full"
+            size="lg"
           />
-        </n-form-item>
-      </n-form>
+        </UFormField>
+
+        <UFormField label="Identifier" name="identifier">
+          <UInput
+            v-model="state.identifier"
+            :placeholder="
+              identifierTypeOptions.find(
+                (i) => i.value === state.identifierType,
+              )?.placeholder || ''
+            "
+            clearable
+            :disabled="
+              !!(
+                resource &&
+                'action' in resource &&
+                (resource?.action === 'clone' ||
+                  resource?.action === 'oldVersion')
+              )
+            "
+            size="lg"
+          />
+        </UFormField>
+
+        <UFormField label="Resource Type" name="resourceType">
+          <USelect
+            v-model="state.resourceType"
+            :items="resourceTypeOptions"
+            placeholder="Other"
+            class="w-full"
+            size="lg"
+          />
+
+          <p class="mt-2 text-sm text-slate-500">
+            Select the type of resource you are linking to.
+          </p>
+        </UFormField>
+
+        <UFormField label="Version" name="version">
+          <UInput
+            v-model="state.versionLabel"
+            placeholder="v1.0.0"
+            clearable
+            size="lg"
+          />
+
+          <p class="mt-2 text-sm text-slate-500">
+            Adding a version label will allow you to keep track of changes to
+            your resource.
+          </p>
+        </UFormField>
+      </UForm>
     </div>
-
-    <ModalNewCollection />
   </main>
 </template>

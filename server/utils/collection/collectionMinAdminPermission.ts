@@ -1,22 +1,22 @@
 import prisma from "~/server/utils/prisma";
-import { serverSupabaseUser } from "#supabase/server";
+import collectionExists from "~/server/utils/collection/collectionExists";
+import workspacePermission from "~/server/utils/workspace/workspacePermission";
 
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event);
-  const userid = user?.id as string;
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
 
   // Check if the collection exists in the workspace
-  const collectionid = await collectionExists(event);
+  const collectionId = await collectionExists(event);
 
   const { workspaceid } = event.context.params as {
     workspaceid: string;
   };
 
   // workspace admins also have collection admin permission by default
-  const { permission } = await workspacePermission(
-    workspaceid,
-    user?.id as string,
-  );
+  const { permission } = await workspacePermission(workspaceid, userId);
 
   if (permission === "admin" || permission === "owner") {
     return {
@@ -28,8 +28,8 @@ export default defineEventHandler(async (event) => {
   // Check access table for the workspace
   const collectionAccess = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId,
     },
   });
 

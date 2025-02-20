@@ -3,7 +3,7 @@ import sanitizeHtml from "sanitize-html";
 import { MdEditor, config } from "md-editor-v3";
 import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
-import TargetBlankExtension from "@/utils/TargetBlankExtension";
+import TargetBlankExtension from "~/utils/TargetBlankExtension";
 
 config({
   markdownItConfig(md) {
@@ -11,11 +11,13 @@ config({
   },
 });
 
+const toast = useToast();
+
 const collectionTypeOptions = COLLECTION_TYPE_JSON;
 
 const files = ref();
 
-const versionId = ref("");
+const versionId = ref(0);
 const collectionImage = ref("");
 const collectionName = ref("");
 const collectionDescription = ref("");
@@ -36,17 +38,17 @@ const { collectionid, workspaceid } = useRoute().params as {
 
 const { data: collection, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your workspace details",
+    color: "error",
+    description: "We couldn't load your collection details",
+    icon: "material-symbols:error",
   });
 
   navigateTo("/dashboard");
@@ -56,10 +58,10 @@ if (collection.value) {
   collectionName.value = collection.value.title;
   collectionDescription.value = collection.value.description;
   collectionDetailedDescription.value = collection.value.detailedDescription;
-  collectionImage.value = `${collection.value.image_url}?t=${collection.value.updated}`;
+  collectionImage.value = `${collection.value.imageUrl}?t=${collection.value.updated}`;
   collectionType.value = collection.value.type;
 
-  versionId.value = collection.value.version?.id || "N/A";
+  versionId.value = collection.value.version?.id || 0;
 }
 
 const openDiscardVersionModal = () => {
@@ -72,16 +74,17 @@ const discardDraftVersion = async () => {
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/version`,
     {
-      headers: useRequestHeaders(["cookie"]),
       method: "DELETE",
     },
   )
     .then((_res) => {
       discardVersionLoading.value = false;
 
-      push.success({
+      toast.add({
         title: "Success",
-        message: "We discarded the draft version",
+        color: "success",
+        description: "We discarded the draft version",
+        icon: "material-symbols:check-circle-outline",
       });
 
       // refresh the page
@@ -92,9 +95,11 @@ const discardDraftVersion = async () => {
 
       console.log(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't discard the draft version",
+        color: "error",
+        description: "We couldn't discard the draft version",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -106,14 +111,15 @@ const hideCollection = async () => {
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/hide`,
     {
-      headers: useRequestHeaders(["cookie"]),
       method: "PUT",
     },
   )
-    .then((_res) => {
-      push.success({
+    .then(() => {
+      toast.add({
         title: "Success",
-        message: "Your collection has been hidden",
+        color: "success",
+        description: "Your collection has been hidden",
+        icon: "material-symbols:check-circle-outline",
       });
 
       navigateTo(`/dashboard/workspaces/${workspaceid}`);
@@ -121,32 +127,38 @@ const hideCollection = async () => {
     .catch((err) => {
       console.error(err);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't hide your collection",
+        color: "error",
+        description: "We couldn't hide your collection",
+        icon: "material-symbols:error",
       });
     });
 };
 
 const deleteCollection = async () => {
   await $fetch(`/api/workspaces/${workspaceid}/collections/${collectionid}`, {
-    headers: useRequestHeaders(["cookie"]),
     method: "DELETE",
   })
-    .then((_res) => {
-      push.success({
+    .then(() => {
+      toast.add({
         title: "Success",
-        message: "Your collection has been deleted",
+        color: "success",
+        description: "Your collection has been deleted",
+        icon: "material-symbols:check-circle-outline",
       });
 
       navigateTo(`/dashboard/workspaces/${workspaceid}`);
     })
+
     .catch((err) => {
       console.log(err);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't delete your collection",
+        color: "error",
+        description: "We couldn't delete your collection",
+        icon: "material-symbols:error",
       });
     });
 };
@@ -161,14 +173,16 @@ const updateCollectionDetails = async () => {
       detailedDescription: collectionDetailedDescription.value.trim(),
       type: collectionType.value,
     }),
-    headers: useRequestHeaders(["cookie"]),
+
     method: "PUT",
   })
     .then((_res) => {
-      push.success({
+      toast.add({
         title: "Success",
-        message:
+        color: "success",
+        description:
           "Your collection details have been updated. Please wait for a few seconds to see the changes.",
+        icon: "material-symbols:check-circle-outline",
       });
 
       window.location.reload();
@@ -176,9 +190,11 @@ const updateCollectionDetails = async () => {
     .catch((err) => {
       console.log(err);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't update your collection details",
+        color: "error",
+        description: "We couldn't update your collection details",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -204,9 +220,11 @@ const updateThumbnail = async (evt: any) => {
 
     // Limit file size to 2MB
     if (fileSize > 2 * 1024 * 1024) {
-      push.error({
+      toast.add({
         title: "Error",
-        message: "File size must be less than 2MB",
+        color: "error",
+        description: "File size must be less than 2MB",
+        icon: "material-symbols:error",
       });
 
       throw new Error("File size must be less than 2MB");
@@ -214,9 +232,11 @@ const updateThumbnail = async (evt: any) => {
 
     // Check if the file is an image
     if (!fileType.startsWith("image/")) {
-      push.error({
+      toast.add({
         title: "Error",
-        message: "You must select an image file",
+        color: "error",
+        description: "You must select an image file",
+        icon: "material-symbols:error",
       });
 
       throw new Error("You must select an image file");
@@ -230,14 +250,16 @@ const updateThumbnail = async (evt: any) => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/thumbnail`,
       {
         body: formData,
-        headers: useRequestHeaders(["cookie"]),
+
         method: "PUT",
       },
     )
       .then(() => {
-        push.success({
+        toast.add({
           title: "Success",
-          message: "Your collection thumbnail has been updated",
+          color: "success",
+          description: "Your collection thumbnail has been updated",
+          icon: "material-symbols:check-circle-outline",
         });
 
         // const newFileName = `${fileName}.${fileExt}`;
@@ -248,15 +270,21 @@ const updateThumbnail = async (evt: any) => {
       })
       .catch((error) => {
         console.error("Error uploading image: ", error.message);
-        push.error({
+        toast.add({
           title: "Error",
-          message: "Could not upload image. Please try again",
+          color: "error",
+          description: "Could not upload image. Please try again",
+          icon: "material-symbols:error",
         });
       });
-  } catch (error) {
-    push.error({
+  } catch (error: any) {
+    console.error("Error uploading image: ", error.message);
+
+    toast.add({
       title: "Error",
-      message: "Something went wrong. Please try again.",
+      color: "error",
+      description: "Something went wrong. Please try again.",
+      icon: "material-symbols:error",
     });
   } finally {
     thumbnailLoading.value = false;
@@ -274,28 +302,28 @@ const updateThumbnail = async (evt: any) => {
           Click on the thumbnail to upload a custom one from your device.
         </p>
 
-        <n-spin :show="thumbnailLoading">
-          <div class="relative">
-            <label class="" for="single">
-              <n-avatar
-                :src="collectionImage"
-                :size="100"
-                alt="Collection Thumbnail"
-                class="cursor-pointer bg-transparent transition-all hover:opacity-70"
-              />
-            </label>
-
-            <input
-              id="single"
-              style="position: absolute; visibility: hidden"
-              type="file"
-              accept="image/*"
-              class="absolute inset-0 hidden"
-              :disabled="thumbnailLoading"
-              @change="updateThumbnail"
+        <div class="relative">
+          <label class="" for="single">
+            <UAvatar
+              :src="
+                collectionImage ||
+                'https://api.dicebear.com/6.x/shapes/svg?seed=collection'
+              "
+              size="xl"
+              alt="Collection Thumbnail"
             />
-          </div>
-        </n-spin>
+          </label>
+
+          <input
+            id="single"
+            style="position: absolute; visibility: hidden"
+            type="file"
+            accept="image/*"
+            class="absolute inset-0 hidden"
+            :disabled="thumbnailLoading"
+            @change="updateThumbnail"
+          />
+        </div>
       </div>
 
       <template #action>
@@ -313,27 +341,25 @@ const updateThumbnail = async (evt: any) => {
         be shown in the public catalog page.
       </p>
 
-      <n-input
-        v-model:value="collectionName"
+      <UInput
+        v-model="collectionName"
         placeholder="Collection Name"
         class="w-full"
-        size="large"
+        size="lg"
       />
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            color="black"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             :disabled="collectionName.trim() === ''"
             @click="updateCollectionDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
             Save
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -345,30 +371,26 @@ const updateThumbnail = async (evt: any) => {
         collection.
       </p>
 
-      <n-input
-        v-model:value="collectionDescription"
+      <UTextarea
+        v-model="collectionDescription"
         placeholder="Collection Description"
         class="w-full"
-        type="textarea"
-        size="large"
-        show-count
-        :maxlength="350"
+        size="lg"
+        :rows="4"
       />
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            color="black"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             :disabled="collectionDescription.trim() === ''"
             @click="updateCollectionDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
             Save
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -392,18 +414,16 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            color="black"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             :disabled="collectionDetailedDescription.trim() === ''"
             @click="updateCollectionDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
             Save
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -414,26 +434,25 @@ const updateThumbnail = async (evt: any) => {
         type will help users understand the purpose of your collection.
       </p>
 
-      <n-select
-        v-model:value="collectionType"
-        filterable
-        size="large"
-        :options="collectionTypeOptions"
+      <USelect
+        v-model="collectionType"
+        :items="collectionTypeOptions"
+        placeholder="Select a collection type"
+        class="w-full"
+        size="lg"
       />
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            color="black"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             @click="updateCollectionDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
             Save
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -443,20 +462,12 @@ const updateThumbnail = async (evt: any) => {
         This is your collection's unique ID within the platform.
       </p>
 
-      <n-input-group>
-        <n-input
-          v-model:value="collectionid"
-          size="large"
-          :style="{ width: '50%' }"
-          disabled
-        />
-
-        <n-button type="info" secondary size="large">
-          <template #icon>
-            <Icon name="ic:round-content-copy" />
-          </template>
-        </n-button>
-      </n-input-group>
+      <UInput
+        v-model="collectionid"
+        disabled
+        size="lg"
+        icon="mdi:content-copy"
+      />
 
       <template #action>
         <div class="flex h-full items-center justify-start">
@@ -472,20 +483,7 @@ const updateThumbnail = async (evt: any) => {
         This is your collection's version ID within the platform.
       </p>
 
-      <n-input-group>
-        <n-input
-          v-model:value="versionId"
-          size="large"
-          :style="{ width: '50%' }"
-          disabled
-        />
-
-        <n-button type="info" secondary size="large">
-          <template #icon>
-            <Icon name="ic:round-content-copy" />
-          </template>
-        </n-button>
-      </n-input-group>
+      <UInput v-model="versionId" disabled size="lg" icon="mdi:content-copy" />
 
       <template #action>
         <div class="flex h-full items-center justify-start">
@@ -505,70 +503,70 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button type="warning" @click="openDiscardVersionModal">
-            <template #icon>
-              <Icon name="bx:reset" />
+          <UModal v-model="discardVersionModalIsOpen">
+            <UButton
+              color="warning"
+              icon="bx:reset"
+              @click="openDiscardVersionModal"
+            >
+              Reset collection
+            </UButton>
+
+            <template #content>
+              <UCard>
+                <div class="sm:flex sm:items-start">
+                  <div class="size-[50px]">
+                    <ClientOnly>
+                      <Vue3Lottie
+                        animation-link="https://cdn.lottiel.ink/assets/D_t3nuMGrtwzjOGX2UXXI.json"
+                        :height="50"
+                        :width="50"
+                        :loop="1"
+                      />
+                    </ClientOnly>
+                  </div>
+
+                  <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                      Are you sure you want to reset this collection?
+                    </h3>
+
+                    <div class="mt-2">
+                      <p class="text-sm text-gray-500">
+                        This will discard any changes you have made. This action
+                        is not reversible, so please continue with caution.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <template #footer>
+                  <div class="flex items-center justify-end space-x-2">
+                    <UButton
+                      icon="material-symbols:cancel-outline"
+                      color="error"
+                      variant="soft"
+                      @click="discardVersionModalIsOpen = false"
+                    >
+                      Cancel
+                    </UButton>
+
+                    <UButton
+                      color="warning"
+                      icon="bx:reset"
+                      :loading="discardVersionLoading"
+                      @click="discardDraftVersion"
+                    >
+                      Reset collection
+                    </UButton>
+                  </div>
+                </template>
+              </UCard>
             </template>
-            Reset collection
-          </n-button>
+          </UModal>
         </div>
       </template>
     </CardWithAction>
-
-    <UModal
-      v-model="discardVersionModalIsOpen"
-      :prevent-close="discardVersionLoading"
-    >
-      <UCard>
-        <div class="sm:flex sm:items-start">
-          <div class="size-[50px]">
-            <ClientOnly>
-              <Vue3Lottie
-                animation-link="https://cdn.lottiel.ink/assets/D_t3nuMGrtwzjOGX2UXXI.json"
-                :height="50"
-                :width="50"
-                :loop="1"
-              />
-            </ClientOnly>
-          </div>
-
-          <div class="mt-2 text-center sm:ml-4 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">
-              Are you sure you want to reset this collection?
-            </h3>
-
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                This will discard any changes you have made. This action is not
-                reversible, so please continue with caution.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex items-center justify-end space-x-2">
-            <n-button secondary @click="discardVersionModalIsOpen = false">
-              <template #icon>
-                <Icon name="material-symbols:cancel-outline" />
-              </template>
-              Cancel
-            </n-button>
-
-            <n-button
-              type="warning"
-              :loading="discardVersionLoading"
-              @click="discardDraftVersion"
-            >
-              <template #icon>
-                <Icon name="bx:reset" />
-              </template>
-              Reset collection
-            </n-button>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
 
     <CardWithAction title="Hide collection">
       <p class="my-3 text-sm">
@@ -578,12 +576,9 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button type="error" secondary @click="hideCollection">
-            <template #icon>
-              <Icon name="mdi:hide" />
-            </template>
+          <UButton color="error" icon="mdi:hide" @click="hideCollection">
             Hide
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -597,12 +592,9 @@ const updateThumbnail = async (evt: any) => {
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button type="error" @click="deleteCollection">
-            <template #icon>
-              <Icon name="ic:round-delete" />
-            </template>
+          <UButton color="error" icon="mdi:delete" @click="deleteCollection">
             Delete
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>

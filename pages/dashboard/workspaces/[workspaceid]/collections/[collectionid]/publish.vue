@@ -6,6 +6,7 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const toast = useToast();
 const route = useRoute();
 
 const publishCollectionModalIsOpen = ref(false);
@@ -19,17 +20,17 @@ const { collectionid, workspaceid } = route.params as {
 const { data: collection, error: collectionError } =
   await useFetch<CollectionGETAPIResponse>(
     `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   );
 
 if (collectionError.value) {
   console.log(collectionError.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your collectionss",
+    color: "error",
+    description: "We couldn't load your collectionss",
+    icon: "material-symbols:error",
   });
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
@@ -56,7 +57,6 @@ const {
 } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/validate`,
   {
-    headers: useRequestHeaders(["cookie"]),
     lazy: true,
     server: false,
   },
@@ -72,16 +72,17 @@ const publishCollection = async () => {
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/publish`,
     {
-      headers: useRequestHeaders(["cookie"]),
       method: "POST",
     },
   )
     .then((_res) => {
       publishCollectionLoading.value = false;
 
-      push.success({
+      toast.add({
         title: "Collection published",
-        message: "Your collection has been published",
+        color: "success",
+        description: "Your collection has been published",
+        icon: "material-symbols:check-circle-outline",
       });
 
       // navigate to collection overview using window.location.href
@@ -94,9 +95,11 @@ const publishCollection = async () => {
 
       console.log(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't publish your collection",
+        color: "error",
+        description: "We couldn't publish your collection",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -112,13 +115,17 @@ const publishCollection = async () => {
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
         <div class="flex w-full items-center justify-between">
-          <h1 class="mb-2">Publish</h1>
+          <h1 class="text-4xl font-black">Publish</h1>
 
-          <n-flex align="center">
-            <n-button
+          <UModal
+            v-model="publishCollectionModalIsOpen"
+            :prevent-close="publishCollectionLoading"
+          >
+            <UButton
               v-if="!collection?.version?.published"
-              size="large"
-              color="black"
+              size="lg"
+              color="primary"
+              icon="entypo:publish"
               :loading="validationPending || publishCollectionLoading"
               :disabled="
                 validationPending ||
@@ -128,37 +135,91 @@ const publishCollection = async () => {
               "
               @click="openPublishCollectionModal"
             >
-              <template #icon>
-                <Icon name="entypo:publish" />
-              </template>
-
               Publish
-            </n-button>
-          </n-flex>
+            </UButton>
+
+            <template #content>
+              <UCard>
+                <div class="sm:flex sm:items-start">
+                  <div class="size-[50px]">
+                    <ClientOnly>
+                      <Vue3Lottie
+                        animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                        :height="50"
+                        :width="50"
+                        :loop="1"
+                      />
+                    </ClientOnly>
+                  </div>
+
+                  <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                      Are you sure you want to publish this collection?
+                    </h3>
+
+                    <div class="mt-2">
+                      <p class="text-sm text-gray-500">
+                        This action is not reversible and will make the
+                        collection public. If needed, you can always publish a
+                        newer version but this version will always still be
+                        available to the public.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <template #footer>
+                  <div class="flex items-center justify-end space-x-2">
+                    <UButton
+                      color="error"
+                      variant="soft"
+                      icon="material-symbols:cancel-outline"
+                      @click="publishCollectionModalIsOpen = false"
+                    >
+                      Cancel
+                    </UButton>
+
+                    <UButton
+                      color="primary"
+                      :loading="publishCollectionLoading"
+                      icon="entypo:publish"
+                      @click="publishCollection"
+                    >
+                      Publish collection
+                    </UButton>
+                  </div>
+                </template>
+              </UCard>
+            </template>
+          </UModal>
         </div>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pt-10 lg:px-20">
-      <n-alert type="warning" title="Warning!">
-        You are about to publish the collection
-        <strong>{{ collection?.title }}</strong
-        >.
-
-        <br />
-
-        This will make the collection available to the public under the version
-        <n-tag type="success" size="small">
-          {{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
-        </n-tag>
-      </n-alert>
+      <UAlert
+        color="warning"
+        title="Warning!"
+        icon="material-symbols:warning"
+        variant="subtle"
+      >
+        <template #description>
+          You are about to publish the collection
+          <strong>{{ collection?.title }}</strong
+          >. This will make the collection available to the public under the
+          version
+          <UBadge color="success" size="sm">
+            {{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
+          </UBadge>
+        </template>
+      </UAlert>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pb-5 pt-10">
-        <n-flex align="center">
-          <h3>Let's see if all details are provided</h3>
-        </n-flex>
+      <div class="flex items-center justify-between space-x-4 pt-10 pb-5">
+        <h2 class="text-2xl font-bold">
+          Let's see if all details are provided
+        </h2>
       </div>
 
       <TransitionFade>
@@ -172,26 +233,25 @@ const publishCollection = async () => {
           </client-only>
         </div>
 
-        <n-flex v-else vertical>
-          <n-flex
+        <div v-else class="flex flex-col gap-4">
+          <div
             v-if="
               validationResults?.errors && validationResults.errors.length > 0
             "
-            vertical
+            class="flex flex-col gap-4"
           >
-            <n-alert
-              type="error"
+            <UAlert
+              color="error"
               title="This collection has some issues that need to be resolved before
-                publishing."
+                publishing"
+              icon="material-symbols:error"
+              variant="subtle"
             >
               Please fix the following issues before publishing the collection.
-            </n-alert>
+            </UAlert>
 
-            <n-list>
-              <n-list-item
-                v-for="error of validationResults.errors"
-                :key="error.id"
-              >
+            <ul>
+              <li v-for="error of validationResults.errors" :key="error.id">
                 <div>
                   <NuxtLink
                     :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${error.id}`"
@@ -216,33 +276,29 @@ const publishCollection = async () => {
                     </li>
                   </ul>
                 </div>
-              </n-list-item>
-            </n-list>
-          </n-flex>
+              </li>
+            </ul>
+          </div>
 
-          <n-flex v-else>
-            <Icon name="mdi:check-circle" size="24" color="green" />
+          <div v-else class="flex gap-2">
+            <Icon name="mdi:check-circle" class="text-green-500" size="24" />
 
             <p>All details are provided. You can now publish the collection.</p>
-          </n-flex>
-        </n-flex>
+          </div>
+        </div>
       </TransitionFade>
 
-      <n-divider />
+      <USeparator class="my-5" />
 
       <div class="flex items-center justify-between space-x-4 py-5">
-        <h3>Changelog</h3>
+        <h2 class="text-2xl font-bold">Changelog</h2>
 
         <NuxtLink
           :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/changelog`"
         >
-          <n-button color="black">
-            <template #icon>
-              <Icon name="mdi:text-box-edit" />
-            </template>
-
+          <UButton color="primary" icon="mdi:text-box-edit">
             Update changelog
-          </n-button>
+          </UButton>
         </NuxtLink>
       </div>
 
@@ -253,65 +309,5 @@ const publishCollection = async () => {
     </div>
 
     <ModalNewCollection />
-
-    <UModal
-      v-model="publishCollectionModalIsOpen"
-      :prevent-close="publishCollectionLoading"
-    >
-      <UCard>
-        <div class="sm:flex sm:items-start">
-          <div class="size-[50px]">
-            <ClientOnly>
-              <Vue3Lottie
-                animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                :height="50"
-                :width="50"
-                :loop="1"
-              />
-            </ClientOnly>
-          </div>
-
-          <div class="mt-2 text-center sm:ml-4 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">
-              Are you sure you want to publish this collection?
-            </h3>
-
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                This action is not reversible and will make the collection
-                public. If needed, you can always publish a newer version but
-                this version will always still be available to the public.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex items-center justify-end space-x-2">
-            <n-button
-              type="error"
-              secondary
-              @click="publishCollectionModalIsOpen = false"
-            >
-              <template #icon>
-                <Icon name="material-symbols:cancel-outline" />
-              </template>
-              Cancel
-            </n-button>
-
-            <n-button
-              color="black"
-              :loading="publishCollectionLoading"
-              @click="publishCollection"
-            >
-              <template #icon>
-                <Icon name="entypo:publish" />
-              </template>
-              Publish collection
-            </n-button>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </main>
 </template>

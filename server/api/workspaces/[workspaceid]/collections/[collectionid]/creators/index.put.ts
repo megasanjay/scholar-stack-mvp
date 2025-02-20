@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
   await collectionMinEditorPermission(event);
 
   const bodySchema = z.array(
@@ -57,8 +58,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -80,14 +83,30 @@ export default defineEventHandler(async (event) => {
 
   const json = creators as Prisma.JsonArray;
 
-  const updatedCollection = await prisma.collection.update({
+  // Get the draft version of the collection
+  const version = await prisma.version.findFirst({
+    where: {
+      collectionId,
+      published: false,
+    },
+  });
+
+  if (!version) {
+    throw createError({
+      message: "Version not found",
+      statusCode: 404,
+    });
+  }
+
+  // Update the version with the new creators
+  const updatedVersion = await prisma.version.update({
     data: {
       creators: json,
     },
-    where: { id: collectionid },
+    where: { id: version.id },
   });
 
-  if (!updatedCollection) {
+  if (!updatedVersion) {
     throw createError({
       message: "Something went wrong",
       statusCode: 404,

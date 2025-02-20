@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   const { workspaceid } = event.context.params as { workspaceid: string };
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
           hidden: true,
         },
       },
-      workspace_id: workspaceid,
+      workspaceId: workspaceid,
     },
   });
 

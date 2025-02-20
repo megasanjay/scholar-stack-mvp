@@ -1,23 +1,12 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient();
+const { loggedIn, user } = useUserSession();
 
-const devMode = process.env.NODE_ENV === "development";
+const devMode = process.env.NODE_ENV !== "production";
 
-const user = useSupabaseUser();
-
-const loggedIn = computed(() => user.value);
-
-console.log("User", user.value);
-
-const logout = async () => {
-  console.log("Logging out");
-
-  const { error } = await supabase.auth.signOut();
-
-  if (error) console.log(error);
-
-  navigateTo("/");
-};
+// Showing an alert for now but can redirect to a verification page later if needed
+const emailVerified = computed(
+  () => loggedIn.value && user.value?.emailVerified,
+);
 </script>
 
 <template>
@@ -34,34 +23,30 @@ const logout = async () => {
             to="/"
             class="flex flex-row items-center justify-start space-x-2"
           >
-            <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
-
             <span class="text-xl font-bold"> SciConnect </span>
           </NuxtLink>
 
           <div class="flex items-center gap-3 lg:order-2">
             <UiColorModeToggle />
 
-            <nuxt-link v-if="!loggedIn" to="/login">
-              <n-button size="large">
-                <span> Log in </span>
-              </n-button>
-            </nuxt-link>
+            <NuxtLink v-if="!loggedIn" to="/login">
+              <UButton label="Log in" size="lg" />
+            </NuxtLink>
 
-            <nuxt-link v-if="!loggedIn" to="/register">
-              <n-button color="black" size="large"> Get started </n-button>
-            </nuxt-link>
+            <NuxtLink v-if="!loggedIn" to="/register">
+              <UButton label="Get started" color="neutral" size="lg" />
+            </NuxtLink>
 
-            <nuxt-link v-if="loggedIn" to="/dashboard">
-              <n-button color="black" size="large"> Dashboard </n-button>
-            </nuxt-link>
+            <NuxtLink v-if="loggedIn" to="/dashboard">
+              <UButton label="Dashboard" color="neutral" size="lg" />
+            </NuxtLink>
 
-            <n-button @click="logout"> Logout </n-button>
+            <UButton label="Logout" color="neutral" size="lg" />
 
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
-              class="ml-1 inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 lg:hidden"
+              class="ml-1 inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-2 focus:ring-gray-200 focus:outline-none lg:hidden"
               aria-controls="mobile-menu-2"
               aria-expanded="false"
             >
@@ -105,7 +90,7 @@ const logout = async () => {
               <li>
                 <a
                   href="#"
-                  class="block border-b border-gray-100 py-2 pl-3 pr-4 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent lg:hover:text-primary-700"
+                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
                 >
                   Team
                 </a>
@@ -114,7 +99,7 @@ const logout = async () => {
               <li>
                 <a
                   href="#"
-                  class="block border-b border-gray-100 py-2 pl-3 pr-4 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent lg:hover:text-primary-700"
+                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
                 >
                   Contact
                 </a>

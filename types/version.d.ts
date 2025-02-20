@@ -8,13 +8,12 @@ interface AllVersionsItem {
 interface AllVersionsType extends Array<AllVersionsItem> {}
 
 interface Version {
-  id: string;
+  id: number;
   name: string;
   changelog: string;
   created: string;
-  identifier: string;
   published: boolean;
-  published_on: string;
+  publishedOn: string;
   updated: string;
 }
 

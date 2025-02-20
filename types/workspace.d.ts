@@ -1,14 +1,13 @@
 interface APIResponseWorkspaceCollectionItem {
-  id: string;
+  id: number;
 
   title: string;
   description: string;
   detailedDescription: string;
-  image_url: string;
+  imageUrl: string;
 
   created: string;
   updated: string;
-  identifier: string;
 
   version: Version | null;
 }

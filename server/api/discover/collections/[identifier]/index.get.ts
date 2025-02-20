@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const { identifier } = event.context.params as { identifier: string };
 
-  const regex = /^[cv][a-zA-Z0-9-_]{8,9}$/;
+  const regex = /^[cv]\d+/;
 
   if (!regex.test(identifier)) {
     throw createError({
@@ -13,19 +13,21 @@ export default defineEventHandler(async (event) => {
   // Get the first character of the identifier
   const type = identifier[0];
 
-  let versionIdentifier = "";
+  let versionId = parseInt(identifier.slice(1));
 
   // if the first character is "c" then it's a collection. We need to get the latest version of this collection
   if (type === "c") {
+    const collectionId = parseInt(identifier.slice(1));
+
     const collection = await prisma.collection.findUnique({
       include: {
-        Versions: {
+        Version: {
           orderBy: { created: "desc" },
           take: 1,
           where: { published: true },
         },
       },
-      where: { identifier },
+      where: { id: collectionId },
     });
 
     if (!collection) {
@@ -35,21 +37,19 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    versionIdentifier = collection.Versions[0].identifier;
-  } else {
-    versionIdentifier = identifier;
+    versionId = collection.Version[0].id;
   }
 
   const version = await prisma.version.findUnique({
     include: {
       collection: true,
-      ExternalRelations: true,
-      InternalRelations: true,
-      Resources: true,
+      ExternalRelation: true,
+      InternalRelation: true,
+      Resource: true,
     },
     where: {
+      id: versionId,
       collection: { private: false },
-      identifier: versionIdentifier,
       published: true,
     },
   });
@@ -65,12 +65,12 @@ export default defineEventHandler(async (event) => {
     orderBy: { created: "desc" },
     where: {
       collection: { private: false },
-      collection_id: version.collection_id,
+      collectionId: version.collectionId,
       published: true,
     },
   });
 
-  const collectionIdentifier = version.collection.identifier;
+  const collectionIdentifier = `c${version.collectionId}`;
 
   await prisma.analytics.create({
     data: {
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
   await prisma.analytics.create({
     data: {
       event: "resolve",
-      identifier: version.identifier,
+      identifier: `v${version.id}`,
       type: "version",
     },
   });
