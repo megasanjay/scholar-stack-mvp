@@ -1,28 +1,17 @@
-import { serverSupabaseUser } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
 
   const { identifier } = event.context.params as {
     identifier: string;
   };
 
-  // Only collection identifiers are allowed
-  const regex = /^[c][a-zA-Z0-9-_]{8,9}$/;
-
-  if (!regex.test(identifier)) {
-    throw createError({
-      message: "Invalid identifier",
-      statusCode: 400,
-    });
-  }
-
-  const user = await serverSupabaseUser(event);
-
-  const userId = user?.id as string;
+  const collectionId = parseInt(identifier);
 
   const collection = await prisma.collection.findUnique({
-    where: { identifier, private: false },
+    where: { id: collectionId, private: false },
   });
 
   if (!collection) {
@@ -34,8 +23,8 @@ export default defineEventHandler(async (event) => {
 
   const starred = await prisma.starred.findFirst({
     where: {
-      collection_id: collection.id,
-      user_id: userId,
+      collectionId,
+      userId,
     },
   });
 
@@ -47,8 +36,8 @@ export default defineEventHandler(async (event) => {
 
   await prisma.starred.create({
     data: {
-      collection_id: collection.id,
-      user_id: userId,
+      collectionId,
+      userId,
     },
   });
 

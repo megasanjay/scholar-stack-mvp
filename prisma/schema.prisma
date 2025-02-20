@@ -1,291 +1,283 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["strictUndefinedChecks"]
 }
 
 generator kysely {
-  provider = "prisma-kysely"
+    provider = "prisma-kysely"
 
-  output   = "../types"
-  fileName = "kysely.ts"
+    output   = "../types"
+    fileName = "kysely.ts"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id String @id @default(cuid())
+    id String @id @default(cuid())
 
-  email_address String @unique
-  username      String @unique
+    givenName  String @default("")
+    familyName String @default("")
 
-  name                  String
-  affiliation           String
-  contact_email_address String
-  website               String
+    affiliation         String @default("")
+    contactEmailAddress String @default("")
+    website             String @default("")
 
-  created DateTime @default(now())
+    emailAddress String @unique
+    password     String
 
-  Notification     Notification[]
-  WorkspaceMember  WorkspaceMember[]
-  CollectionAccess CollectionAccess[]
-  Starred          Starred[]
+    emailVerified                 Boolean   @default(false)
+    emailVerifiedAt               DateTime?
+    emailVerificationToken        String?   @unique
+    emailVerificationTokenExpires DateTime?
 
-  @@index([email_address, username])
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    Notification     Notification[]
+    WorkspaceMember  WorkspaceMember[]
+    Starred          Starred[]
+    CollectionAccess CollectionAccess[]
+
+    @@index([emailAddress])
 }
 
 model Notification {
-  id String @id @default(cuid())
+    id String @id @default(cuid())
 
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
+    title String  @default("")
+    body  String  @default("")
+    type  String  @default("info")
+    url   String  @default("https://sciconnect.io")
+    read  Boolean @default(false)
 
-  title   String @default("")
-  content String @default("")
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  target String @default("https://sciconnect.io")
-
-  read Boolean @default(false)
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  @@index([user_id])
-}
-
-model Invite {
-  email_address String
-
-  workspace    Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  workspace_id String
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  @@id([email_address, workspace_id])
-}
-
-model WorkspaceMember {
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
-
-  workspace    Workspace @relation(fields: [workspace_id], references: [id])
-  workspace_id String
-
-  owner Boolean @default(false)
-  admin Boolean @default(false)
-
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  @@id([user_id, workspace_id])
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 }
 
 model Workspace {
-  id String @id // will use nanoID/custom id for this
+    id String @id @default(cuid())
 
-  title       String @default("")
-  description String @default("")
+    title       String @default("")
+    description String @default("")
 
-  personal Boolean @default(false)
+    personal Boolean @default(false)
 
-  type String @default("organization") // organization | personal
+    type String @default("organization") // organization | personal
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    created         DateTime          @default(now())
+    updated         DateTime          @updatedAt
+    WorkspaceMember WorkspaceMember[]
+    Invite          Invite[]
+    Collection      Collection[]
+}
 
-  Collections     Collection[]
-  WorkspaceMember WorkspaceMember[]
-  Invite          Invite[]
+model WorkspaceMember {
+    workspaceId String
+    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    owner Boolean @default(false)
+    admin Boolean @default(false)
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    @@id([userId, workspaceId])
+}
+
+model Invite {
+    emailAddress String
+
+    workspaceId String
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade) // allows for custom workspace naming
+
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    @@id([emailAddress, workspaceId])
 }
 
 model CollectionAccess {
-  user    User   @relation(fields: [user_id], references: [id])
-  user_id String
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
 
-  Collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
-  collection_id String
+    collectionId Int
+    Collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
-  role   String // admin | editor 
-  hidden Boolean @default(false) // used to hide the collection from the user's dashboard
+    role   String // admin | editor 
+    hidden Boolean @default(false) // used to hide the collection from the user's dashboard
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 
-  @@id([user_id, collection_id])
+    @@id([userId, collectionId])
 }
 
 model Collection {
-  id String @id @default(cuid())
+    id Int @id @default(autoincrement())
 
-  title                String @default("")
-  description          String @default("")
-  detailed_description String @default("")
+    title               String @default("")
+    description         String @default("")
+    detailedDescription String @default("")
 
-  type String @default("other") // project | person | ... | other
+    type String @default("other") // project | person | ... | other
 
-  image_url String @default("https://api.dicebear.com/6.x/shapes/svg")
+    imageUrl String  @default("https://api.dicebear.com/6.x/shapes/svg")
+    private  Boolean @default(false) // used to hide the collection from public view
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    randomInt Int @default(0) // used to maintain order of collections              
 
-  identifier String @unique // might use a link shortener for this (c1234)
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 
-  private Boolean @default(false) // used to hide the collection from public view
+    workspaceId String?
+    Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
 
-  random_int Int @default(0) // used to maintain order of collections              
-
-  Versions Version[]
-
-  CollectionAccess CollectionAccess[]
-
-  creators Json @default("[]") // [{"creator_name": "Smith, John", "family_name": "Smith", "given_name": "John", "name_type": "personal", "affliation": "University of California, Berkeley", "identifier": "https://orcid.org/0000-0002-1825-0097", "identifier_type": "orcid"}]
-
-  Workspace    Workspace? @relation(fields: [workspace_id], references: [id])
-  workspace_id String?
-  Starred      Starred[]
-
-  @@index([identifier])
+    Version          Version[]
+    Starred          Starred[]
+    CollectionAccess CollectionAccess[]
 }
 
 model Version {
-  id String @id @default(cuid())
+    id Int @id @default(autoincrement())
 
-  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade) // Remove the cascading delete
-  collection_id String
+    collectionId Int
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade) // Remove the cascading delete
 
-  name String @default("") // 23.5.30.1 (using calver for this)
+    name      String @default("") // 23.5.30.1 (using calver for this)
+    changelog String @default("")
 
-  changelog String @default("")
+    creators Json @default("[]") // [{"creatorName": "Smith, John", "familyName": "Smith", "givenName": "John", "nameType": "personal", "affliation": "University of California, Berkeley", "identifier": "https://orcid.org/0000-0002-1825-0097", "identifierType String // doi, url, ror, orcid, etc (prefix from identifiers.org)": "orcid"}] 
 
-  identifier String @unique // might use a link shortener for this (v1234)
+    published   Boolean   @default(false)
+    publishedOn DateTime?
 
-  creators Json @default("[]") // [{"creator_name": "Smith, John", "family_name": "Smith", "given_name": "John", "name_type": "personal", "affliation": "University of California, Berkeley", "identifier": "https://orcid.org/0000-0002-1825-0097", "identifier_type": "orcid"}]
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
-
-  published    Boolean   @default(false)
-  published_on DateTime?
-
-  Resources Resource[]
-
-  InternalRelations InternalRelation[]
-  ExternalRelations ExternalRelation[]
-
-  @@index([identifier, collection_id])
+    Resource         Resource[]
+    InternalRelation InternalRelation[]
+    ExternalRelation ExternalRelation[]
 }
 
 model Resource {
-  id String @id @default(cuid())
+    id String @id @default(cuid())
 
-  identifier_type String // doi, url, ror, orcid, etc (prefix from identifiers.org)
-  identifier      String // the actual identifier (10.1234/abc)
+    identifierType String // doi, url, ror, orcid, etc (prefix from identifiers.org)
+    identifier     String // the actual identifier (10.1234/abc)
 
-  title       String @default("")
-  description String @default("")
+    title       String @default("")
+    description String @default("")
 
-  resource_type String @default("other") //githubRepository, conferencePresentation, etc..
+    resourceType String  @default("other") //githubRepository, conferencePresentation, etc..
+    versionLabel String?
 
-  back_link     Resource? @relation("NewVersionRelation", fields: [back_link_id], references: [id])
-  back_link_id  String?
-  version_label String?
+    backLink   Resource? @relation("NewVersionRelation", fields: [backLinkId], references: [id]) // Used for new verision
+    backLinkId String?
 
-  original_resource    Resource? @relation("OriginalResourceRelation", fields: [original_resource_id], references: [id])
-  original_resource_id String?
+    originalResourceId String?
+    originalResource   Resource? @relation("OriginalResourceRelation", fields: [originalResourceId], references: [id])
 
-  action    String? // oldVersion | delete
-  filled_in Boolean @default(false) // all details are not filled in
+    action String? // oldVersion | delete | clone
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    created DateTime @default(now())
+    updated DateTime @updatedAt
 
-  Version Version[]
+    versionId Int?
+    version   Version? @relation(fields: [versionId], references: [id])
 
-  Resource         Resource[] @relation("NewVersionRelation")
-  OriginalResource Resource[] @relation("OriginalResourceRelation")
+    Resource         Resource[] @relation("NewVersionRelation")
+    OriginalResource Resource[] @relation("OriginalResourceRelation")
 
-  ExternalRelationSource ExternalRelation[]
+    InternalRelationSource InternalRelation[] @relation("SourceRelation")
+    InternalRelationTarget InternalRelation[] @relation("TargetRelation")
 
-  InternalRelationSource InternalRelation[] @relation("SourceRelation")
-  InternalRelationTarget InternalRelation[] @relation("TargetRelation")
+    ExternalRelationSource ExternalRelation[]
 }
 
 model InternalRelation {
-  id String @id @default(cuid())
+    id String @id @default(cuid())
 
-  original_relation    InternalRelation? @relation("OriginalInternalRelation", fields: [original_relation_id], references: [id])
-  original_relation_id String?
+    originalRelation   InternalRelation? @relation("OriginalInternalRelation", fields: [originalRelationId], references: [id])
+    originalRelationId String?
 
-  source    Resource @relation("SourceRelation", fields: [source_id], references: [id], onDelete: Cascade)
-  source_id String
+    sourceId String
+    source   Resource @relation("SourceRelation", fields: [sourceId], references: [id], onDelete: Cascade)
 
-  target    Resource @relation("TargetRelation", fields: [target_id], references: [id], onDelete: Cascade)
-  target_id String
+    targetId String
+    target   Resource @relation("TargetRelation", fields: [targetId], references: [id], onDelete: Cascade)
 
-  type          String // isCitedBy, etc 
-  resource_type String? // Book, Article, etc
+    type         String // isCitedBy, etc 
+    resourceType String? // Book, Article, etc
 
-  action String? // delete
+    action String? // delete
 
-  mirror Boolean @default(false)
+    mirror Boolean @default(false)
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    versionId Int?
+    version   Version? @relation(fields: [versionId], references: [id], onDelete: Cascade)
 
-  Version          Version[]
-  InternalRelation InternalRelation[] @relation("OriginalInternalRelation")
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    InternalRelation InternalRelation[] @relation("OriginalInternalRelation")
 }
 
 model ExternalRelation {
-  id String @id @default(cuid())
+    id String @id @default(cuid())
 
-  source    Resource @relation(fields: [source_id], references: [id], onDelete: Cascade)
-  source_id String
+    sourceId String
+    source   Resource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
-  original_relation    ExternalRelation? @relation("OriginalExternalRelation", fields: [original_relation_id], references: [id])
-  original_relation_id String?
+    originalRelation   ExternalRelation? @relation("OriginalExternalRelation", fields: [originalRelationId], references: [id])
+    originalRelationId String?
 
-  target      String // the actual identifier (10.1234/abc)
-  target_type String // doi, url, ror, orcid, etc (prefix from identifiers.org)
+    target     String // the actual identifier (10.1234/abc)
+    targetType String // doi, url, ror, orcid, etc (prefix from identifiers.org)
 
-  type          String // isCitedBy, etc 
-  resource_type String? // Book, Article, etc
+    type         String // isCitedBy, etc 
+    resourceType String? // Book, Article, etc
 
-  action String? // deleted
+    action String? // delete | clone | ...
 
-  created DateTime @default(now())
-  updated DateTime @updatedAt
+    versionId Int?
+    version   Version? @relation(fields: [versionId], references: [id], onDelete: Cascade)
 
-  Version          Version[]
-  ExternalRelation ExternalRelation[] @relation("OriginalExternalRelation")
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
+    ExternalRelation ExternalRelation[] @relation("OriginalExternalRelation")
 }
 
 model Analytics {
-  id Int @id @default(autoincrement())
+    id Int @id @default(autoincrement())
 
-  identifier String
-  type       String // collection, version, link, etc
+    identifier String
+    type       String // collection, version, link, etc
 
-  event String @default("") // view, click, etc
+    event String @default("") // view, click, etc
 
-  created DateTime @default(now())
+    created DateTime @default(now())
 
-  @@index([identifier])
+    @@index([identifier])
 }
 
 model Starred {
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
 
-  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
-  collection_id String
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    collectionId Int
 
-  created DateTime @default(now())
+    created DateTime @default(now())
 
-  @@id([user_id, collection_id])
+    @@id([userId, collectionId])
 }

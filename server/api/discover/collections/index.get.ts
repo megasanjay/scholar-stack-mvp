@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       collection: true,
     },
     orderBy: {
-      published_on: "desc",
+      publishedOn: "desc",
     },
     skip: parsedPage * pageSize,
     take: pageSize,
@@ -29,13 +29,13 @@ export default defineEventHandler(async (event) => {
   for (const version of response) {
     const viewCount = await prisma.analytics.count({
       where: {
-        identifier: version.collection.identifier,
+        identifier: version.collection.id.toString(),
       },
     });
 
     const starCount = await prisma.starred.count({
       where: {
-        collection_id: version.collection.id,
+        collectionId: version.collection.id,
       },
     });
 

@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession;
 
   const bodySchema = z
     .object({
@@ -38,8 +39,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -53,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
   const latestVersion = await prisma.version.findFirst({
     orderBy: { created: "desc" },
-    where: { collection_id: collectionid },
+    where: { collectionId },
   });
 
   if (!latestVersion) {

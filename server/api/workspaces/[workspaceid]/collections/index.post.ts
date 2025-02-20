@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { serverSupabaseUser } from "#supabase/server";
+import collectionNewVersion from "~/server/utils/collection/collectionNewVersion";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
 
-  const user = await serverSupabaseUser(event);
-  const userid = user?.id as string;
+  const { user } = session;
+  const userId = user.id;
 
   const bodySchema = z
     .object({
@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
   // Check if the body is present
   if (!body) {
     throw createError({
-      message: "Missing required fields",
       statusCode: 400,
+      statusMessage: "Missing required fields",
     });
   }
 
@@ -33,8 +33,8 @@ export default defineEventHandler(async (event) => {
     console.log(parsedBody.error);
 
     throw createError({
-      message: "The provided parameters are invalid",
       statusCode: 400,
+      statusMessage: "The provided parameters are invalid",
     });
   }
 
@@ -48,21 +48,20 @@ export default defineEventHandler(async (event) => {
       CollectionAccess: {
         create: {
           role: "admin",
-          user_id: userid,
+          userId,
         },
       },
       description,
-      identifier: `c${nanoid(8)}`,
-      image_url: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
+      imageUrl: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
       type,
-      workspace_id: workspaceid,
+      workspaceId: workspaceid,
     },
   });
 
   if (!collection) {
     throw createError({
-      message: "Failed to create collection",
       statusCode: 500,
+      statusMessage: "Failed to create collection",
     });
   }
 
@@ -101,8 +100,8 @@ export default defineEventHandler(async (event) => {
 
   if (statusCode !== 201) {
     throw createError({
-      message: "Failed to create collection version",
       statusCode: 500,
+      statusMessage: "Failed to create collection version",
     });
   }
 

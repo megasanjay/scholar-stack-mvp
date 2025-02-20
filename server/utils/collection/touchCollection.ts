@@ -8,7 +8,7 @@
  * @returns void
  *
  */
-const touchCollection = async (collectionid: string) => {
+const touchCollection = async (collectionid: number) => {
   // generate a random number between 0 and 1000
   const random = Math.floor(Math.random() * 1000);
 
@@ -16,7 +16,7 @@ const touchCollection = async (collectionid: string) => {
     // update the collection
     await prisma.collection.update({
       data: {
-        random_int: random,
+        randomInt: random,
       },
       where: { id: collectionid },
     });

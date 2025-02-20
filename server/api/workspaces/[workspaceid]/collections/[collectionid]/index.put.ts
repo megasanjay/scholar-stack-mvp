@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
   await collectionMinAdminPermission(event);
 
   const bodySchema = z
@@ -40,8 +41,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -57,10 +60,10 @@ export default defineEventHandler(async (event) => {
     data: {
       title,
       description,
-      detailed_description: detailedDescription,
+      detailedDescription,
       type,
     },
-    where: { id: collectionid },
+    where: { id: collectionId },
   });
 
   if (!updatedCollection) {

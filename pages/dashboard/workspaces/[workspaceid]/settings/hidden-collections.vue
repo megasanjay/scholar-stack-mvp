@@ -1,42 +1,46 @@
 <script setup lang="ts">
+import { UButton } from "#components";
+
+const toast = useToast();
 const route = useRoute();
 
 const { workspaceid } = route.params as { workspaceid: string };
 
-const loadingId = ref("");
+const loadingId = ref(0);
 
 const { data: collections, error } = await useFetch(
   `/api/workspaces/${workspaceid}/hidden`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your hidden collections. Please try again",
+    color: "error",
+    description: "We couldn't load your hidden collections",
+    icon: "material-symbols:error",
   });
 
   navigateTo(`/dashboard/workspaces/${workspaceid}/settings`);
 }
 
-const unhideCollection = async (collectionId: string) => {
+const unhideCollection = async (collectionId: number) => {
   loadingId.value = collectionId;
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionId}/unhide`,
     {
-      headers: useRequestHeaders(["cookie"]),
       method: "PUT",
     },
   )
     .then(() => {
-      push.success({
-        title: "Collection Unhidden",
-        message: "The collection has been unhidden from your workspace",
+      toast.add({
+        title: "Collection unhidden",
+        color: "success",
+        description: "The collection has been unhidden from your workspace",
+        icon: "material-symbols:check-circle-outline",
       });
 
       navigateTo(
@@ -46,28 +50,30 @@ const unhideCollection = async (collectionId: string) => {
     .catch((error) => {
       console.error(error);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't navigate to the collection. Please try again",
+        color: "error",
+        description: "We couldn't unhide the collection",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
-      loadingId.value = "";
+      loadingId.value = 0;
     });
 };
 </script>
 
 <template>
   <div class="flex flex-col">
-    <h2 class="text-xl">Hidden Collections</h2>
+    <h2 class="text-xl font-medium">Hidden Collections</h2>
 
-    <p class="pb-6 pt-1 text-slate-700">
+    <p class="pt-1 pb-6 text-slate-700">
       These are the collections that you have hidden from your workspace. You
       can unhide them by going to the collections page and clicking on the
       `Unhide` button.
     </p>
 
-    <n-flex vertical :size="20">
+    <div class="flex flex-col gap-4 pt-6">
       <div
         v-for="collection in collections"
         :key="collection.id"
@@ -76,14 +82,14 @@ const unhideCollection = async (collectionId: string) => {
         <div
           class="flex w-full items-center justify-between gap-x-3 border-b pb-3"
         >
-          <n-flex>
+          <div class="flex items-center gap-2">
             <NuxtImg
-              :src="`${collection.image_url}?t=${collection.updated}`"
+              :src="`${collection.imageUrl}?t=${collection.updated}`"
               class="mt-1 h-14 w-14 rounded-md"
             />
 
             <div class="flex flex-col">
-              <p class="text-lg font-medium leading-tight">
+              <p class="text-lg leading-tight font-medium">
                 {{ collection.title }}
               </p>
 
@@ -92,19 +98,16 @@ const unhideCollection = async (collectionId: string) => {
                 {{ $dayjs(collection.updated).format("MMMM DD, YYYY") }}
               </span>
             </div>
-          </n-flex>
+          </div>
 
-          <n-button
-            type="info"
-            secondary
+          <UButton
+            color="info"
+            icon="mdi:eye-off"
             :loading="loadingId === collection.id"
             @click="unhideCollection(collection.id)"
           >
-            <template #icon>
-              <Icon name="mdi:eye" />
-            </template>
             Unhide
-          </n-button>
+          </UButton>
         </div>
 
         <div>
@@ -113,6 +116,6 @@ const unhideCollection = async (collectionId: string) => {
           </p>
         </div>
       </div>
-    </n-flex>
+    </div>
   </div>
 </template>

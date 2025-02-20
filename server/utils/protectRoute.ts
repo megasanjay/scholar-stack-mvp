@@ -1,13 +1,21 @@
-import { serverSupabaseUser } from "#supabase/server";
-
 // If the user does not exist on the request, throw a 401 error
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event);
+  const session = await getUserSession(event);
+
+  if (!session) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized",
+    });
+  }
+
+  // Get the user from the session
+  const { user } = session;
 
   if (!user) {
     throw createError({
-      message: "Unauthorized",
       statusCode: 401,
+      statusMessage: "Unauthorized",
     });
   }
 });

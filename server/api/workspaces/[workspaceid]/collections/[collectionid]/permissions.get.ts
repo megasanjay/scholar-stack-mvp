@@ -1,25 +1,28 @@
-import { serverSupabaseUser } from "#supabase/server";
+import collectionExists from "~/server/utils/collection/collectionExists";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
 
   await collectionExists(event);
-
-  const user = await serverSupabaseUser(event);
 
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collectionAccess = await prisma.collectionAccess.findFirst({
-    where: { collection_id: collectionid, user_id: user?.id },
+    where: { collectionId, userId },
   });
 
   if (!collectionAccess) {
     throw createError({
-      message: "No access to collection",
       statusCode: 403,
+      statusMessage: "No access to collection",
     });
   }
 
@@ -29,13 +32,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const workspaceMember = await prisma.workspaceMember.findFirst({
-    where: { user_id: user?.id, workspace_id: workspaceid },
+    where: { userId, workspaceId: workspaceid },
   });
 
   if (!workspaceMember) {
     throw createError({
-      message: "No access to workspace",
       statusCode: 403,
+      statusMessage: "No access to workspace",
     });
   }
 

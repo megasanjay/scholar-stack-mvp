@@ -24,7 +24,7 @@ const impact = [
     <div
       v-for="item in impact"
       :key="item.title"
-      class="flex flex-col space-y-1 rounded-md border bg-white px-3 py-4 shadow-md"
+      class="flex flex-col space-y-1 rounded-md border border-slate-200 bg-white px-3 py-4 shadow-md"
     >
       <dt class="w-auto flex-1 text-base">{{ item.title }}</dt>
 

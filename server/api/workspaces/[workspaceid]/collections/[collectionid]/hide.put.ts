@@ -1,24 +1,29 @@
-import { serverSupabaseUser } from "#supabase/server";
+import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
+
   await collectionMinViewerPermission(event);
 
   /**
    * TODO: It maybe that the hide has to be done on the workspace level.
-   * We shalle revisit this later
+   * We shall revisit this later
    */
-  const user = await serverSupabaseUser(event);
 
   const { collectionid, workspaceid } = event.context.params as {
     collectionid: string;
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: user?.id,
-      workspace_id: workspaceid,
+      userId,
+      workspaceId: workspaceid,
     },
   });
 
@@ -30,7 +35,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -41,7 +46,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const collectionAccessEntry = await prisma.collectionAccess.findFirst({
-    where: { collection_id: collectionid, user_id: user?.id },
+    where: { collectionId, userId },
   });
 
   if (!collectionAccessEntry) {
@@ -49,15 +54,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const collectionAccessGetTransaction = prisma.collectionAccess.findFirst({
-    where: { collection_id: collectionid, user_id: user?.id },
+    where: { collectionId, userId },
   });
 
   const collectionAccessUpdateTransaction = prisma.collectionAccess.update({
     data: { hidden: true },
     where: {
-      user_id_collection_id: {
-        collection_id: collectionid,
-        user_id: user?.id as string,
+      userId_collectionId: {
+        collectionId,
+        userId,
       },
     },
   });

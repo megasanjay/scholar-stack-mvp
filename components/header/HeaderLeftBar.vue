@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkspaceStore } from "@/stores/workspace";
 
+const toast = useToast();
 const route = useRoute();
 
 const workspaceStore = useWorkspaceStore();
@@ -8,7 +9,7 @@ const collectionStore = useCollectionStore();
 const resourceStore = useResourceStore();
 
 const selectedWorkspace = ref("");
-const selectedCollection = ref("");
+const selectedCollection = ref(0);
 const selectedResource = ref("");
 
 const personalWorkspace = computed(() => {
@@ -60,18 +61,18 @@ const fetchAllWorkspaces = async (workspaceid: string) => {
 
   workspaceStore.getLoading = true;
 
-  const { data: workspaces, error } = await useFetch("/api/workspaces", {
-    headers: useRequestHeaders(["cookie"]),
-  });
+  const { data: workspaces, error } = await useFetch("/api/workspaces", {});
 
   workspaceStore.getLoading = false;
 
   if (error.value) {
     console.log(error);
 
-    push.error({
+    toast.add({
       title: "Something went wrong",
-      message: "We couldn't load your workspaces",
+      color: "error",
+      description: "We couldn't load your workspaces",
+      icon: "material-symbols:error",
     });
   }
 
@@ -86,7 +87,7 @@ const fetchAllWorkspaces = async (workspaceid: string) => {
 
 const fetchAllCollections = async (
   workspaceid: string,
-  collectionid: string = "",
+  collectionid: number = 0,
 ) => {
   if (collectionid === currentCollection.value?.id) return;
 
@@ -94,9 +95,7 @@ const fetchAllCollections = async (
 
   const { data: workspace, error } = await useFetch(
     `/api/workspaces/${workspaceid}`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   );
 
   collectionStore.getLoading = false;
@@ -104,9 +103,11 @@ const fetchAllCollections = async (
   if (error.value) {
     console.log(error);
 
-    push.error({
+    toast.add({
       title: "Something went wrong",
-      message: "We couldn't load your collections",
+      color: "error",
+      description: "We couldn't load your collections",
+      icon: "material-symbols:error",
     });
   }
 
@@ -123,7 +124,7 @@ const fetchAllCollections = async (
 
 const fetchAllResources = async (
   workspaceid: string,
-  collectionid: string,
+  collectionid: number,
   resourceid: string = "",
 ) => {
   if (resourceid === currentResource.value?.id) return;
@@ -131,9 +132,7 @@ const fetchAllResources = async (
 
   const { data: collection, error } = await useFetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}`,
-    {
-      headers: useRequestHeaders(["cookie"]),
-    },
+    {},
   );
 
   resourceStore.getLoading = false;
@@ -141,9 +140,11 @@ const fetchAllResources = async (
   if (error.value) {
     console.log(error);
 
-    push.error({
+    toast.add({
       title: "Something went wrong",
-      message: "We couldn't load your resources",
+      color: "error",
+      description: "We couldn't load your resources",
+      icon: "material-symbols:error",
     });
   }
 
@@ -170,15 +171,18 @@ watchEffect(() => {
   }
 
   if (collectionid) {
-    selectedCollection.value = collectionid as string;
-    fetchAllCollections(workspaceid as string, collectionid as string);
+    selectedCollection.value = parseInt(collectionid as string);
+    fetchAllCollections(
+      workspaceid as string,
+      parseInt(collectionid as string),
+    );
   }
 
   if (resourceid) {
     selectedResource.value = resourceid as string;
     fetchAllResources(
       workspaceid as string,
-      collectionid as string,
+      parseInt(collectionid as string),
       resourceid as string,
     );
   }
@@ -194,7 +198,7 @@ const createNewWorkspace = () => {
   workspaceStore.showNewWorkspaceModal();
 };
 
-const navigateToCollection = (collectionid: string) => {
+const navigateToCollection = (collectionid: number) => {
   navigateTo(
     `/dashboard/workspaces/${selectedWorkspace.value}/collections/${collectionid}`,
   );
@@ -218,19 +222,18 @@ const navigateToResource = (resourceid: string) => {
     <div class="w-max">
       <HeadlessListbox v-model="selectedWorkspace">
         <div class="relative">
-          <n-space align="center">
+          <ContainerFlex align="center">
             <NuxtLink :to="`/dashboard/workspaces/${currentWorkspace?.id}`">
               <TransitionFade>
                 <div
                   v-if="workspaceStore.getLoading"
                   class="flex items-center justify-start space-x-2"
                 >
-                  <n-skeleton circle :width="20" />
+                  <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
-                  <n-skeleton
+                  <USkeleton
                     v-if="workspaceStore.getLoading"
-                    :width="100"
-                    height="25"
+                    class="h-[25px] w-[100px]"
                   />
                 </div>
 
@@ -238,7 +241,10 @@ const navigateToResource = (resourceid: string) => {
                   v-else
                   class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
                 >
-                  <img src="/logo/logo.svg" alt="Logo" class="w-7" />
+                  <UAvatar
+                    :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${currentWorkspace?.id}`"
+                    size="sm"
+                  />
 
                   <span
                     class="text-base font-medium transition-all hover:text-gray-600"
@@ -246,15 +252,15 @@ const navigateToResource = (resourceid: string) => {
                     {{ currentWorkspace?.title }}
                   </span>
 
-                  <n-tag
+                  <UBadge
                     v-if="currentWorkspace?.personal"
-                    type="info"
-                    round
-                    size="small"
+                    color="info"
+                    size="sm"
                     class="pointer-events-none"
+                    variant="outline"
                   >
                     Personal
-                  </n-tag>
+                  </UBadge>
                 </div>
               </TransitionFade>
             </NuxtLink>
@@ -268,7 +274,7 @@ const navigateToResource = (resourceid: string) => {
                 <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
               </span>
             </HeadlessListboxButton>
-          </n-space>
+          </ContainerFlex>
 
           <transition
             leave-active-class="transition duration-100 ease-in"
@@ -279,7 +285,7 @@ const navigateToResource = (resourceid: string) => {
             enter-to-class="opacity-100 transform origin-top-right scale-100"
           >
             <HeadlessListboxOptions
-              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
+              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-slate-300 sm:text-sm"
             >
               <HeadlessListboxOption
                 v-slot="{ active, selected }"
@@ -294,11 +300,9 @@ const navigateToResource = (resourceid: string) => {
                   ]"
                 >
                   <div class="flex items-center justify-start space-x-2 pr-4">
-                    <n-avatar
-                      :size="20"
+                    <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${personalWorkspace?.id}`"
-                      class="border hover:cursor-pointer hover:opacity-80"
-                      round
+                      size="sm"
                     />
 
                     <span
@@ -339,11 +343,9 @@ const navigateToResource = (resourceid: string) => {
                   ]"
                 >
                   <div class="flex items-center justify-start space-x-2 pr-4">
-                    <n-avatar
-                      :size="20"
+                    <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${workspace.id}`"
-                      class="border hover:cursor-pointer hover:opacity-80"
-                      round
+                      size="sm"
                     />
 
                     <span
@@ -407,7 +409,7 @@ const navigateToResource = (resourceid: string) => {
       <div v-if="route.params.collectionid" class="w-max">
         <HeadlessListbox v-model="selectedCollection">
           <div class="relative">
-            <n-space align="center">
+            <ContainerFlex align="center">
               <NuxtLink
                 :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}`"
               >
@@ -416,20 +418,18 @@ const navigateToResource = (resourceid: string) => {
                     v-if="collectionStore.getLoading"
                     class="flex items-center justify-start space-x-2"
                   >
-                    <n-skeleton circle :width="20" />
+                    <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
-                    <n-skeleton :width="100" height="25" />
+                    <USkeleton class="h-[25px] w-[100px]" />
                   </div>
 
                   <div
                     v-else
                     class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
                   >
-                    <n-avatar
-                      :size="20"
-                      :src="`${currentCollection?.image_url}?t=${currentCollection?.updated}`"
-                      class="border"
-                      round
+                    <UAvatar
+                      :src="`${currentCollection?.imageUrl}?t=${currentCollection?.updated}`"
+                      size="sm"
                     />
 
                     <span
@@ -450,7 +450,7 @@ const navigateToResource = (resourceid: string) => {
                   <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
                 </span>
               </HeadlessListboxButton>
-            </n-space>
+            </ContainerFlex>
 
             <transition
               leave-active-class="transition duration-100 ease-in"
@@ -461,7 +461,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="collection in allCollections"
@@ -478,11 +478,9 @@ const navigateToResource = (resourceid: string) => {
                     ]"
                   >
                     <div class="flex items-center justify-start space-x-2 pr-4">
-                      <n-avatar
-                        :size="20"
-                        :src="`${collection?.image_url}?t=${collection?.updated}`"
-                        class="border hover:cursor-pointer hover:opacity-80"
-                        round
+                      <UAvatar
+                        :src="`${collection?.imageUrl}?t=${collection?.updated}`"
+                        size="xl"
                       />
 
                       <span
@@ -547,7 +545,7 @@ const navigateToResource = (resourceid: string) => {
       <div v-if="route.params.resourceid" class="w-max">
         <HeadlessListbox v-model="selectedResource">
           <div class="relative">
-            <n-space align="center">
+            <ContainerFlex align="center">
               <NuxtLink
                 :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}/resources/${selectedResource}`"
               >
@@ -556,20 +554,18 @@ const navigateToResource = (resourceid: string) => {
                     v-if="resourceStore.getLoading"
                     class="flex items-center justify-start space-x-2"
                   >
-                    <n-skeleton circle :width="20" />
+                    <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
-                    <n-skeleton :width="100" height="25" />
+                    <USkeleton class="h-[25px] w-[100px]" />
                   </div>
 
                   <div
                     v-else
                     class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
                   >
-                    <n-avatar
-                      :size="20"
+                    <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${selectedResource}`"
-                      class="border"
-                      round
+                      size="sm"
                     />
 
                     <span
@@ -579,14 +575,15 @@ const navigateToResource = (resourceid: string) => {
                       {{ currentResource?.title }}
                     </span>
 
-                    <n-tag
+                    <UBadge
                       v-else
-                      type="success"
-                      size="small"
+                      color="success"
+                      size="sm"
                       class="pointer-events-none"
+                      variant="outline"
                     >
                       New
-                    </n-tag>
+                    </UBadge>
                   </div>
                 </TransitionFade>
               </NuxtLink>
@@ -600,7 +597,7 @@ const navigateToResource = (resourceid: string) => {
                   <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
                 </span>
               </HeadlessListboxButton>
-            </n-space>
+            </ContainerFlex>
 
             <transition
               leave-active-class="transition duration-100 ease-in"
@@ -611,7 +608,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="resource in allResources"
@@ -628,11 +625,9 @@ const navigateToResource = (resourceid: string) => {
                     ]"
                   >
                     <div class="flex items-center justify-start space-x-2 pr-4">
-                      <n-avatar
-                        :size="20"
+                      <UAvatar
                         :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${resource.id}`"
-                        class="border hover:cursor-pointer hover:opacity-80"
-                        round
+                        size="xl"
                       />
 
                       <span

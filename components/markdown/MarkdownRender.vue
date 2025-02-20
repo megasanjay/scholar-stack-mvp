@@ -27,7 +27,7 @@ if (props.content) {
 <template>
   <!-- eslint-disable vue/no-v-html -->
   <div
-    class="prose:stone prose prose-lg max-w-none pt-2 dark:prose-invert"
+    class="prose:stone prose prose-lg dark:prose-invert max-w-none pt-2"
     v-html="renderedMarkdown"
   />
   <!-- eslint-enable vue/no-v-html -->

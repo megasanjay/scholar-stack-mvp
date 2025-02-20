@@ -1,12 +1,11 @@
 interface CollectionGETAPIResponse {
-  id: string;
+  id: number;
   title: string;
   created: string;
   updated: string;
   description: string;
   detailedDescription: string;
-  identifier: string;
-  image_url: string;
+  imageUrl: string;
   private: boolean;
   type: string;
   resources: ResourceType[];
@@ -14,14 +13,13 @@ interface CollectionGETAPIResponse {
 }
 
 interface Collection {
-  id: string;
+  id: number;
   title: string;
   created: string;
   updated: string;
   description: string;
   detailedDescription: string;
-  identifier: string;
-  image_url: string;
+  imageUrl: string;
   version: Version | null;
 }
 
@@ -29,7 +27,6 @@ interface Collections extends Array<Collection> {}
 
 interface CollectionAccessUser {
   id: string;
-  username: string;
   name: string;
   created: string;
   emailAddress: string;
@@ -45,7 +42,7 @@ interface CollectionCreator {
   familyName: string;
   givenName: string;
   identifier: string;
-  identifierType: string | null;
+  identifierType: string | undefined | null;
   nameType: string;
 }
 

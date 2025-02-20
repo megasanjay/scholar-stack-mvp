@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { UInput } from "#components";
+
+const toast = useToast();
+
 const workspaceName = ref("");
 const workspaceDescription = ref("");
 const deleteWorkspaceModalIsOpen = ref(false);
@@ -9,17 +13,17 @@ const { workspaceid } = useRoute().params as { workspaceid: string };
 
 const { data: workspace, error } = await useFetch(
   `/api/workspaces/${workspaceid}`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your workspace details",
+    color: "error",
+    description: "We couldn't load your workspace details",
+    icon: "material-symbols:error",
   });
 
   navigateTo("/dashboard");
@@ -34,10 +38,6 @@ const personalWorkspace = computed(() => {
   return workspace.value?.personal;
 });
 
-const openModal = () => {
-  deleteWorkspaceModalIsOpen.value = true;
-};
-
 const updateWorkspaceDetails = async () => {
   saveLoading.value = true;
 
@@ -46,24 +46,27 @@ const updateWorkspaceDetails = async () => {
       title: workspaceName.value.trim(),
       description: workspaceDescription.value.trim(),
     }),
-    headers: useRequestHeaders(["cookie"]),
+
     method: "PUT",
   })
     .then((_res) => {
-      push.success({
+      toast.add({
         title: "Success",
-        message:
+        color: "success",
+        description:
           "Your workspace details have been updated. Please wait for a few seconds to see the changes.",
       });
 
       window.location.reload();
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't update your workspace details",
+        color: "error",
+        description: "We couldn't update your workspace details",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -72,9 +75,11 @@ const updateWorkspaceDetails = async () => {
 };
 
 const deleteWorkspace = () => {
-  push.error({
+  toast.add({
     title: "Not implemented",
-    message: "This feature is not implemented yet",
+    color: "error",
+    description: "This feature is not implemented yet",
+    icon: "material-symbols:error",
   });
 
   deleteWorkspaceModalIsOpen.value = false;
@@ -90,28 +95,25 @@ const deleteWorkspace = () => {
         on your projects.
       </p>
 
-      <n-input
-        v-model:value="workspaceName"
+      <UInput
+        v-model="workspaceName"
         placeholder="Workspace Name"
         class="w-full"
-        size="large"
+        size="lg"
       />
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            color="black"
-            size="large"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             :disabled="workspaceName.trim() === ''"
             @click="updateWorkspaceDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
-            Save
-          </n-button>
+            <span class="w-max"> Save </span>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -122,29 +124,26 @@ const deleteWorkspace = () => {
         you want.
       </p>
 
-      <n-input
-        v-model:value="workspaceDescription"
+      <UTextarea
+        v-model="workspaceDescription"
         placeholder="Workspace Description"
         class="w-full"
-        type="textarea"
-        size="large"
+        size="lg"
+        :rows="4"
       />
 
       <template #action>
         <div class="flex items-center justify-end">
-          <n-button
-            type="primary"
-            size="large"
-            color="black"
+          <UButton
+            color="primary"
+            icon="humbleicons:save"
+            size="lg"
             :loading="saveLoading"
             :disabled="workspaceName.trim() === ''"
             @click="updateWorkspaceDetails"
           >
-            <template #icon>
-              <Icon name="ic:round-save" />
-            </template>
             Save
-          </n-button>
+          </UButton>
         </div>
       </template>
     </CardWithAction>
@@ -158,67 +157,70 @@ const deleteWorkspace = () => {
 
       <template #action>
         <ContainerFlex justify="end">
-          <n-button
-            type="error"
-            :disabled="personalWorkspace"
-            @click="openModal"
-          >
-            <template #icon>
-              <Icon name="ph:warning-duotone" />
+          <UModal v-model="deleteWorkspaceModalIsOpen">
+            <UButton
+              color="error"
+              icon="ph:warning-duotone"
+              size="lg"
+              :disabled="personalWorkspace"
+            >
+              <span class="w-max"> Delete </span>
+            </UButton>
+
+            <template #content>
+              <UCard>
+                <div class="sm:flex sm:items-start">
+                  <div class="size-[50px]">
+                    <ClientOnly>
+                      <Vue3Lottie
+                        animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                        :height="50"
+                        :width="50"
+                        :loop="1"
+                      />
+                    </ClientOnly>
+                  </div>
+
+                  <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                      Are you sure you want to delete this workspace?
+                    </h3>
+
+                    <div class="mt-2">
+                      <p class="text-sm text-gray-500">
+                        This action is not reversible, so please continue with
+                        caution. This will not delete your collections and
+                        resources. You will lose access to those projects.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <template #footer>
+                  <div class="flex items-center justify-end space-x-2">
+                    <UButton
+                      icon="material-symbols:cancel-outline"
+                      color="error"
+                      variant="soft"
+                      @click="deleteWorkspaceModalIsOpen = false"
+                    >
+                      Cancel
+                    </UButton>
+
+                    <UButton
+                      color="error"
+                      icon="ph:warning-duotone"
+                      @click="deleteWorkspace"
+                    >
+                      <span class="w-max"> Delete workspace </span>
+                    </UButton>
+                  </div>
+                </template>
+              </UCard>
             </template>
-            Delete
-          </n-button>
+          </UModal>
         </ContainerFlex>
       </template>
     </CardWithAction>
-
-    <UModal v-model="deleteWorkspaceModalIsOpen">
-      <UCard>
-        <div class="sm:flex sm:items-start">
-          <div class="size-[50px]">
-            <ClientOnly>
-              <Vue3Lottie
-                animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                :height="50"
-                :width="50"
-                :loop="1"
-              />
-            </ClientOnly>
-          </div>
-
-          <div class="mt-2 text-center sm:ml-4 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">
-              Are you sure you want to delete this workspace?
-            </h3>
-
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                This action is not reversible, so please continue with caution.
-                This will not delete your collections and resources. You will
-                lose access to those projects.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex items-center justify-end space-x-2">
-            <n-button @click="deleteWorkspaceModalIsOpen = false">
-              <template #icon>
-                <Icon name="material-symbols:cancel-outline" />
-              </template>
-              Cancel
-            </n-button>
-
-            <n-button type="error" secondary @click="deleteWorkspace">
-              <template #icon>
-                <Icon name="ph:warning-duotone" />
-              </template>
-              I understand, delete this workspace
-            </n-button>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>

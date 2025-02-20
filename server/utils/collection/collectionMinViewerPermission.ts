@@ -1,8 +1,10 @@
-import { serverSupabaseUser } from "#supabase/server";
+import collectionExists from "~/server/utils/collection/collectionExists";
 
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event);
-  const userid = user?.id as string;
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
 
   const { workspaceid } = event.context.params as {
     collectionid: string;
@@ -10,13 +12,13 @@ export default defineEventHandler(async (event) => {
   };
 
   // Check if the collection exists in the workspace
-  const collectionid = await collectionExists(event);
+  const collectionId = await collectionExists(event);
 
   // Having access to the workspace is enough to view the collection
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId,
+      workspaceId: workspaceid,
     },
   });
 
@@ -27,8 +29,8 @@ export default defineEventHandler(async (event) => {
   // Check access table for the workspace
   const collectionAccess = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId,
     },
   });
 
@@ -39,8 +41,8 @@ export default defineEventHandler(async (event) => {
     collectionAccess?.role !== "viewer"
   ) {
     throw createError({
-      message: "Unauthorized",
       statusCode: 401,
+      statusMessage: "Unauthorized",
     });
   }
 });

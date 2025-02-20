@@ -6,18 +6,23 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+useSeoMeta({
+  title: "Dashboard",
+});
+
+const toast = useToast();
+
 const workspaceStore = useWorkspaceStore();
 
-const { data: workspaces, error } = await useFetch("/api/workspaces", {
-  headers: useRequestHeaders(["cookie"]),
-});
+const { data: workspaces, error } = await useFetch("/api/workspaces", {});
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "Please contact support",
+    color: "error",
+    icon: "material-symbols:error",
   });
 
   navigateTo("/");
@@ -27,61 +32,64 @@ workspaceStore.setWorkspaces(workspaces.value || []);
 </script>
 
 <template>
-  <main class="h-full bg-zinc-50 px-4">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
+  <main class="h-full bg-zinc-50 dark:bg-zinc-900">
+    <div
+      class="flex h-36 items-center border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-zinc-800"
+    >
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
       >
-        <h1>Dashboard</h1>
+        <h1 class="text-4xl font-black">Dashboard</h1>
       </div>
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 py-10">
-        <n-input placeholder="Search..." size="large">
-          <template #prefix>
-            <Icon name="iconamoon:search-duotone" size="20" class="mr-2" />
-          </template>
-        </n-input>
+      <div class="flex items-center justify-between gap-4 py-10">
+        <UInput
+          placeholder="Search..."
+          icon="iconamoon:search-duotone"
+          size="lg"
+          type="search"
+        />
 
-        <n-button
-          size="large"
-          color="black"
+        <UButton
+          color="primary"
+          icon="mdi:plus"
           @click="workspaceStore.showNewWorkspaceModal"
         >
-          <template #icon>
-            <Icon name="mdi:plus" />
-          </template>
-          Create a new workspace
-        </n-button>
+          <span class="w-max"> Create a new workspace </span>
+        </UButton>
       </div>
 
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
-        <NuxtLink
+        <ULink
           v-for="workspace in workspaces"
           :key="workspace.id"
           :to="`/dashboard/workspaces/${workspace.id}`"
-          class="flex w-full flex-col space-y-4 rounded-md border bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md"
+          class="flex w-full flex-col space-y-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
         >
-          <div class="flex w-full items-center justify-start space-x-2">
-            <n-avatar
-              :size="40"
+          <div class="flex w-full items-start justify-start space-x-2">
+            <UAvatar
+              size="xl"
               :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
-              class="h-[40px] w-[40px] hover:cursor-pointer hover:opacity-80"
             />
 
-            <div class="flex grow flex-col space-y-0">
-              <ContainerFlex justify="space-between">
+            <div class="flex flex-col">
+              <div class="flex items-center justify-between gap-2">
                 <span class="text-lg font-medium">
                   {{ workspace.title }}
                 </span>
 
-                <n-tag v-if="workspace.personal" type="warning" size="small">
+                <UBadge
+                  v-if="workspace.personal"
+                  color="warning"
+                  variant="outline"
+                >
                   Personal
-                </n-tag>
-              </ContainerFlex>
+                </UBadge>
+              </div>
 
-              <span class="text-sm text-slate-500">
+              <span class="text-sm">
                 Created on
                 {{ $dayjs(workspace.created).format("MMMM DD, YYYY") }}
               </span>
@@ -93,7 +101,7 @@ workspaceStore.setWorkspaces(workspaces.value || []);
               {{ workspace.description }}
             </span>
           </div>
-        </NuxtLink>
+        </ULink>
       </div>
     </div>
 

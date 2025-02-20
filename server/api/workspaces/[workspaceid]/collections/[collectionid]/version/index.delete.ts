@@ -1,3 +1,6 @@
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
+import collectionNewVersion from "~/server/utils/collection/collectionNewVersion";
+
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinAdminPermission(event);
@@ -7,8 +10,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -20,55 +25,36 @@ export default defineEventHandler(async (event) => {
 
   const draftVersion = await prisma.version.findFirst({
     include: {
-      Resources: true,
+      Resource: true,
     },
     where: {
-      collection_id: collectionid,
+      collectionId,
       published: false,
     },
   });
 
-  if (draftVersion) {
-    // throw createError({
-    //   message: "Draft version not found",
-    //   statusCode: 404,
-    // });
-
-    const resources = draftVersion.Resources;
-
-    // remove all resources from the draft version
-    for (const resource of resources) {
-      await prisma.resource.delete({
-        where: { id: resource.id },
-      });
-    }
-
-    // delete the draft version
-    await prisma.version.delete({
-      where: { id: draftVersion.id },
+  if (!draftVersion) {
+    throw createError({
+      message: "Draft version not found",
+      statusCode: 404,
     });
   }
 
-  // get the latest released version of the collection to reset the creators
-  const latestReleasedVersion = await prisma.version.findFirst({
-    orderBy: {
-      created: "desc",
-    },
-    where: {
-      collection_id: collectionid,
-      published: true,
-    },
+  const resources = draftVersion.Resource;
+
+  // remove all resources from the draft version
+  for (const resource of resources) {
+    await prisma.resource.delete({
+      where: { id: resource.id },
+    });
+  }
+
+  // delete the draft version
+  await prisma.version.delete({
+    where: { id: draftVersion.id },
   });
 
-  // reset the creators of the collection to the latest released version
-  await prisma.collection.update({
-    data: {
-      creators: latestReleasedVersion?.creators || [],
-    },
-    where: { id: collectionid },
-  });
-
-  const { statusCode } = await collectionNewVersion(collectionid);
+  const { statusCode } = await collectionNewVersion(collectionId);
 
   if (statusCode !== 201) {
     throw createError({

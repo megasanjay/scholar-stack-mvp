@@ -1,91 +1,40 @@
-<template>
-  <NaiveConfig :theme-config="themeConfig">
-    <Notivue v-slot="item">
-      <NotivueSwipe :item="item">
-        <Notifications :item="item" :theme="pastelTheme" />
-      </NotivueSwipe>
-    </Notivue>
+<script setup lang="ts">
+import "md-editor-v3/lib/style.css";
 
-    <NuxtLoadingIndicator
-      color="linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%)"
-      :height="5"
-    />
+const colorMode = useColorMode();
+
+const color = computed(() =>
+  colorMode.value === "dark" ? "#111827" : "white",
+);
+
+useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
+  link: [{ href: "/favicon.ico", rel: "icon" }],
+  meta: [
+    { charset: "utf-8" },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
+    { name: "theme-color", content: color, key: "theme-color" },
+  ],
+});
+
+useSeoMeta({
+  ogImage:
+    "https://kalai.fairdataihub.org/api/generate?title=Envision%20Portal&description=Some%20description%20here%0A&app=Envision%20Portal&org=eyeact",
+  titleTemplate: "%s - SciConnect",
+  twitterCard: "summary_large_image",
+  twitterImage:
+    "https://kalai.fairdataihub.org/api/generate?title=Envision%20Portal&description=Some%20description%20here%0A&app=Envision%20Portal&org=eyeact",
+});
+</script>
+
+<template>
+  <UApp>
+    <NuxtLoadingIndicator />
 
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-  </NaiveConfig>
+  </UApp>
 </template>
-
-<script setup lang="ts">
-import "md-editor-v3/lib/style.css";
-
-import { pastelTheme } from "notivue";
-import type { ThemeConfig } from "@bg-dev/nuxt-naiveui";
-
-const themeConfig: ThemeConfig = {
-  // dark: {}, // Theme options applied on dark mode
-  light: {}, // Theme options applied on light mode
-  mobile: {}, // Theme options applied on mobile only
-  mobileOrTablet: {}, // Theme options applied on mobile and tablet
-  shared: {
-    common: {
-      primaryColor: "#ec4899",
-      primaryColorHover: "#db2777",
-      primaryColorPressed: "#e11d48",
-      primaryColorSuppl: "#db2777",
-    },
-  }, // Common theme options
-};
-
-useHead({
-  title: "SciConnect",
-  bodyAttrs: {
-    class: "test",
-  },
-  link: [
-    { href: "/favicon.ico", rel: "icon", type: "image/x-icon" },
-    {
-      href: "/apple-touch-icon.png",
-      rel: "apple-touch-icon",
-      sizes: "180x180",
-    },
-    {
-      href: "/favicon-16x16.png",
-      rel: "icon",
-      sizes: "16x16",
-      type: "image/png",
-    },
-    {
-      href: "/favicon-32x32.png",
-      rel: "icon",
-      sizes: "32x32",
-      type: "image/png",
-    },
-    {
-      color: "#5bbad5",
-      href: "/safari-pinned-tab.svg",
-      rel: "mask-icon",
-    },
-    {
-      href: "/site.webmanifest",
-      rel: "manifest",
-    },
-  ],
-  meta: [
-    {
-      name: "description",
-      content:
-        "Scholar Stack is an application to help you manage your dependencies with ease",
-    },
-    {
-      name: "msapplication-TileColor",
-      content: "#2b5797",
-    },
-    {
-      name: "theme-color",
-      content: "#ffffff",
-    },
-  ],
-});
-</script>

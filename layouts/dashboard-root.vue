@@ -8,14 +8,14 @@ const devMode = process.env.NODE_ENV === "development";
     :class="{ 'debug-screens': devMode }"
   >
     <header>
-      <nav class="border-b border-gray-200 bg-white px-4 py-2.5 lg:px-6">
+      <nav
+        class="border-b border-gray-200 bg-white px-4 py-2.5 lg:px-6 dark:border-gray-700 dark:bg-zinc-800"
+      >
         <div class="mx-auto flex flex-wrap items-center justify-between">
           <NuxtLink
             to="/"
             class="flex flex-row items-center justify-start space-x-2"
           >
-            <img src="/logo/logo.svg" alt="Logo" class="mr-2 w-10" />
-
             <span class="text-xl font-bold"> SciConnect </span>
           </NuxtLink>
 

@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   await collectionMinAdminPermission(event);
 
@@ -38,13 +39,15 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const { userid } = parsedBody.data;
 
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -67,9 +70,9 @@ export default defineEventHandler(async (event) => {
   // Check if the user already has editor permissions for the collection
   const existingMember = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
+      collectionId,
       role: "editor",
-      user_id: userid,
+      userId: userid,
     },
   });
 
@@ -88,8 +91,8 @@ export default defineEventHandler(async (event) => {
       role: "admin",
     },
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId: userid,
     },
   });
 
@@ -105,17 +108,25 @@ export default defineEventHandler(async (event) => {
   const user = await prisma.user.findFirst({
     select: {
       id: true,
-      username: true,
-      name: true,
-      email_address: true,
+      emailAddress: true,
+      familyName: true,
+      givenName: true,
     },
     where: {
       id: userid,
     },
   });
 
+  if (!user) {
+    throw createError({
+      message: "User not found",
+      statusCode: 404,
+    });
+  }
+
   const addedAdmin = {
     ...user,
+    name: `${user.givenName} ${user.familyName}`,
     ...adminAccess,
   };
 

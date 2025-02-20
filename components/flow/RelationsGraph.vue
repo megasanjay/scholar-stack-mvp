@@ -21,8 +21,8 @@ for (const relation of props.relations.internal) {
     id: relation.id,
     internal: true,
     label: relation.type,
-    source: relation.source_id,
-    target: relation.target_id,
+    source: relation.sourceId,
+    target: relation.targetId,
   });
 }
 
@@ -31,31 +31,46 @@ for (const relation of props.relations.external) {
     id: relation.id,
     internal: false,
     label: relation.type,
-    source: relation.source_id,
-    target: `${relation.target_type}:${relation.target}`,
+    source: relation.sourceId,
+    target: `${relation.targetType}:${relation.target}`,
   });
 }
 
 const nodes = ref<Node[]>([]);
 
+nodes.value = props.resources.map((resource) => {
+  return {
+    id: resource.id,
+    data: {
+      label: resource.title,
+    },
+    position: { x: 0, y: 0 },
+    type: "custom",
+  };
+});
+
 for (const relation of remappedRelations) {
   // check if relation.source is in nodes
-  const sourceNode = nodes.value.find(
-    (node: any) => node.id === relation.source,
-  );
+  // const sourceNode = nodes.value.find(
+  //   (node: any) => node.id === relation.source,
+  // );
 
-  if (!sourceNode) {
-    nodes.value.push({
-      id: relation.source,
-      label: relation.internal
-        ? props.resources.find(
-            (resource: any) => resource.id === relation.source,
-          )?.title
-        : relation.source,
-      position: { x: 0, y: 0 },
-      type: "custom",
-    });
-  }
+  // console.log(relation.source, sourceNode);
+
+  // if (!sourceNode) {
+  //   nodes.value.push({
+  //     id: relation.source,
+  //     data: {
+  //       label: relation.internal
+  //         ? props.resources.find(
+  //             (resource: any) => resource.id === relation.source,
+  //           )?.title
+  //         : relation.source,
+  //     },
+  //     position: { x: 0, y: 0 },
+  //     type: "custom",
+  //   });
+  // }
 
   // check if relation.target is in nodes
   const targetNode = nodes.value.find(
@@ -65,11 +80,13 @@ for (const relation of remappedRelations) {
   if (!targetNode) {
     nodes.value.push({
       id: relation.target,
-      label: relation.internal
-        ? props.resources.find(
-            (resource: any) => resource.id === relation.target,
-          )?.title
-        : relation.target,
+      data: {
+        label: relation.internal
+          ? props.resources.find(
+              (resource: any) => resource.id === relation.target,
+            )?.title
+          : relation.target,
+      },
       position: { x: 0, y: 0 },
       type: "custom",
     });
@@ -90,7 +107,6 @@ for (const relation of remappedRelations) {
 
 if (nodes.value.length > 0) {
   nodes.value = layout(nodes.value, edges.value, previousDirection.value);
-  console.log(nodes.value);
 }
 // edges.value = shuffle(nodes.value);
 
@@ -130,39 +146,46 @@ onConnect((params) => {
 </script>
 
 <template>
-  <div>
-    <div
-      v-if="nodes.length > 0"
-      style="height: 100vh"
-      role="application"
-      aria-label="Relations Graph"
-    >
-      <VueFlow
-        v-model:nodes="nodes"
-        v-model:edges="edges"
-        fit-view-on-init
-        aria-roledescription="interactive node graph"
+  <ClientOnly>
+    <div>
+      <div
+        v-if="nodes.length > 0"
+        style="height: 100vh"
+        role="application"
+        aria-label="Relations Graph"
       >
-        <Background pattern-color="#aaa" :gap="15" />
+        <!-- <pre>{{ resources }}</pre> -->
 
-        <MiniMap />
+        <VueFlow
+          v-model:nodes="nodes"
+          v-model:edges="edges"
+          fit-view-on-init
+          aria-roledescription="interactive node graph"
+        >
+          <Background pattern-color="#aaa" :gap="15" />
 
-        <Controls />
+          <MiniMap />
 
-        <template #node-custom="nodeProps">
-          <!-- Ensure custom nodes are accessible -->
-          <FlowCustomNode v-bind="nodeProps" />
-        </template>
+          <Controls />
 
-        <template #edge-custom="edgeProps">
-          <!-- Ensure custom edges are accessible -->
-          <FlowCustomEdge v-bind="edgeProps" />
-        </template>
-      </VueFlow>
+          <template #node-custom="nodeProps">
+            <!-- Ensure custom nodes are accessible -->
+            <FlowCustomNode
+              v-bind="{
+                ...nodeProps,
+                label: nodeProps.data.label || '', // Provide a default empty string for label if undefined
+              }"
+            />
+          </template>
+
+          <template #edge-custom="edgeProps">
+            <!-- Ensure custom edges are accessible -->
+            <FlowCustomEdge v-bind="edgeProps" />
+          </template>
+        </VueFlow>
+      </div>
+
+      <div v-else>No relations found</div>
     </div>
-
-    <div v-else>
-      <n-empty description="No relations found"> </n-empty>
-    </div>
-  </div>
+  </ClientOnly>
 </template>

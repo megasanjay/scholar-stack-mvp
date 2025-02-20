@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
 
-import { serverSupabaseUser } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
+
+  const { user } = session;
+  const userId = user.id;
 
   const bodySchema = z
     .object({
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
   // Check if the body is present
   if (!body) {
     throw createError({
-      message: "Missing required fields",
       statusCode: 400,
+      statusMessage: "Missing required fields",
     });
   }
 
@@ -34,13 +35,10 @@ export default defineEventHandler(async (event) => {
     console.log(parsedBody.error);
 
     throw createError({
-      message: "The provided parameters are invalid",
       statusCode: 400,
+      statusMessage: "The provided parameters are invalid",
     });
   }
-
-  const user = await serverSupabaseUser(event);
-  const userid = user?.id as string;
 
   // Check if the user already has a personal workspace
   if (parsedBody.data.personal) {
@@ -49,7 +47,7 @@ export default defineEventHandler(async (event) => {
         personal: true,
         WorkspaceMember: {
           some: {
-            user_id: userid,
+            userId,
           },
         },
       },
@@ -57,8 +55,8 @@ export default defineEventHandler(async (event) => {
 
     if (personalWorkspace) {
       throw createError({
-        message: "You already have a personal workspace",
         statusCode: 400,
+        statusMessage: "You already have a personal workspace",
       });
     }
   }
@@ -76,7 +74,7 @@ export default defineEventHandler(async (event) => {
         create: {
           admin: false,
           owner: true,
-          user_id: userid,
+          userId,
         },
       },
     },
@@ -84,8 +82,8 @@ export default defineEventHandler(async (event) => {
 
   if (!workspace) {
     throw createError({
-      message: "Failed to create workspace",
       statusCode: 500,
+      statusMessage: "Failed to create workspace",
     });
   }
 

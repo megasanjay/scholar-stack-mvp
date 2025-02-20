@@ -2,15 +2,15 @@
  * Create a new unpublished draft version of a collection
  * @param collectionid - The id of the collection to create a new version for
  */
-const workspacePermission = async (workspaceid: string, userid: string) => {
+const workspacePermission = async (workspaceId: string, userId: string) => {
   const workspaceMember = await prisma.workspaceMember.findFirst({
-    where: { user_id: userid, workspace_id: workspaceid },
+    where: { userId, workspaceId },
   });
 
   if (!workspaceMember) {
     throw createError({
-      message: "Not a member of this workspace",
       statusCode: 403,
+      statusMessage: "Not a member of this workspace",
     });
   }
 

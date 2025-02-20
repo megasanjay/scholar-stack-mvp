@@ -1,7 +1,8 @@
 import { z } from "zod";
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   const bodySchema = z
     .object({
@@ -41,8 +42,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -54,9 +57,7 @@ export default defineEventHandler(async (event) => {
 
   // get the latest draft version of the collection.
   const version = await prisma.version.findFirst({
-    orderBy: { created: "desc" },
-    take: 1,
-    where: { collection_id: collectionid, published: false },
+    where: { collectionId, published: false },
   });
 
   if (!version) {
@@ -83,11 +84,7 @@ export default defineEventHandler(async (event) => {
   const sourceResource = await prisma.resource.findFirst({
     where: {
       id: source,
-      Version: {
-        some: {
-          id: version.id,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -114,11 +111,7 @@ export default defineEventHandler(async (event) => {
   const targetResource = await prisma.resource.findFirst({
     where: {
       id: target,
-      Version: {
-        some: {
-          collection_id: collectionid,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -129,7 +122,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (sourceResource.original_resource_id === target) {
+  if (sourceResource.originalResourceId === target) {
     throw createError({
       message: "Cannot create a cyclic relation",
       statusCode: 400,
@@ -139,15 +132,11 @@ export default defineEventHandler(async (event) => {
   const internalRelation = await prisma.internalRelation.create({
     data: {
       action: "create",
-      resource_type: resourceType,
-      source_id: source,
-      target_id: target,
+      resourceType,
+      sourceId: source,
+      targetId: target,
       type,
-      Version: {
-        connect: {
-          id: version.id,
-        },
-      },
+      versionId: version.id,
     },
   });
 
@@ -158,19 +147,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const responseObject: GroupedRelation = {
+  const responseObject: AllRelationsItem = {
     id: internalRelation.id,
     action: "create",
-    created: internalRelation.created,
     external: false,
-    resource_type: internalRelation.resource_type,
-    source_id: source,
-    source_name: sourceResource.title,
-    target: internalRelation.target_id,
-    target_name: targetResource.title,
-    target_type: null,
+    originalRelationId: internalRelation.originalRelationId,
+    resourceType: internalRelation.resourceType,
+    source: sourceResource.id,
+    sourceName: sourceResource.title,
+    sourceOriginalId: sourceResource.originalResourceId,
+    target: internalRelation.targetId,
+    targetName: targetResource.title,
+    targetType: null,
     type: internalRelation.type,
-    updated: internalRelation.updated,
   };
 
   return {

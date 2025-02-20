@@ -1,28 +1,21 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="flex items-center space-x-3 lg:order-2">
-    <nuxt-link to="/view">
-      <n-button size="small"> Catalog </n-button>
-    </nuxt-link>
+  <div class="flex items-center gap-3">
+    <ULink to="/view">
+      <UButton size="sm" variant="outline"> Catalog </UButton>
+    </ULink>
 
-    <NuxtLink class="text-sm text-slate-600 hover:text-slate-800" to="/docs">
-      Docs
-    </NuxtLink>
+    <ULink to="/docs"> Docs </ULink>
 
-    <NuxtLink
-      class="text-sm text-slate-600 hover:text-slate-800"
-      to="/feedback"
-    >
-      Feedback
-    </NuxtLink>
+    <ULink to="/feedback"> Feedback </ULink>
 
-    <n-button tertiary round class="">
+    <UButton variant="ghost" color="neutral">
       <Icon name="mdi:bell-outline" />
-    </n-button>
+    </UButton>
 
-    <UiColorModeToggle />
+    <AppColorModeButton />
 
-    <UiProfileDropdown />
+    <AppProfileDropdown />
   </div>
 </template>

@@ -1,8 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-
 export default defineNuxtConfig({
-  alias: {},
-
   app: {
     head: {
       title: "Scholar Stack",
@@ -16,80 +13,20 @@ export default defineNuxtConfig({
     layoutTransition: { name: "layout", mode: "out-in" },
     pageTransition: { name: "page", mode: "out-in" },
   },
-
-  colorMode: {
-    preference: "light",
-  },
-
+  compatibilityDate: "2025-01-16",
   css: [
-    "@/assets/css/tailwind.css",
-    "notivue/notifications.css",
-    "notivue/animations.css",
+    "~/assets/css/main.css",
     "@vue-flow/core/dist/style.css",
     "@vue-flow/core/dist/theme-default.css",
   ],
-
-  devtools: {
-    enabled: true,
-  },
-
-  experimental: {},
-
-  image: {
-    domains: ["api.dicebear.com"],
-  },
-
-  imports: {
-    dirs: ["stores"],
-  },
+  devtools: { enabled: true },
 
   modules: [
-    "@nuxtjs/supabase",
-    "@pinia/nuxt",
-    "notivue/nuxt",
-    "nuxt-headlessui",
     "@nuxt/ui",
+    "nuxt-auth-utils",
+    "nuxt-headlessui",
     "dayjs-nuxt",
-    [
-      "@nuxtjs/google-fonts",
-      {
-        families: {
-          Inter: true,
-          Onest: true,
-          Poppins: true,
-        },
-      },
-    ],
-    "@nuxt/devtools",
-    "@bg-dev/nuxt-naiveui",
+    "@pinia/nuxt",
     "@nuxt/image",
   ],
-
-  naiveui: {
-    colorModePreference: "light",
-    iconSize: 18,
-    themeConfig: {},
-  },
-
-  nitro: {},
-
-  notivue: {
-    // Options
-  },
-
-  runtimeConfig: {
-    // Keys within public, will be also exposed to the client-side
-    public: {},
-    // The private keys which are only available within server-side
-    UPLOAD_TOKEN_SECRET: process.env.UPLOAD_TOKEN_SECRET,
-  },
-
-  supabase: {
-    redirectOptions: {
-      callback: "/dashboard",
-      cookieRedirect: false,
-      exclude: ["/", "/register", "/view", "/view/*"],
-      login: "/login",
-    },
-  },
 });

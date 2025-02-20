@@ -1,5 +1,7 @@
+import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
+
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
   await collectionMinViewerPermission(event);
 
   const { collectionid, workspaceid } = event.context.params as {
@@ -7,8 +9,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -18,25 +22,22 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // get the latest version of the collection.
-  // This is either the draft or the latest published version
+  // get the draft version of the collection.
   const version = await prisma.version.findFirst({
     include: {
-      ExternalRelations: {
+      ExternalRelation: {
         include: {
           source: true,
         },
       },
-      InternalRelations: {
+      InternalRelation: {
         include: {
           source: true,
           target: true,
         },
       },
     },
-    orderBy: { created: "desc" },
-    take: 1,
-    where: { collection_id: collectionid },
+    where: { collectionId, published: false },
   });
 
   if (!version) {
@@ -47,41 +48,41 @@ export default defineEventHandler(async (event) => {
   }
 
   // get all the relations for the collection
-  const internalRelations = version.InternalRelations.map((relation) => ({
-    id: relation.id,
-    action: relation.action || null,
-    created: relation.created,
-    external: false,
-    original_relation_id: relation.original_relation_id || null,
-    resource_type: relation.resource_type,
-    source_id: relation.source_id,
-    source_name: relation.source.title,
-    source_original_id: relation.source.original_resource_id,
-    target: relation.target_id,
-    target_name: relation.target.title || null,
-    target_original_id: relation.target.original_resource_id || null,
-    target_type: null,
-    type: relation.type,
-    updated: relation.updated,
-  }));
+  const internalRelations: AllRelationsItem[] = version.InternalRelation.map(
+    (relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      external: false,
+      originalRelationId: relation.originalRelationId || null,
+      resourceType: relation.resourceType,
+      source: relation.sourceId,
+      sourceName: relation.source.title,
+      sourceOriginalId: relation.source.originalResourceId,
+      target: relation.targetId,
+      targetName: relation.target.title || null,
+      targetOriginalId: relation.target.originalResourceId || null,
+      targetType: null,
+      type: relation.type,
+    }),
+  );
 
-  const externalRelations = version.ExternalRelations.map((relation) => ({
-    id: relation.id,
-    action: relation.action || null,
-    created: relation.created,
-    external: true,
-    original_relation_id: relation.original_relation_id || null,
-    resource_type: relation.resource_type,
-    source_id: relation.source_id,
-    source_name: relation.source.title,
-    source_original_id: relation.source.original_resource_id,
-    target: relation.target,
-    target_type: relation.target_type,
-    type: relation.type,
-    updated: relation.updated,
-  }));
+  const externalRelations: AllRelationsItem[] = version.ExternalRelation.map(
+    (relation) => ({
+      id: relation.id,
+      action: relation.action || null,
+      external: true,
+      originalRelationId: relation.originalRelationId || null,
+      resourceType: relation.resourceType,
+      source: relation.sourceId,
+      sourceName: relation.source.title,
+      sourceOriginalId: relation.source.originalResourceId,
+      target: relation.target,
+      targetType: relation.targetType,
+      type: relation.type,
+    }),
+  );
 
-  const relations: GroupedRelation[] = [
+  const relations: AllRelationsItem[] = [
     ...internalRelations,
     ...externalRelations,
   ];

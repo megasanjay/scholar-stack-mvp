@@ -50,9 +50,9 @@ export function useLayout() {
 
     dagre.layout(dagreGraph);
 
-    dagreGraph.nodes().forEach(function (v) {
-      console.log("Node " + v + ": " + JSON.stringify(dagreGraph.node(v)));
-    });
+    // dagreGraph.nodes().forEach(function (v) {
+    //   console.log("Node " + v + ": " + JSON.stringify(dagreGraph.node(v)));
+    // });
 
     // set nodes with updated positions
     return nodes.map((node: any) => {

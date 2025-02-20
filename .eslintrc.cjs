@@ -15,27 +15,26 @@ module.exports = {
   plugins: ["unused-imports", "sort-keys-custom-order", "@stylistic/js"],
   root: true,
   rules: {
-    "@typescript-eslint/no-unused-vars": "off",
-
     "@stylistic/js/comma-dangle": ["error", "always-multiline"],
     "@stylistic/js/padding-line-between-statements": [
       "error",
       {
         blankLine: "always",
-        prev: "*",
         next: "return",
+        prev: "*",
       },
       {
         blankLine: "always",
-        prev: ["const", "let", "var"],
         next: "*",
+        prev: ["const", "let", "var"],
       },
       {
         blankLine: "any",
-        prev: ["const", "let", "var"],
         next: ["const", "let", "var"],
+        prev: ["const", "let", "var"],
       },
     ],
+    "@typescript-eslint/no-unused-vars": "off",
 
     endOfLine: "off",
 
@@ -60,6 +59,13 @@ module.exports = {
         argsIgnorePattern: "^_",
         vars: "all",
         varsIgnorePattern: "^_",
+      },
+    ],
+
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
       },
     ],
 

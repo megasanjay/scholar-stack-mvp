@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import type { FormInst } from "naive-ui";
+import { z } from "zod";
+import type { FormSubmitEvent } from "#ui/types";
+import { UInput, USeparator } from "#components";
 
-const user = useSupabaseUser();
+const { user } = useUserSession();
+
+const toast = useToast();
 const route = useRoute();
 
 const workspaceStore = useWorkspaceStore();
 
-const formRef = ref<FormInst>();
-const formValue = reactive({
-  user: "",
+const createForm = useTemplateRef("createForm");
+
+const schema = z.object({
+  user: z.string().min(1, "Username is required"),
 });
 
-const rules = {
-  role: {
-    message: "Please enter a role",
-    required: true,
-  },
-  user: {
-    message: "Please enter a username or email address",
-    required: true,
-  },
-};
+type Schema = z.output<typeof schema>;
+
+const state = reactive({
+  user: "",
+});
 
 const permissionChangeLoading = ref("");
 const inviteLoading = ref(false);
@@ -38,22 +38,36 @@ const currentWorkspace = computed(() => {
 });
 
 const personalWorkspace = computed(() => {
-  return currentWorkspace.value?.personal;
+  return currentWorkspace.value?.personal || false;
 });
+
+const tabItems = [
+  {
+    icon: "mdi:users",
+    label: "Team Members",
+    slot: "teamMembers",
+  },
+  {
+    disabled: personalWorkspace.value,
+    icon: "i-lucide-inbox",
+    label: "Pending Invitations",
+    slot: "pendingInvitations",
+  },
+];
 
 const { data: members, error } = await useFetch(
   `/api/workspaces/${workspaceid}/members`,
-  {
-    headers: useRequestHeaders(["cookie"]),
-  },
+  {},
 );
 
 if (error.value) {
   console.log(error.value);
 
-  push.error({
+  toast.add({
     title: "Something went wrong",
-    message: "We couldn't load your workspace details",
+    color: "error",
+    description: "We couldn't load your workspace details",
+    icon: "material-symbols:error",
   });
 }
 
@@ -76,34 +90,63 @@ const generateManageOptions = (memberId: string) => {
   }
 
   return [
-    {
-      disabled:
-        members.value?.members.length === 1 || user.value?.id === memberId,
-      key: "makeWorkspaceAdmin",
-      label: "Assign as Administrator",
-      show:
-        (workspacePermission.value === "owner" ||
-          workspacePermission.value === "admin") &&
-        !selectedMember.admin &&
-        !selectedMember.owner,
-    },
-    {
-      key: "removeAdministrator",
-      label: "Remove Administrator Role",
-      show: selectedMember.admin && selectedMember.id !== currentMember.id,
-    },
-    {
-      disabled: currentMember.owner,
-      key: "leaveWorkspace",
-      label: "Leave Workspace",
-      show: selectedMember.id === currentMember.id,
-    },
-    {
-      disabled: selectedMember.owner || selectedMember.admin,
-      key: "removeMember",
-      label: "Remove from Workspace",
-      show: selectedMember.id !== currentMember.id,
-    },
+    ...((workspacePermission.value === "owner" ||
+      workspacePermission.value === "admin") &&
+    !selectedMember.admin &&
+    !selectedMember.owner
+      ? [
+          {
+            disabled:
+              members.value?.members.length === 1 ||
+              user.value?.id === memberId,
+            icon: "i-lucide-user-plus",
+            key: "makeWorkspaceAdmin",
+            label: "Assign as Administrator",
+            onSelect: () => {
+              manageMember("makeWorkspaceAdmin");
+            },
+          },
+        ]
+      : []),
+    ...(selectedMember.admin && selectedMember.id !== currentMember.id
+      ? [
+          {
+            icon: "i-lucide-user-minus",
+            key: "removeAdministrator",
+            label: "Remove Administrator Role",
+            onSelect: () => {
+              manageMember("removeAdministrator");
+            },
+          },
+        ]
+      : []),
+
+    ...(selectedMember.id === currentMember.id
+      ? [
+          {
+            disabled: currentMember.owner,
+            icon: "i-lucide-user-minus",
+            key: "leaveWorkspace",
+            label: "Leave Workspace",
+            onSelect: () => {
+              manageMember("leaveWorkspace");
+            },
+          },
+        ]
+      : []),
+    ...(selectedMember.id !== currentMember.id
+      ? [
+          {
+            disabled: selectedMember.owner || selectedMember.admin,
+            icon: "i-lucide-user-minus",
+            key: "removeMember",
+            label: "Remove from Workspace",
+            onSelect: () => {
+              manageMember("removeMember");
+            },
+          },
+        ]
+      : []),
   ];
 };
 
@@ -121,21 +164,25 @@ const manageMember = async (key: string) => {
 
     await $fetch(`/api/workspaces/${workspaceid}/members`, {
       body: JSON.stringify(body),
-      headers: useRequestHeaders(["cookie"]),
+
       method: "DELETE",
     })
-      .then(async (_res) => {
+      .then(async () => {
         if (key === "leaveWorkspace") {
-          push.success({
-            title: "Left Workspace",
-            message: "You've left this workspace",
+          toast.add({
+            title: "Left workspace",
+            color: "success",
+            description: "You've left this workspace",
+            icon: "material-symbols:check-bold",
           });
 
           await navigateTo("/dashboard/workspaces");
         } else if (key === "removeMember") {
-          push.success({
-            title: "Member Removed",
-            message: "We've removed this member from your workspace",
+          toast.add({
+            title: "Member removed",
+            color: "success",
+            description: "We've removed this member from your workspace",
+            icon: "material-symbols:check-bold",
           });
 
           window.location.reload();
@@ -143,10 +190,11 @@ const manageMember = async (key: string) => {
       })
       .catch((err) => {
         console.log(err);
-
-        push.error({
+        toast.add({
           title: "Something went wrong",
-          message: "We couldn't remove this member from your workspace",
+          color: "error",
+          description: "We couldn't remove this member from your workspace",
+          icon: "material-symbols:error",
         });
       })
       .finally(() => {
@@ -162,13 +210,15 @@ const manageMember = async (key: string) => {
 
     await $fetch(`/api/workspaces/${workspaceid}/members/admin`, {
       body: JSON.stringify(body),
-      headers: useRequestHeaders(["cookie"]),
+
       method: "POST",
     })
-      .then((_res) => {
-        push.success({
-          title: "Member Promoted",
-          message: "We've promoted this member to an administrator",
+      .then(() => {
+        toast.add({
+          title: "Member promoted",
+          color: "success",
+          description: "We've promoted this member to an administrator",
+          icon: "material-symbols:check-bold",
         });
 
         window.location.reload();
@@ -176,9 +226,11 @@ const manageMember = async (key: string) => {
       .catch((err) => {
         console.log(err);
 
-        push.error({
+        toast.add({
           title: "Something went wrong",
-          message: "We couldn't promote this member to an administrator",
+          color: "error",
+          description: "We couldn't promote this member to an administrator",
+          icon: "material-symbols:error",
         });
       })
       .finally(() => {
@@ -193,13 +245,15 @@ const manageMember = async (key: string) => {
 
     await $fetch(`/api/workspaces/${workspaceid}/members/admin`, {
       body: JSON.stringify(body),
-      headers: useRequestHeaders(["cookie"]),
+
       method: "DELETE",
     })
-      .then((_res) => {
-        push.success({
-          title: "Administrator Role Removed",
-          message: "We've removed the administrator role from this member",
+      .then(() => {
+        toast.add({
+          title: "Administrator role removed",
+          color: "success",
+          description: "We've removed the administrator role from this member",
+          icon: "material-symbols:check-bold",
         });
 
         window.location.reload();
@@ -207,9 +261,12 @@ const manageMember = async (key: string) => {
       .catch((err) => {
         console.log(err);
 
-        push.error({
+        toast.add({
           title: "Something went wrong",
-          message: "We couldn't remove the administrator role from this member",
+          color: "error",
+          description:
+            "We couldn't remove the administrator role from this member",
+          icon: "material-symbols:error",
         });
       })
       .finally(() => {
@@ -225,13 +282,15 @@ const cancelInvitation = async (memberId: string) => {
 
   await $fetch(`/api/workspaces/${workspaceid}/members/invitation`, {
     body: JSON.stringify({ emailAddress: memberId }),
-    headers: useRequestHeaders(["cookie"]),
+
     method: "DELETE",
   })
-    .then((_res) => {
-      push.success({
-        title: "Invitation Cancelled",
-        message: "We've cancelled the invitation for this user",
+    .then(() => {
+      toast.add({
+        title: "Invitation cancelled",
+        color: "success",
+        description: "We've cancelled the invitation for this user",
+        icon: "material-symbols:check-bold",
       });
 
       window.location.reload();
@@ -239,9 +298,11 @@ const cancelInvitation = async (memberId: string) => {
     .catch((err) => {
       console.log(err);
 
-      push.error({
+      toast.add({
         title: "Something went wrong",
-        message: "We couldn't cancel the invitation for this user",
+        color: "error",
+        description: "We couldn't cancel the invitation for this user",
+        icon: "material-symbols:error",
       });
     })
     .finally(() => {
@@ -249,56 +310,52 @@ const cancelInvitation = async (memberId: string) => {
     });
 };
 
-const inviteMember = () => {
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      const body = {
-        user: formValue.user,
-      };
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const body = {
+    user: event.data.user,
+  };
 
-      inviteLoading.value = true;
+  inviteLoading.value = true;
 
-      await $fetch(`/api/workspaces/${workspaceid}/members`, {
-        body: JSON.stringify(body),
-        headers: useRequestHeaders(["cookie"]),
-        method: "POST",
-      })
-        .then((_res) => {
-          inviteLoading.value = false;
+  await $fetch(`/api/workspaces/${workspaceid}/members`, {
+    body: JSON.stringify(body),
 
-          push.success({
-            title: "Member Invited",
-            message:
-              "We've sent an invitation for this user to join your workspace",
-          });
+    method: "POST",
+  })
+    .then(() => {
+      inviteLoading.value = false;
 
-          formValue.user = "";
+      toast.add({
+        title: "Member invited",
+        color: "success",
+        description:
+          "We've sent an invitation for this user to join your workspace",
+        icon: "material-symbols:check-bold",
+      });
 
-          window.location.reload();
-        })
-        .catch((err) => {
-          console.log(err);
+      state.user = "";
+    })
+    .catch((err) => {
+      console.log(err);
 
-          push.error({
-            title: "Something went wrong",
-            message: "We couldn't invite this user to your workspace",
-          });
-        })
-        .finally(() => {
-          inviteLoading.value = false;
-        });
-    } else {
-      console.log(errors);
-    }
-  });
-};
+      toast.add({
+        title: "Something went wrong",
+        color: "error",
+        description: "We couldn't invite this user to your workspace",
+        icon: "material-symbols:error",
+      });
+    })
+    .finally(() => {
+      inviteLoading.value = false;
+    });
+}
 </script>
 
 <template>
   <div class="flex flex-col">
     <h2 class="text-xl">Team</h2>
 
-    <p class="pb-6 pt-1 text-slate-700">
+    <p class="pt-1 pb-6 text-slate-700">
       Invite your team members to collaborate on your workspace and projects.
     </p>
 
@@ -310,33 +367,29 @@ const inviteMember = () => {
           </h3>
         </div>
 
-        <n-divider />
+        <USeparator class="my-4" />
 
-        <n-form
-          ref="formRef"
-          inline
-          :label-width="80"
-          :model="formValue"
-          :rules="rules"
-          size="large"
-          class="space-x-8"
+        <UForm
+          ref="createForm"
+          :schema="schema"
+          :state="state"
+          @submit="onSubmit"
         >
-          <div class="w-full">
-            <n-form-item label="Username or Email Address" path="user">
-              <n-input
-                v-model:value="formValue.user"
-                :disabled="
-                  personalWorkspace ||
-                  inviteLoading ||
-                  workspacePermissionGetLoading ||
-                  (workspacePermission !== 'owner' &&
-                    workspacePermission !== 'admin')
-                "
-                placeholder="hi@sciconnect.io"
-              />
-            </n-form-item>
-          </div>
-        </n-form>
+          <UFormField label="Email Address" name="user">
+            <UInput
+              v-model="state.user"
+              placeholder="hi@sciconnect.io"
+              size="lg"
+              :disabled="
+                personalWorkspace ||
+                inviteLoading ||
+                workspacePermissionGetLoading ||
+                (workspacePermission !== 'owner' &&
+                  workspacePermission !== 'admin')
+              "
+            />
+          </UFormField>
+        </UForm>
       </div>
 
       <div
@@ -351,53 +404,51 @@ const inviteMember = () => {
           automatically added to your workspace.
         </p>
 
-        <n-button
-          color="black"
-          size="large"
+        <UButton
+          color="primary"
+          icon="mingcute:invite-fill"
+          size="lg"
           :loading="inviteLoading || workspacePermissionGetLoading"
           :disabled="
             personalWorkspace ||
             (workspacePermission !== 'owner' && workspacePermission !== 'admin')
           "
-          @click="inviteMember"
+          @click="createForm?.submit()"
         >
-          <template #icon>
-            <Icon name="mingcute:invite-fill" />
-          </template>
-
-          Send Invite
-        </n-button>
+          Send invite
+        </UButton>
       </div>
     </div>
 
-    <pre>{{ selectedMember }}</pre>
-
     <div class="py-6">
-      <n-tabs type="line" animated>
-        <n-tab-pane name="teamMembers" tab="Team Members">
+      <UTabs
+        :items="tabItems"
+        orientation="horizontal"
+        variant="link"
+        class="w-full gap-4"
+        :ui="{ trigger: 'cursor-pointer' }"
+      >
+        <template #teamMembers>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between space-x-4 pb-4 pt-2">
-              <n-input placeholder="Filter..." size="large">
-                <template #prefix>
-                  <Icon
-                    name="iconamoon:search-duotone"
-                    size="20"
-                    class="mr-2"
-                  />
-                </template>
-              </n-input>
+            <div class="flex items-center justify-between space-x-4 pt-2 pb-4">
+              <UInput
+                placeholder="Filter..."
+                icon="iconamoon:search-duotone"
+                size="lg"
+                type="search"
+              />
             </div>
 
             <div
               v-for="member in members?.members"
               :key="member.id"
-              class="-mt-[1px] flex items-center justify-between border border-slate-200 bg-white p-5"
+              class="-mt-[1px] flex items-center justify-between rounded-md border border-slate-200 bg-white p-5"
             >
               <div class="flex items-center space-x-3">
-                <n-avatar
-                  :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${member.id}`"
-                  :size="50"
-                  round
+                <UAvatar
+                  size="xl"
+                  class="rounded-sm"
+                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
                 />
 
                 <div class="flex flex-col">
@@ -416,20 +467,34 @@ const inviteMember = () => {
               </div>
 
               <div class="relative flex items-center space-x-6">
-                <n-tag v-if="member.admin" type="info"> Administrator </n-tag>
+                <UBadge v-if="member.admin" color="info" variant="soft">
+                  Administrator
+                </UBadge>
 
-                <n-tag v-if="member.owner" type="info"> Owner </n-tag>
+                <UBadge v-if="member.owner" color="info" variant="soft">
+                  Owner
+                </UBadge>
 
-                <n-divider v-if="member.admin || member.owner" vertical />
+                <USeparator
+                  v-if="member.admin || member.owner"
+                  orientation="vertical"
+                  class="h-5"
+                />
 
-                <n-dropdown
-                  trigger="click"
-                  placement="bottom-end"
-                  :options="generateManageOptions(member.id)"
-                  @select="manageMember"
+                <UDropdownMenu
+                  :items="generateManageOptions(member.id)"
+                  :content="{
+                    align: 'end',
+                    side: 'bottom',
+                    sideOffset: 8,
+                  }"
+                  :ui="{
+                    content: 'w-48',
+                  }"
                 >
-                  <n-button
-                    secondary
+                  <UButton
+                    icon="iconamoon:menu-kebab-vertical-bold"
+                    color="neutral"
                     :disabled="
                       personalWorkspace ||
                       (member.id !== user?.id &&
@@ -440,34 +505,24 @@ const inviteMember = () => {
                       workspacePermissionGetLoading ||
                       permissionChangeLoading === member.id
                     "
+                    variant="ghost"
                     @click="selectedMember = member.id"
-                  >
-                    <template #icon>
-                      <Icon name="iconamoon:menu-kebab-vertical-bold" />
-                    </template>
-                  </n-button>
-                </n-dropdown>
+                  />
+                </UDropdownMenu>
               </div>
             </div>
           </div>
-        </n-tab-pane>
+        </template>
 
-        <n-tab-pane
-          name="pendingInvitations"
-          tab="Pending Invitations"
-          :disabled="personalWorkspace"
-        >
+        <template #pendingInvitations>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between space-x-4 pb-4 pt-2">
-              <n-input placeholder="Filter..." size="large">
-                <template #prefix>
-                  <Icon
-                    name="iconamoon:search-duotone"
-                    size="20"
-                    class="mr-2"
-                  />
-                </template>
-              </n-input>
+            <div class="flex items-center justify-between space-x-4 pt-2 pb-4">
+              <UInput
+                placeholder="Filter..."
+                icon="iconamoon:search-duotone"
+                size="lg"
+                type="search"
+              />
             </div>
 
             <div
@@ -476,10 +531,10 @@ const inviteMember = () => {
               class="flex items-center justify-between border border-slate-200 bg-white p-5"
             >
               <div class="flex items-center space-x-3">
-                <n-avatar
-                  :src="`https://api.dicebear.com/6.x/thumbs/svg?seed=${member.id}`"
-                  :size="50"
-                  round
+                <UAvatar
+                  size="xl"
+                  class="rounded-sm"
+                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
                 />
 
                 <div class="flex flex-col">
@@ -493,30 +548,27 @@ const inviteMember = () => {
               </div>
 
               <div class="relative flex items-center space-x-6">
-                <n-button
+                <UButton
                   v-if="
                     workspacePermission === 'owner' ||
                     workspacePermission === 'admin'
                   "
-                  secondary
-                  type="error"
+                  color="error"
                   :disabled="personalWorkspace"
                   :loading="
                     workspacePermissionGetLoading ||
                     permissionChangeLoading === member.id
                   "
+                  icon="hugeicons:user-remove-01"
                   @click="cancelInvitation(member.id)"
                 >
-                  <template #icon>
-                    <Icon name="hugeicons:user-remove-01" />
-                  </template>
                   Cancel Invitation
-                </n-button>
+                </UButton>
               </div>
             </div>
           </div>
-        </n-tab-pane>
-      </n-tabs>
+        </template>
+      </UTabs>
     </div>
   </div>
 </template>

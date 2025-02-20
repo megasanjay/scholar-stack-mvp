@@ -1,13 +1,13 @@
 interface ResourceType {
   id: string;
   title: string;
-  back_link_id: string | null;
-  version_label: string | null;
+  backLinkId: string | null;
+  versionLabel: string | null;
   description: string;
-  resource_type: string;
-  identifier_type: string | null;
+  resourceType: string;
+  identifierType: string | null;
   action?: string;
-  filled_in?: boolean;
+  filledIn?: boolean;
   identifier: string;
   created: string;
   updated: string;
@@ -21,8 +21,6 @@ interface ResourcesListItemChild {
 interface ResourcesListItemChildren extends Array<ResourcesListItemChild> {}
 
 interface ResourcesListItem {
-  // children: ResourcesListItemChildren;
-  // key: string;
   label: string;
   value: string;
   versionLabel?: string | null;

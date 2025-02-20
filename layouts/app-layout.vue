@@ -47,12 +47,6 @@ const currentLayout = computed(() => {
               'border-b border-gray-200': currentLayout === 'resource-layout',
             }"
           />
-
-          <HeaderResourcesSubMenu
-            v-if="currentLayout === 'resource-layout'"
-            :key="$route.fullPath"
-            class="px-4 lg:px-6"
-          />
         </div>
 
         <div class="flex w-full items-center justify-between px-4 lg:px-6">
@@ -63,6 +57,8 @@ const currentLayout = computed(() => {
       </nav>
     </header>
 
-    <slot />
+    <div class="px-3">
+      <slot />
+    </div>
   </div>
 </template>

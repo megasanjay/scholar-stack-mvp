@@ -1,5 +1,8 @@
+import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
+import touchCollection from "~/server/utils/collection/touchCollection";
+
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
   await collectionMinEditorPermission(event);
 
   const { collectionid, relationid, workspaceid } = event.context.params as {
@@ -8,8 +11,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -19,17 +24,17 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if the relation is part of the draft version
-  const relation = await prisma.externalRelation.findFirst({
-    where: {
-      id: relationid,
-      Version: {
-        some: {
-          published: false,
-        },
-      },
+  // get the draft version of the collection.
+  const version = await prisma.version.findFirst({
+    include: {
+      ExternalRelation: true,
     },
+
+    where: { collectionId, published: false },
   });
+
+  // Check if the relation is part of the draft version
+  const relation = version?.ExternalRelation.find((r) => r.id === relationid);
 
   if (!relation) {
     throw createError({
@@ -38,8 +43,7 @@ export default defineEventHandler(async (event) => {
     });
   }
   // Delete the relation
-
-  if (!relation.original_relation_id) {
+  if (!relation.originalRelationId) {
     await prisma.externalRelation.delete({
       where: { id: relationid },
     });
@@ -52,7 +56,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await touchCollection(collectionid);
+  await touchCollection(collectionId);
 
   return {
     message: "Relation removed",

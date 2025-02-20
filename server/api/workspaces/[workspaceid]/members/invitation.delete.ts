@@ -1,7 +1,8 @@
 import { z } from "zod";
+import workspaceMinAdminPermission from "~/server/utils/workspace/workspaceMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
 
   const bodySchema = z
     .object({
@@ -58,8 +59,8 @@ export default defineEventHandler(async (event) => {
   // Check if the user is on the invited members list
   const invitedMember = await prisma.invite.findFirst({
     where: {
-      email_address: emailAddress,
-      workspace_id: workspaceid,
+      emailAddress,
+      workspaceId: workspaceid,
     },
   });
 
@@ -73,8 +74,8 @@ export default defineEventHandler(async (event) => {
   // Remove the user from the invited members list
   const deletedRecord = await prisma.invite.deleteMany({
     where: {
-      email_address: emailAddress,
-      workspace_id: workspaceid,
+      emailAddress,
+      workspaceId: workspaceid,
     },
   });
 

@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { serverSupabaseUser } from "#supabase/server";
+import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  const session = await requireUserSession(event);
 
-  const loggedInUser = await serverSupabaseUser(event);
+  const { user: loggedInUser } = session;
   const loggedInUserId = loggedInUser?.id as string;
 
   const bodySchema = z
@@ -42,6 +42,8 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   if (userid === loggedInUserId) {
     // The user is trying to remove themselves from the collection
 
@@ -49,16 +51,16 @@ export default defineEventHandler(async (event) => {
     const workspaceAdmin = await prisma.workspaceMember.findFirst({
       where: {
         admin: true,
-        user_id: userid,
-        workspace_id: workspaceid,
+        userId: userid,
+        workspaceId: workspaceid,
       },
     });
 
     const workspaceOwner = await prisma.workspaceMember.findFirst({
       where: {
         owner: true,
-        user_id: userid,
-        workspace_id: workspaceid,
+        userId: userid,
+        workspaceId: workspaceid,
       },
     });
 
@@ -75,8 +77,8 @@ export default defineEventHandler(async (event) => {
   // Check if the user is a member of the workspace
   const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
-      user_id: userid,
-      workspace_id: workspaceid,
+      userId: userid,
+      workspaceId: workspaceid,
     },
   });
 
@@ -90,8 +92,8 @@ export default defineEventHandler(async (event) => {
   // Get the collection access record for the user
   const collectionRoleRecord = await prisma.collectionAccess.findFirst({
     where: {
-      collection_id: collectionid,
-      user_id: userid,
+      collectionId,
+      userId: userid,
     },
   });
 
@@ -103,9 +105,9 @@ export default defineEventHandler(async (event) => {
   } else {
     await prisma.collectionAccess.delete({
       where: {
-        user_id_collection_id: {
-          collection_id: collectionid,
-          user_id: userid,
+        userId_collectionId: {
+          collectionId,
+          userId: userid,
         },
       },
     });

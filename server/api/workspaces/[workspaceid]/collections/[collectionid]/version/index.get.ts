@@ -1,5 +1,7 @@
+import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
+
 export default defineEventHandler(async (event) => {
-  await protectRoute(event);
+  await requireUserSession(event);
   await collectionMinViewerPermission(event);
 
   const { collectionid, workspaceid } = event.context.params as {
@@ -7,8 +9,10 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionid, workspace_id: workspaceid },
+    where: { id: collectionId, workspaceId: workspaceid },
   });
 
   if (!collection) {
@@ -22,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const version = await prisma.version.findMany({
     orderBy: { created: "desc" },
     take: 1,
-    where: { collection_id: collectionid },
+    where: { collectionId },
   });
 
   return {
@@ -33,9 +37,8 @@ export default defineEventHandler(async (event) => {
             name: version[0].name,
             changelog: version[0].changelog,
             created: version[0].created,
-            identifier: version[0].identifier,
             published: version[0].published,
-            published_on: version[0].published_on,
+            publishedOn: version[0].publishedOn,
             updated: version[0].updated,
           }
         : null,

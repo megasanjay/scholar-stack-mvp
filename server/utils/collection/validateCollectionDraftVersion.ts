@@ -6,13 +6,15 @@ export default defineEventHandler(async (event) => {
     workspaceid: string;
   };
 
+  const collectionId = parseInt(collectionid);
+
   // get the draft versions of the collection
   const versions = await prisma.version.findMany({
     include: {
-      Resources: true,
+      Resource: true,
     },
     orderBy: { created: "desc" },
-    where: { collection_id: collectionid, published: false },
+    where: { collectionId, published: false },
   });
 
   if (versions.length === 0) {
@@ -31,14 +33,14 @@ export default defineEventHandler(async (event) => {
 
   const version = versions[0];
 
-  const resources = version.Resources;
+  const resources = version.Resource;
 
   const resourceSchema = z.object({
     title: z.string().min(1),
     description: z.string(),
     identifier: z.string().min(1),
-    identifier_type: z.string().min(1),
-    resource_type: z.string().min(1),
+    identifierType: z.string().min(1),
+    resourceType: z.string().min(1),
   });
 
   const resourcesWithErrors = [];
