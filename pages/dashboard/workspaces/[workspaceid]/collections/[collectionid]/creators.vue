@@ -411,7 +411,7 @@ function onError(event: FormErrorEvent) {
           v-model:open="showCreatorDrawer"
           title="Add a Creator"
           description="A personal or organizational creator can be added."
-          class="space-y-4"
+          class="gap-4"
           :ui="{ footer: 'justify-end' }"
         >
           <template #body>
@@ -419,7 +419,7 @@ function onError(event: FormErrorEvent) {
               ref="createForm"
               :validate="validateForm"
               :state="selectedCreator"
-              class="space-y-4"
+              class="gap-4"
               @submit="onSubmit"
               @error="onError"
             >
@@ -504,7 +504,7 @@ function onError(event: FormErrorEvent) {
               size="lg"
               :loading="loading"
               type="submit"
-              @click="createForm?.submit"
+              @click="createForm?.submit;"
             >
               Save Creator
             </UButton>

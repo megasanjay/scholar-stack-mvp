@@ -293,7 +293,7 @@ const updateThumbnail = async (evt: any) => {
 </script>
 
 <template>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col gap-4">
     <CardWithAction title="Thumbnail">
       <div class="flex items-start justify-between">
         <p class="my-3 text-sm">
@@ -527,7 +527,7 @@ const updateThumbnail = async (evt: any) => {
                   </div>
 
                   <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">
                       Are you sure you want to reset this collection?
                     </h3>
 
@@ -541,7 +541,7 @@ const updateThumbnail = async (evt: any) => {
                 </div>
 
                 <template #footer>
-                  <div class="flex items-center justify-end space-x-2">
+                  <div class="flex items-center justify-end gap-2">
                     <UButton
                       icon="material-symbols:cancel-outline"
                       color="error"

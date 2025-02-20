@@ -33,14 +33,14 @@ const isDraftVersion = computed(() => {
 </script>
 
 <template>
-  <div class="submenu flex items-center space-x-5 pt-4">
+  <div class="submenu flex items-center gap-5 pt-4">
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500"
+      class="flex items-center gap-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}`"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon name="material-symbols:overview-key-outline-rounded" />
 
@@ -49,7 +49,7 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500"
+      class="flex items-center gap-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :class="{
         'border-b-2 border-slate-800 text-slate-900': isResourcePage,
@@ -57,7 +57,7 @@ const isDraftVersion = computed(() => {
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources`"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon name="cil:list" />
 
@@ -66,12 +66,12 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500"
+      class="flex items-center gap-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon name="icon-park-twotone:connection-point-two" />
 
@@ -80,12 +80,12 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500"
+      class="flex items-center gap-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/creators`"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon name="mdi:people" />
 
@@ -94,7 +94,7 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500 transition-all"
+      class="flex items-center gap-1 text-slate-500 transition-all"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/changelog`"
       :class="{
@@ -104,7 +104,7 @@ const isDraftVersion = computed(() => {
       }"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon :name="pending ? 'svg-spinners:90-ring' : 'mdi:history'" />
 
@@ -113,7 +113,7 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500 transition-all"
+      class="flex items-center gap-1 text-slate-500 transition-all"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/publish`"
       :class="{
@@ -123,7 +123,7 @@ const isDraftVersion = computed(() => {
       }"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon :name="pending ? 'svg-spinners:90-ring' : 'entypo:publish'" />
 
@@ -132,12 +132,12 @@ const isDraftVersion = computed(() => {
     </NuxtLink>
 
     <NuxtLink
-      class="flex items-center space-x-1 text-slate-500"
+      class="flex items-center gap-1 text-slate-500"
       active-class="border-b-2 border-slate-800 text-slate-900"
       :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/settings`"
     >
       <div
-        class="mb-1 flex items-center space-x-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
       >
         <Icon name="material-symbols:settings-outline" />
 

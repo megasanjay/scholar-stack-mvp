@@ -18,7 +18,7 @@ const route = useRoute();
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 py-10 lg:px-20">
-      <div class="flex w-full items-start justify-start space-x-12">
+      <div class="flex w-full items-start justify-start gap-12">
         <aside class="flex w-40 flex-col">
           <NuxtLink
             :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/settings`"

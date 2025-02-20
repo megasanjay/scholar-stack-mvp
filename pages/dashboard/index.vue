@@ -66,9 +66,9 @@ workspaceStore.setWorkspaces(workspaces.value || []);
           v-for="workspace in workspaces"
           :key="workspace.id"
           :to="`/dashboard/workspaces/${workspace.id}`"
-          class="flex w-full flex-col space-y-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+          class="flex w-full flex-col gap-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
         >
-          <div class="flex w-full items-start justify-start space-x-2">
+          <div class="flex w-full items-start justify-start gap-2">
             <UAvatar
               size="xl"
               :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"

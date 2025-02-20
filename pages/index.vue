@@ -64,7 +64,7 @@ useSeoMeta({
             </p>
 
             <div
-              class="mb-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 lg:mb-16"
+              class="mb-8 flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 lg:mb-16"
             >
               <NuxtLink
                 to="/dashboard"
@@ -90,7 +90,7 @@ useSeoMeta({
                 class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100"
               >
                 <svg
-                  class="mr-2 -ml-1 h-5 w-5"
+                  class="-ml-1 mr-2 h-5 w-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +106,7 @@ useSeoMeta({
             <div
               class="mx-auto px-4 pb-5 text-center md:max-w-screen-md lg:max-w-screen-lg lg:px-36"
             >
-              <span class="text-base font-medium text-gray-800 uppercase">
+              <span class="text-base font-medium uppercase text-gray-800">
                 Trusted by research teams around the world
               </span>
             </div>
@@ -151,7 +151,7 @@ useSeoMeta({
         </div>
 
         <div
-          class="mb-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0 lg:mb-16"
+          class="mb-8 flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 lg:mb-16"
         >
           <NuxtLink
             to="/dashboard"

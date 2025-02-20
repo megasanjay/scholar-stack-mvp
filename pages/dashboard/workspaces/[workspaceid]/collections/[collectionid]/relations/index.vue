@@ -1086,7 +1086,7 @@ onMounted(() => {
           ? 'External relations are created between a resouce in this collection and an outside resource.'
           : 'Internal relations are created between two resources in this collection.'
       "
-      class="space-y-4"
+      class="gap-4"
       :ui="{ footer: 'justify-end' }"
     >
       <template #body>
@@ -1094,7 +1094,7 @@ onMounted(() => {
           ref="createForm"
           :validate="validateForm"
           :state="selectedRelation"
-          class="space-y-4"
+          class="gap-4"
           @submit="onSubmit"
           @error="onError"
         >

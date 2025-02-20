@@ -429,7 +429,7 @@ const inviteMember = async () => {
         :key="member.id"
         class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-5"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center gap-3">
           <UAvatar
             :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
             size="xl"
@@ -449,7 +449,7 @@ const inviteMember = async () => {
           </div>
         </div>
 
-        <div class="relative flex items-center space-x-6">
+        <div class="relative flex items-center gap-6">
           <UBadge
             v-if="member.role === 'workspace-admin'"
             color="info"
@@ -516,7 +516,7 @@ const inviteMember = async () => {
         :key="member.id"
         class="flex items-center justify-between border border-slate-200 bg-white p-5"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center gap-3">
           <UAvatar
             :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
             size="xl"
@@ -536,7 +536,7 @@ const inviteMember = async () => {
           </div>
         </div>
 
-        <div class="relative flex items-center space-x-6">
+        <div class="relative flex items-center gap-6">
           <UDropdownMenu
             :items="generateEditorDropdownOptions(member.id)"
             :content="{

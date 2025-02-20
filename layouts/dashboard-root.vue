@@ -14,7 +14,7 @@ const devMode = process.env.NODE_ENV === "development";
         <div class="mx-auto flex flex-wrap items-center justify-between">
           <NuxtLink
             to="/"
-            class="flex flex-row items-center justify-start space-x-2"
+            class="flex flex-row items-center justify-start gap-2"
           >
             <span class="text-xl font-bold"> SciConnect </span>
           </NuxtLink>

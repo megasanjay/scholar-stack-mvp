@@ -54,13 +54,13 @@ const gapClass = computed(() => {
     case "none":
       return "space-x-0";
     case "small":
-      return "space-x-2";
+      return "gap-2";
     case "medium":
-      return "space-x-4";
+      return "gap-4";
     case "large":
       return "space-x-8";
     default:
-      return "space-x-2";
+      return "gap-2";
   }
 });
 </script>

@@ -91,7 +91,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         ref="createForm"
         :schema="schema"
         :state="state"
-        class="space-y-4"
+        class="gap-4"
         @submit="onSubmit"
       >
         <UFormField label="Name" name="name">

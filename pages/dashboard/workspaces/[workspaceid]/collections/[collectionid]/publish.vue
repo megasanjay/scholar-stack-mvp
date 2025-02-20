@@ -153,7 +153,7 @@ const publishCollection = async () => {
                   </div>
 
                   <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">
                       Are you sure you want to publish this collection?
                     </h3>
 
@@ -169,7 +169,7 @@ const publishCollection = async () => {
                 </div>
 
                 <template #footer>
-                  <div class="flex items-center justify-end space-x-2">
+                  <div class="flex items-center justify-end gap-2">
                     <UButton
                       color="error"
                       variant="soft"
@@ -216,7 +216,7 @@ const publishCollection = async () => {
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pt-10 pb-5">
+      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
         <h2 class="text-2xl font-bold">
           Let's see if all details are provided
         </h2>
@@ -290,7 +290,7 @@ const publishCollection = async () => {
 
       <USeparator class="my-5" />
 
-      <div class="flex items-center justify-between space-x-4 py-5">
+      <div class="flex items-center justify-between gap-4 py-5">
         <h2 class="text-2xl font-bold">Changelog</h2>
 
         <NuxtLink

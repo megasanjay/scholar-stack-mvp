@@ -121,7 +121,7 @@ const saveChangelog = async () => {
           <h1 class="text-4xl font-black">Changelog</h1>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-2">
           <UButton
             v-if="!data?.version?.published"
             size="lg"
@@ -138,7 +138,7 @@ const saveChangelog = async () => {
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pt-10 pb-5">
+      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
         <MdEditor
           v-model="changelog"
           class="mt-0"

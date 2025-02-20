@@ -212,7 +212,7 @@ const createNewVersion = async () => {
 
                       <div class="mt-2 text-center sm:ml-4 sm:text-left">
                         <h3
-                          class="text-base leading-6 font-semibold text-gray-900"
+                          class="text-base font-semibold leading-6 text-gray-900"
                         >
                           Are you sure you want to remove this resource?
                         </h3>
@@ -229,7 +229,7 @@ const createNewVersion = async () => {
                     </div>
 
                     <template #footer>
-                      <div class="flex items-center justify-end space-x-2">
+                      <div class="flex items-center justify-end gap-2">
                         <UButton
                           icon="material-symbols:cancel-outline"
                           color="error"
@@ -290,7 +290,7 @@ const createNewVersion = async () => {
 
                       <div class="mt-2 text-center sm:ml-4 sm:text-left">
                         <h3
-                          class="text-base leading-6 font-semibold text-gray-900"
+                          class="text-base font-semibold leading-6 text-gray-900"
                         >
                           Are you sure you want to create a new version of this
                           resource?
@@ -307,7 +307,7 @@ const createNewVersion = async () => {
                     </div>
 
                     <template #footer>
-                      <div class="flex items-center justify-end space-x-2">
+                      <div class="flex items-center justify-end gap-2">
                         <UButton
                           icon="material-symbols:cancel-outline"
                           color="error"
@@ -355,7 +355,7 @@ const createNewVersion = async () => {
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <div class="flex items-center justify-between space-x-4 pt-10 pb-5">
+      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
         <h2 class="text-2xl font-bold">About</h2>
 
         <ULink

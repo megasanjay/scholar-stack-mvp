@@ -227,7 +227,7 @@ const navigateToResource = (resourceid: string) => {
               <TransitionFade>
                 <div
                   v-if="workspaceStore.getLoading"
-                  class="flex items-center justify-start space-x-2"
+                  class="flex items-center justify-start gap-2"
                 >
                   <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
@@ -239,7 +239,7 @@ const navigateToResource = (resourceid: string) => {
 
                 <div
                   v-else
-                  class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
+                  class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
                 >
                   <UAvatar
                     :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${currentWorkspace?.id}`"
@@ -285,7 +285,7 @@ const navigateToResource = (resourceid: string) => {
             enter-to-class="opacity-100 transform origin-top-right scale-100"
           >
             <HeadlessListboxOptions
-              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-slate-300 sm:text-sm"
+              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-slate-300 sm:text-sm"
             >
               <HeadlessListboxOption
                 v-slot="{ active, selected }"
@@ -299,7 +299,7 @@ const navigateToResource = (resourceid: string) => {
                     'flex w-full cursor-pointer items-center justify-between px-4 py-2',
                   ]"
                 >
-                  <div class="flex items-center justify-start space-x-2 pr-4">
+                  <div class="flex items-center justify-start gap-2 pr-4">
                     <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${personalWorkspace?.id}`"
                       size="sm"
@@ -342,7 +342,7 @@ const navigateToResource = (resourceid: string) => {
                     'flex w-full cursor-pointer items-center justify-between px-4 py-2',
                   ]"
                 >
-                  <div class="flex items-center justify-start space-x-2 pr-4">
+                  <div class="flex items-center justify-start gap-2 pr-4">
                     <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${workspace.id}`"
                       size="sm"
@@ -372,7 +372,7 @@ const navigateToResource = (resourceid: string) => {
                 <li
                   class="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-gray-900"
                 >
-                  <div class="flex items-center justify-start space-x-2 pr-4">
+                  <div class="flex items-center justify-start gap-2 pr-4">
                     <Icon name="ph:plus-circle-bold" />
 
                     <span class="block truncate font-medium">
@@ -416,7 +416,7 @@ const navigateToResource = (resourceid: string) => {
                 <TransitionFade>
                   <div
                     v-if="collectionStore.getLoading"
-                    class="flex items-center justify-start space-x-2"
+                    class="flex items-center justify-start gap-2"
                   >
                     <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
@@ -425,7 +425,7 @@ const navigateToResource = (resourceid: string) => {
 
                   <div
                     v-else
-                    class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
+                    class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
                   >
                     <UAvatar
                       :src="`${currentCollection?.imageUrl}?t=${currentCollection?.updated}`"
@@ -461,7 +461,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="collection in allCollections"
@@ -477,7 +477,7 @@ const navigateToResource = (resourceid: string) => {
                       'flex w-full cursor-pointer items-center justify-between px-4 py-2',
                     ]"
                   >
-                    <div class="flex items-center justify-start space-x-2 pr-4">
+                    <div class="flex items-center justify-start gap-2 pr-4">
                       <UAvatar
                         :src="`${collection?.imageUrl}?t=${collection?.updated}`"
                         size="xl"
@@ -507,7 +507,7 @@ const navigateToResource = (resourceid: string) => {
                   <li
                     class="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-gray-900"
                   >
-                    <div class="flex items-center justify-start space-x-2 pr-4">
+                    <div class="flex items-center justify-start gap-2 pr-4">
                       <Icon name="ph:plus-circle-bold" />
 
                       <span class="block truncate font-medium">
@@ -552,7 +552,7 @@ const navigateToResource = (resourceid: string) => {
                 <TransitionFade>
                   <div
                     v-if="resourceStore.getLoading"
-                    class="flex items-center justify-start space-x-2"
+                    class="flex items-center justify-start gap-2"
                   >
                     <USkeleton class="h-[20px] w-[20px] rounded-full" />
 
@@ -561,7 +561,7 @@ const navigateToResource = (resourceid: string) => {
 
                   <div
                     v-else
-                    class="flex items-center justify-start space-x-2 rounded-md p-1 transition-all hover:bg-gray-50"
+                    class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
                   >
                     <UAvatar
                       :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${selectedResource}`"
@@ -608,7 +608,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="resource in allResources"
@@ -624,7 +624,7 @@ const navigateToResource = (resourceid: string) => {
                       'flex w-full cursor-pointer items-center justify-between px-4 py-2',
                     ]"
                   >
-                    <div class="flex items-center justify-start space-x-2 pr-4">
+                    <div class="flex items-center justify-start gap-2 pr-4">
                       <UAvatar
                         :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${resource.id}`"
                         size="xl"

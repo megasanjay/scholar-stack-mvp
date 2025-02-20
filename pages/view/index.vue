@@ -79,7 +79,7 @@ const requestNewPage = (newPage: number) => {
               </p>
 
               <div class="flex items-center gap-2">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-2">
                   <Icon name="mingcute:eye-line" size="20" />
 
                   <span class="text-base">

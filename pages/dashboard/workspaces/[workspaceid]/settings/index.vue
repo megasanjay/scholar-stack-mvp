@@ -87,7 +87,7 @@ const deleteWorkspace = () => {
 </script>
 
 <template>
-  <div class="flex flex-col space-y-4">
+  <div class="flex flex-col gap-4">
     <CardWithAction title="Name">
       <p class="my-3 text-sm">
         This is the name of your workspace. A workspace is a place where you can
@@ -182,7 +182,7 @@ const deleteWorkspace = () => {
                   </div>
 
                   <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">
                       Are you sure you want to delete this workspace?
                     </h3>
 
@@ -197,7 +197,7 @@ const deleteWorkspace = () => {
                 </div>
 
                 <template #footer>
-                  <div class="flex items-center justify-end space-x-2">
+                  <div class="flex items-center justify-end gap-2">
                     <UButton
                       icon="material-symbols:cancel-outline"
                       color="error"

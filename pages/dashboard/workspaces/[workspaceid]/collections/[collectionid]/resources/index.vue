@@ -56,7 +56,7 @@ const selectIcon = (type: string) => {
       <div
         class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2 lg:px-20"
       >
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-2">
           <h1 class="text-4xl font-black">Resources</h1>
         </div>
       </div>
@@ -125,11 +125,11 @@ const selectIcon = (type: string) => {
 
             <div class="flex w-full flex-col gap-1">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-lg leading-5 font-medium">
+                <span class="text-lg font-medium leading-5">
                   {{ resource.title || "No title provided" }}
                 </span>
 
-                <div class="flex items-center justify-end space-x-2">
+                <div class="flex items-center justify-end gap-2">
                   <UBadge
                     v-if="resource.filledIn === false"
                     color="error"
@@ -248,7 +248,7 @@ const selectIcon = (type: string) => {
           </p>
 
           <div
-            class="flex w-full items-center gap-2 border-t border-slate-400 pt-3 pb-4"
+            class="flex w-full items-center gap-2 border-t border-slate-400 pb-4 pt-3"
           >
             <UBadge
               :color="resource.identifierType ? 'info' : 'error'"

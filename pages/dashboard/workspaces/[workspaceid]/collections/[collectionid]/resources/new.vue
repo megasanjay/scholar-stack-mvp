@@ -171,7 +171,7 @@ const disableEditing = computed(() => {
       >
         <h1 class="text-4xl font-black">Add a new resource</h1>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-2">
           <UButton
             color="primary"
             icon="humbleicons:save"
@@ -191,7 +191,7 @@ const disableEditing = computed(() => {
         ref="createForm"
         :validate="validateForm"
         :state="state"
-        class="space-y-4"
+        class="gap-4"
         @submit="onSubmit"
       >
         <UFormField label="Title" name="title">

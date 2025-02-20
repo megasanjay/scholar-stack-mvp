@@ -355,7 +355,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   <div class="flex flex-col">
     <h2 class="text-xl">Team</h2>
 
-    <p class="pt-1 pb-6 text-slate-700">
+    <p class="pb-6 pt-1 text-slate-700">
       Invite your team members to collaborate on your workspace and projects.
     </p>
 
@@ -430,7 +430,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       >
         <template #teamMembers>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between space-x-4 pt-2 pb-4">
+            <div class="flex items-center justify-between gap-4 pb-4 pt-2">
               <UInput
                 placeholder="Filter..."
                 icon="iconamoon:search-duotone"
@@ -444,7 +444,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               :key="member.id"
               class="-mt-[1px] flex items-center justify-between rounded-md border border-slate-200 bg-white p-5"
             >
-              <div class="flex items-center space-x-3">
+              <div class="flex items-center gap-3">
                 <UAvatar
                   size="xl"
                   class="rounded-sm"
@@ -466,7 +466,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 </div>
               </div>
 
-              <div class="relative flex items-center space-x-6">
+              <div class="relative flex items-center gap-6">
                 <UBadge v-if="member.admin" color="info" variant="soft">
                   Administrator
                 </UBadge>
@@ -516,7 +516,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         <template #pendingInvitations>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between space-x-4 pt-2 pb-4">
+            <div class="flex items-center justify-between gap-4 pb-4 pt-2">
               <UInput
                 placeholder="Filter..."
                 icon="iconamoon:search-duotone"
@@ -530,7 +530,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               :key="member.id"
               class="flex items-center justify-between border border-slate-200 bg-white p-5"
             >
-              <div class="flex items-center space-x-3">
+              <div class="flex items-center gap-3">
                 <UAvatar
                   size="xl"
                   class="rounded-sm"
@@ -547,7 +547,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 </div>
               </div>
 
-              <div class="relative flex items-center space-x-6">
+              <div class="relative flex items-center gap-6">
                 <UButton
                   v-if="
                     workspacePermission === 'owner' ||

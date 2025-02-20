@@ -69,11 +69,11 @@ if (error.value) {
           v-for="collection in workspace?.collections"
           :key="collection.id"
           :to="`/dashboard/workspaces/${workspaceid}/collections/${collection.id}`"
-          class="flex w-full flex-col space-y-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+          class="flex w-full flex-col gap-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
         >
-          <div class="flex w-full items-start justify-between space-x-2">
+          <div class="flex w-full items-start justify-between gap-2">
             <div class="flex flex-col">
-              <p class="text-lg leading-tight font-medium">
+              <p class="text-lg font-medium leading-tight">
                 {{ collection.title }}
               </p>
 

@@ -309,7 +309,7 @@ const copyToClipboard = (input: string) => {
         />
       </div>
 
-      <div class="flex items-center justify-between pr-5 pl-5">
+      <div class="flex items-center justify-between pl-5 pr-5">
         <div class="flex items-center gap-2">
           <UBadge color="success" size="sm" variant="outline">
             Version {{ data?.name || "N/A" }}
@@ -442,7 +442,7 @@ const copyToClipboard = (input: string) => {
               </p>
 
               <div class="flex items-center gap-2">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-2">
                   <Icon name="simple-icons:doi" size="20" />
 
                   <ULink
@@ -472,7 +472,7 @@ const copyToClipboard = (input: string) => {
               </div>
 
               <div class="flex items-center gap-2">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-2">
                   <Icon name="ph:link-bold" size="20" />
 
                   <ULink
@@ -551,7 +551,7 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <div class="flex items-center justify-between pt-2 pb-4">
+                  <div class="flex items-center justify-between pb-4 pt-2">
                     <div class="flex items-center gap-2">
                       <UBadge
                         :color="resource.identifierType ? 'info' : 'error'"

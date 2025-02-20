@@ -223,8 +223,8 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       >
         <h1 class="text-4xl font-black">Edit resource</h1>
 
-        <div class="flex items-center space-x-2">
-          <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2">
             <UButton
               color="primary"
               icon="humbleicons:save"
@@ -245,7 +245,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         ref="createForm"
         :validate="validateForm"
         :state="state"
-        class="space-y-4"
+        class="gap-4"
         @submit="onSubmit"
       >
         <UFormField label="Title" name="title">
