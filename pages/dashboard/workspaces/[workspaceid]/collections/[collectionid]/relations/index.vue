@@ -898,12 +898,8 @@ onMounted(() => {
     </div>
 
     <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <div
-        v-if="Object.keys(groupedResources).length === 0"
-        description="No relations for this resource"
-        class="py-10"
-      >
-        No relations for this resource
+      <div v-if="Object.keys(groupedResources).length === 0" class="py-10">
+        No relations were found in this collection
       </div>
 
       <div
