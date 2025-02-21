@@ -67,7 +67,7 @@ const unhideCollection = async (collectionId: number) => {
   <div class="flex flex-col">
     <h2 class="text-xl font-medium">Hidden Collections</h2>
 
-    <p class="pb-6 pt-1 text-slate-700">
+    <p class="pt-1 pb-6 text-slate-700">
       These are the collections that you have hidden from your workspace. You
       can unhide them by going to the collections page and clicking on the
       `Unhide` button.
@@ -89,7 +89,7 @@ const unhideCollection = async (collectionId: number) => {
             />
 
             <div class="flex flex-col">
-              <p class="text-lg font-medium leading-tight">
+              <p class="text-lg leading-tight font-medium">
                 {{ collection.title }}
               </p>
 

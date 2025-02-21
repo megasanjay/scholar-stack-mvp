@@ -9,9 +9,13 @@ export default defineAppConfig({
       },
     },
     colors: {
+      gray: "gray",
       neutral: "zinc",
-      primary: "orange",
-      black: "black",
+      primary: "pink",
+      slate: "slate",
+      stone: "stone",
+      white: "white",
+      zinc: "zinc",
     },
     input: {
       slots: {

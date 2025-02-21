@@ -182,7 +182,7 @@ const deleteWorkspace = () => {
                   </div>
 
                   <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base font-semibold leading-6 text-gray-900">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
                       Are you sure you want to delete this workspace?
                     </h3>
 

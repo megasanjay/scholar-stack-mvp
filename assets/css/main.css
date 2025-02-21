@@ -2,8 +2,36 @@
 @import "@nuxt/ui";
 
 :root {
-  --ui-radius: var(--radius-sm);
+  --ui-radius: var(--radius-xs);
   --ui-container: var(--container-7xl);
+
+  --ui-primary: black;
+
+  /* Least prominent text */
+  /* --ui-text-dimmed: var(--ui-color-slate-400); */
+  /* Slightly muted text */
+  --ui-text-muted: var(--ui-color-slate-700);
+  /* Moderately prominent text */
+  /* --ui-text-toned: var(--ui-color-slate-600); */
+  /* Default text color */
+  /* --ui-text: var(--ui-color-slate-700); */
+  /* Most prominent text */
+  /* --ui-text-highlighted: var(--ui-color-slate-900); */
+}
+
+.dark {
+  --ui-primary: white;
+
+  /* Least prominent text */
+  /* --ui-text-dimmed: var(--ui-color-slate-100); */
+  /* Slightly muted text */
+  --ui-text-muted: var(--ui-color-slate-200);
+  /* Moderately prominent text */
+  /* --ui-text-toned: var(--ui-color-slate-300); */
+  /* Default text color */
+  /* --ui-text-highlighted: var(--ui-color-slate-500); */
+  /* Most prominent text */
+  /* --ui-text-highlighted: var(--ui-color-slate-700); */
 }
 
 @theme {

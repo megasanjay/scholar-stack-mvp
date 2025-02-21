@@ -57,8 +57,8 @@ const currentLayout = computed(() => {
       </nav>
     </header>
 
-    <div class="px-3">
+    <main class="h-full bg-zinc-50 dark:bg-zinc-900">
       <slot />
-    </div>
+    </main>
   </div>
 </template>
