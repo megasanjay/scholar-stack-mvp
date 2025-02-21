@@ -164,11 +164,9 @@ const disableEditing = computed(() => {
 </script>
 
 <template>
-  <main class="h-auto flex-1 bg-zinc-50">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
         <h1 class="text-4xl font-black">Add a new resource</h1>
 
         <div class="flex items-center gap-2">
@@ -184,85 +182,82 @@ const disableEditing = computed(() => {
           </UButton>
         </div>
       </div>
-    </div>
+    </template>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 py-10 lg:px-20">
-      <UForm
-        ref="createForm"
-        :validate="validateForm"
-        :state="state"
-        class="gap-4"
-        @submit="onSubmit"
-      >
-        <UFormField label="Title" name="title">
-          <UInput
-            v-model="state.title"
-            size="lg"
-            placeholder="My random resource"
-          />
-        </UFormField>
+    <UForm
+      ref="createForm"
+      :validate="validateForm"
+      :state="state"
+      class="flex flex-col gap-4"
+      @submit="onSubmit"
+    >
+      <UFormField label="Title" name="title">
+        <UInput
+          v-model="state.title"
+          size="lg"
+          placeholder="My random resource"
+        />
+      </UFormField>
 
-        <UFormField label="Description" name="description">
-          <UTextarea
-            v-model="state.description"
-            :maxrows="4"
-            size="lg"
-            placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
-          />
-        </UFormField>
+      <UFormField label="Description" name="description">
+        <UTextarea
+          v-model="state.description"
+          :maxrows="4"
+          size="lg"
+          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
+        />
+      </UFormField>
 
-        <UFormField label="Identifier Type" name="identifierType">
-          <USelectMenu
-            v-model="state.identifierType"
-            value-key="value"
-            :items="identifierTypeOptions"
-            placeholder="DOI"
-            class="w-full"
-            size="lg"
-          />
-        </UFormField>
+      <UFormField label="Identifier Type" name="identifierType">
+        <USelectMenu
+          v-model="state.identifierType"
+          value-key="value"
+          :items="identifierTypeOptions"
+          placeholder="DOI"
+          class="w-full"
+          size="lg"
+        />
+      </UFormField>
 
-        <UFormField label="Identifier" name="identifier">
-          <UInput
-            v-model="state.identifier"
-            :placeholder="
-              identifierTypeOptions.find(
-                (i) => i.value === state.identifierType,
-              )?.placeholder || ''
-            "
-            clearable
-            size="lg"
-          />
-        </UFormField>
+      <UFormField label="Identifier" name="identifier">
+        <UInput
+          v-model="state.identifier"
+          :placeholder="
+            identifierTypeOptions.find((i) => i.value === state.identifierType)
+              ?.placeholder || ''
+          "
+          clearable
+          size="lg"
+        />
+      </UFormField>
 
-        <UFormField label="Resource Type" name="resourceType">
-          <USelect
-            v-model="state.resourceType"
-            :items="resourceTypeOptions"
-            placeholder="Other"
-            class="w-full"
-            size="lg"
-          />
+      <UFormField label="Resource Type" name="resourceType">
+        <USelect
+          v-model="state.resourceType"
+          :items="resourceTypeOptions"
+          placeholder="Other"
+          class="w-full"
+          size="lg"
+        />
 
-          <p class="mt-2 text-sm text-slate-500">
-            Select the type of resource you are linking to.
-          </p>
-        </UFormField>
+        <p class="mt-2 text-sm text-slate-500">
+          Select the type of resource you are linking to.
+        </p>
+      </UFormField>
 
-        <UFormField label="Version" name="version">
-          <UInput
-            v-model="state.versionLabel"
-            placeholder="v1.0.0"
-            clearable
-            size="lg"
-          />
+      <UFormField label="Version" name="version">
+        <UInput
+          v-model="state.versionLabel"
+          placeholder="v1.0.0"
+          clearable
+          size="lg"
+        />
 
-          <p class="mt-2 text-sm text-slate-500">
-            Adding a version label will allow you to keep track of changes to
-            your resource.
-          </p>
-        </UFormField>
-      </UForm>
-    </div>
-  </main>
+        <p class="mt-2 text-sm text-slate-500">
+          Adding a version label will allow you to keep track of changes to your
+          resource.
+        </p>
+      </UFormField>
+    </UForm>
+  </AppPageLayout>
 </template>

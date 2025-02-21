@@ -175,11 +175,9 @@ const createNewVersion = async () => {
 </script>
 
 <template>
-  <main class="bg-white">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
         <div class="flex w-full flex-col">
           <div class="flex items-center justify-between">
             <h1 class="text-4xl font-black">Overview</h1>
@@ -212,7 +210,7 @@ const createNewVersion = async () => {
 
                       <div class="mt-2 text-center sm:ml-4 sm:text-left">
                         <h3
-                          class="text-base font-semibold leading-6 text-gray-900"
+                          class="text-base leading-6 font-semibold text-gray-900"
                         >
                           Are you sure you want to remove this resource?
                         </h3>
@@ -290,7 +288,7 @@ const createNewVersion = async () => {
 
                       <div class="mt-2 text-center sm:ml-4 sm:text-left">
                         <h3
-                          class="text-base font-semibold leading-6 text-gray-900"
+                          class="text-base leading-6 font-semibold text-gray-900"
                         >
                           Are you sure you want to create a new version of this
                           resource?
@@ -352,66 +350,62 @@ const createNewVersion = async () => {
           </div>
         </div>
       </div>
+    </template>
+
+    <div class="flex items-center justify-between gap-4 pt-10 pb-5">
+      <h2 class="text-2xl font-bold">About</h2>
+
+      <ULink
+        :to="
+          resource?.identifierType !== 'url'
+            ? `https://identifiers.org/${resource?.identifierType}/${resource?.identifier}`
+            : resource.identifier
+        "
+        target="_blank"
+      >
+        <UButton size="lg" icon="iconoir:internet"> Visit resource </UButton>
+      </ULink>
     </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
-        <h2 class="text-2xl font-bold">About</h2>
+    <DataDisplay
+      title="Title"
+      :content="resource?.title || 'No title provided'"
+    />
 
-        <ULink
-          :to="
-            resource?.identifierType !== 'url'
-              ? `https://identifiers.org/${resource?.identifierType}/${resource?.identifier}`
-              : resource.identifier
-          "
-          target="_blank"
-        >
-          <UButton size="lg" icon="iconoir:internet"> Visit resource </UButton>
-        </ULink>
-      </div>
+    <DataDisplay
+      title="Description"
+      :content="resource?.description || 'No description available'"
+    />
 
-      <DataDisplay
-        title="Title"
-        :content="resource?.title || 'No title provided'"
-      />
+    <DataDisplay title="Type" :content="resourceType" />
 
-      <DataDisplay
-        title="Description"
-        :content="resource?.description || 'No description available'"
-      />
+    <DataDisplay
+      title="Identifier"
+      :content="resource?.identifier || 'No identifier provided'"
+    />
 
-      <DataDisplay title="Type" :content="resourceType" />
+    <DataDisplay
+      v-if="resource?.backLinkId"
+      title="Derived from"
+      :content="resource?.backLinkId"
+    />
 
-      <DataDisplay
-        title="Identifier"
-        :content="resource?.identifier || 'No identifier provided'"
-      />
+    <DataDisplay
+      v-if="resource?.versionLabel"
+      title="Version"
+      :content="resource?.versionLabel"
+    />
 
-      <DataDisplay
-        v-if="resource?.backLinkId"
-        title="Derived from"
-        :content="resource?.backLinkId"
-      />
+    <DataDisplay
+      title="Created on"
+      :content="displayLongDate(resource?.created as string)"
+    />
 
-      <DataDisplay
-        v-if="resource?.versionLabel"
-        title="Version"
-        :content="resource?.versionLabel"
-      />
+    <DataDisplay
+      title="Last updated on"
+      :content="displayLongDate(resource?.updated as string)"
+    />
 
-      <DataDisplay
-        title="Created on"
-        :content="displayLongDate(resource?.created as string)"
-      />
-
-      <DataDisplay
-        title="Last updated on"
-        :content="displayLongDate(resource?.updated as string)"
-      />
-
-      <DataDisplay title="Internal ID" :content="resource?.id" secondary />
-    </div>
-
-    <ModalNewCollection />
-  </main>
+    <DataDisplay title="Internal ID" :content="resource?.id" secondary />
+  </AppPageLayout>
 </template>

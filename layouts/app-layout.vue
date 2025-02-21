@@ -22,7 +22,7 @@ const currentLayout = computed(() => {
 
 <template>
   <div
-    class="relative mx-auto flex h-screen w-full flex-col"
+    class="relative mx-auto flex h-full min-h-screen w-full flex-col bg-zinc-50 dark:bg-zinc-900"
     :class="{ 'debug-screens': devMode }"
   >
     <header class="z-10">
@@ -57,7 +57,7 @@ const currentLayout = computed(() => {
       </nav>
     </header>
 
-    <main class="h-full bg-zinc-50 dark:bg-zinc-900">
+    <main>
       <slot />
     </main>
   </div>
