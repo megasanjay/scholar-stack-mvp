@@ -112,14 +112,10 @@ const saveChangelog = async () => {
 </script>
 
 <template>
-  <main class="h-full bg-white">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
-        <div class="flex w-full items-center justify-between">
-          <h1 class="text-4xl font-black">Changelog</h1>
-        </div>
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
+        <h1 class="text-4xl font-black">Changelog</h1>
 
         <div class="flex items-center gap-2">
           <UButton
@@ -135,20 +131,18 @@ const saveChangelog = async () => {
           </UButton>
         </div>
       </div>
-    </div>
+    </template>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
-        <MdEditor
-          v-model="changelog"
-          class="mt-0"
-          language="en-US"
-          preview-theme="github"
-          :show-code-row-number="true"
-          :disabled="disableChangelogFeature"
-          :sanitize="sanitize"
-        />
-      </div>
+    <div class="flex items-center justify-between gap-4 pt-10 pb-5">
+      <MdEditor
+        v-model="changelog"
+        class="mt-0"
+        language="en-US"
+        preview-theme="github"
+        :show-code-row-number="true"
+        :disabled="disableChangelogFeature"
+        :sanitize="sanitize"
+      />
     </div>
-  </main>
+  </AppPageLayout>
 </template>

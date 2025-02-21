@@ -109,94 +109,90 @@ const publishCollection = async () => {
 </script>
 
 <template>
-  <main class="bg-white">
-    <div class="flex h-36 items-center border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
-        <div class="flex w-full items-center justify-between">
-          <h1 class="text-4xl font-black">Publish</h1>
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
+        <h1 class="text-4xl font-black">Publish</h1>
 
-          <UModal
-            v-model="publishCollectionModalIsOpen"
-            :prevent-close="publishCollectionLoading"
+        <UModal
+          v-model="publishCollectionModalIsOpen"
+          :prevent-close="publishCollectionLoading"
+        >
+          <UButton
+            v-if="!collection?.version?.published"
+            size="lg"
+            color="primary"
+            icon="entypo:publish"
+            :loading="validationPending || publishCollectionLoading"
+            :disabled="
+              validationPending ||
+              !validationResults?.valid ||
+              collectionPermissionGetLoading ||
+              !collectionPermissionAbility.includes('publish')
+            "
+            @click="openPublishCollectionModal"
           >
-            <UButton
-              v-if="!collection?.version?.published"
-              size="lg"
-              color="primary"
-              icon="entypo:publish"
-              :loading="validationPending || publishCollectionLoading"
-              :disabled="
-                validationPending ||
-                !validationResults?.valid ||
-                collectionPermissionGetLoading ||
-                !collectionPermissionAbility.includes('publish')
-              "
-              @click="openPublishCollectionModal"
-            >
-              Publish
-            </UButton>
+            Publish
+          </UButton>
 
-            <template #content>
-              <UCard>
-                <div class="sm:flex sm:items-start">
-                  <div class="size-[50px]">
-                    <ClientOnly>
-                      <Vue3Lottie
-                        animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                        :height="50"
-                        :width="50"
-                        :loop="1"
-                      />
-                    </ClientOnly>
-                  </div>
-
-                  <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base font-semibold leading-6 text-gray-900">
-                      Are you sure you want to publish this collection?
-                    </h3>
-
-                    <div class="mt-2">
-                      <p class="text-sm text-gray-500">
-                        This action is not reversible and will make the
-                        collection public. If needed, you can always publish a
-                        newer version but this version will always still be
-                        available to the public.
-                      </p>
-                    </div>
-                  </div>
+          <template #content>
+            <UCard>
+              <div class="sm:flex sm:items-start">
+                <div class="size-[50px]">
+                  <ClientOnly>
+                    <Vue3Lottie
+                      animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                      :height="50"
+                      :width="50"
+                      :loop="1"
+                    />
+                  </ClientOnly>
                 </div>
 
-                <template #footer>
-                  <div class="flex items-center justify-end gap-2">
-                    <UButton
-                      color="error"
-                      variant="soft"
-                      icon="material-symbols:cancel-outline"
-                      @click="publishCollectionModalIsOpen = false"
-                    >
-                      Cancel
-                    </UButton>
+                <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                  <h3 class="text-base leading-6 font-semibold text-gray-900">
+                    Are you sure you want to publish this collection?
+                  </h3>
 
-                    <UButton
-                      color="primary"
-                      :loading="publishCollectionLoading"
-                      icon="entypo:publish"
-                      @click="publishCollection"
-                    >
-                      Publish collection
-                    </UButton>
+                  <div class="mt-2">
+                    <p class="text-sm text-gray-500">
+                      This action is not reversible and will make the collection
+                      public. If needed, you can always publish a newer version
+                      but this version will always still be available to the
+                      public.
+                    </p>
                   </div>
-                </template>
-              </UCard>
-            </template>
-          </UModal>
-        </div>
-      </div>
-    </div>
+                </div>
+              </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 pt-10 lg:px-20">
+              <template #footer>
+                <div class="flex items-center justify-end gap-2">
+                  <UButton
+                    color="error"
+                    variant="soft"
+                    icon="material-symbols:cancel-outline"
+                    @click="publishCollectionModalIsOpen = false"
+                  >
+                    Cancel
+                  </UButton>
+
+                  <UButton
+                    color="primary"
+                    :loading="publishCollectionLoading"
+                    icon="entypo:publish"
+                    @click="publishCollection"
+                  >
+                    Publish collection
+                  </UButton>
+                </div>
+              </template>
+            </UCard>
+          </template>
+        </UModal>
+      </div>
+    </template>
+
+    <div>
       <UAlert
         color="warning"
         title="Warning!"
@@ -213,10 +209,8 @@ const publishCollection = async () => {
           </UBadge>
         </template>
       </UAlert>
-    </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between gap-4 pb-5 pt-10">
+      <div class="flex items-center justify-between gap-4 pt-10 pb-5">
         <h2 class="text-2xl font-bold">
           Let's see if all details are provided
         </h2>
@@ -307,7 +301,5 @@ const publishCollection = async () => {
         class="pb-10"
       />
     </div>
-
-    <ModalNewCollection />
-  </main>
+  </AppPageLayout>
 </template>

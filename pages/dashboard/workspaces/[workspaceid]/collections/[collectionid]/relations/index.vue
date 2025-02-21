@@ -17,8 +17,6 @@ useSeoMeta({
   title: "Relations",
 });
 
-const devMode = process.env.NODE_ENV === "development";
-
 const toast = useToast();
 const route = useRoute();
 
@@ -860,13 +858,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="h-full bg-white">
-    <div
-      class="flex h-36 w-full items-center border-b border-gray-200 bg-white"
-    >
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
         <div class="flex items-center gap-3">
           <h1 class="text-4xl font-black">Relations</h1>
 
@@ -895,176 +889,174 @@ onMounted(() => {
           </UButton>
         </div>
       </div>
+    </template>
+
+    <div v-if="Object.keys(groupedResources).length === 0" class="py-10">
+      No relations were found in this collection
     </div>
 
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 pb-10 lg:px-20">
-      <div v-if="Object.keys(groupedResources).length === 0" class="py-10">
-        No relations were found in this collection
-      </div>
+    <div
+      v-else
+      size="large"
+      class="divide flex w-full flex-col gap-3 divide-y divide-dashed divide-stone-200"
+    >
+      <!-- <pre>{{ groupedResources }}</pre> -->
+
+      <!-- <pre class="text-xs">{{ targetResourceList }}</pre> -->
 
       <div
-        v-else
-        size="large"
-        class="divide flex w-full flex-col gap-3 divide-y divide-dashed divide-stone-200"
+        v-for="(gr1, resourceID, idx) in groupedResources"
+        :key="idx"
+        class="py-10"
       >
-        <!-- <pre>{{ groupedResources }}</pre> -->
+        <div class="flex items-center justify-between">
+          <h2
+            class="border-b border-dashed border-slate-300 pr-4 pb-1 font-semibold"
+          >
+            {{ gr1.name }}
+          </h2>
 
-        <!-- <pre class="text-xs">{{ targetResourceList }}</pre> -->
+          <UDropdownMenu
+            :items="
+              generateAddRelationFromDropdownOptions(resourceID as string)
+            "
+            :content="{
+              align: 'end',
+              side: 'bottom',
+              sideOffset: 8,
+            }"
+            :ui="{
+              content: 'w-max',
+            }"
+          >
+            <UButton
+              icon="mdi:plus"
+              color="primary"
+              label="Add a relation to this resource"
+            />
+          </UDropdownMenu>
+        </div>
 
-        <div
-          v-for="(gr1, resourceID, idx) in groupedResources"
-          :key="idx"
-          class="py-10"
-        >
-          <div class="flex items-center justify-between">
-            <h2
-              class="border-b border-dashed border-slate-300 pb-1 pr-4 font-semibold"
-            >
-              {{ gr1.name }}
-            </h2>
-
-            <UDropdownMenu
-              :items="
-                generateAddRelationFromDropdownOptions(resourceID as string)
-              "
-              :content="{
-                align: 'end',
-                side: 'bottom',
-                sideOffset: 8,
-              }"
-              :ui="{
-                content: 'w-max',
-              }"
-            >
-              <UButton
-                icon="mdi:plus"
-                color="primary"
-                label="Add a relation to this resource"
-              />
-            </UDropdownMenu>
+        <div v-for="(gr, name, index) in gr1.relations" :key="index">
+          <div class="flex items-center justify-between pt-5 pb-1">
+            <h3>{{ getRelationName(name as string) }}</h3>
           </div>
 
-          <div v-for="(gr, name, index) in gr1.relations" :key="index">
-            <div class="flex items-center justify-between pb-1 pt-5">
-              <h3>{{ getRelationName(name as string) }}</h3>
-            </div>
+          <div class="flex w-full flex-col gap-3">
+            <div
+              v-for="(relation, id) of gr || []"
+              :key="id"
+              class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
+              :class="{
+                'border-slate-300 bg-white':
+                  !relation.action || relation.action === 'clone',
+                'cursor-not-allowed border-red-300 bg-red-50':
+                  relation.action === 'delete',
+                'border-emerald-400 bg-emerald-50/20':
+                  relation.action === 'update',
+                'border-blue-300 bg-cyan-50/20': relation.action === 'create',
+              }"
+            >
+              <div class="flex w-full flex-col gap-3">
+                <div class="group w-max">
+                  <NuxtLink
+                    v-if="relation.external && relation.target"
+                    :to="
+                      relation.targetType !== 'url'
+                        ? `https://identifiers.org/${relation.targetType}:${relation.target}`
+                        : relation.target
+                    "
+                    class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    target="_blank"
+                    @click.stop=""
+                  >
+                    {{ relation.target }}
 
-            <div class="flex w-full flex-col gap-3">
-              <div
-                v-for="(relation, id) of gr || []"
-                :key="id"
-                class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
-                :class="{
-                  'border-slate-300 bg-white':
-                    !relation.action || relation.action === 'clone',
-                  'cursor-not-allowed border-red-300 bg-red-50':
-                    relation.action === 'delete',
-                  'border-emerald-400 bg-emerald-50/20':
-                    relation.action === 'update',
-                  'border-blue-300 bg-cyan-50/20': relation.action === 'create',
-                }"
-              >
-                <div class="flex w-full flex-col gap-3">
-                  <div class="group w-max">
-                    <NuxtLink
-                      v-if="relation.external && relation.target"
-                      :to="
-                        relation.targetType !== 'url'
-                          ? `https://identifiers.org/${relation.targetType}:${relation.target}`
-                          : relation.target
-                      "
-                      class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                      target="_blank"
-                      @click.stop=""
-                    >
-                      {{ relation.target }}
+                    <Icon
+                      name="mdi:external-link"
+                      size="16"
+                      class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                    />
+                  </NuxtLink>
 
-                      <Icon
-                        name="mdi:external-link"
-                        size="16"
-                        class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                      />
-                    </NuxtLink>
+                  <div v-else class="flex items-center font-medium">
+                    {{ relation.targetName }}
+                  </div>
+                </div>
 
-                    <div v-else class="flex items-center font-medium">
-                      {{ relation.targetName }}
-                    </div>
+                <div class="flex items-center justify-between gap-4">
+                  <div class="flex items-center justify-start gap-4">
+                    <UBadge color="info">
+                      {{ getResourceTypeName(relation?.resourceType || "") }}
+                    </UBadge>
+
+                    <UBadge v-if="relation.targetType" color="success">
+                      {{ getResourceIdentifierTypeName(relation.targetType) }}
+                    </UBadge>
                   </div>
 
-                  <div class="flex items-center justify-between gap-4">
-                    <div class="flex items-center justify-start gap-4">
-                      <UBadge color="info">
-                        {{ getResourceTypeName(relation?.resourceType || "") }}
-                      </UBadge>
-
-                      <UBadge v-if="relation.targetType" color="success">
-                        {{ getResourceIdentifierTypeName(relation.targetType) }}
-                      </UBadge>
-                    </div>
-
-                    <div
-                      v-if="!currentCollection?.version?.published"
-                      class="flex items-center gap-4"
-                    >
-                      <div class="flex">
-                        <UBadge
-                          v-if="relation.action === 'create'"
-                          color="info"
-                          icon="mdi:new-box"
-                        >
-                          New Relation
-                        </UBadge>
-
-                        <UBadge
-                          v-if="relation.action === 'update'"
-                          color="success"
-                          icon="mdi:file-document-edit-outline"
-                        >
-                          Updated
-                        </UBadge>
-
-                        <UBadge
-                          v-if="relation.action === 'delete'"
-                          color="error"
-                          icon="mdi:delete-outline"
-                        >
-                          Marked for deletion
-                        </UBadge>
-                      </div>
-
-                      <USeparator
-                        v-if="relation.action && relation.action !== 'clone'"
-                        orientation="vertical"
-                        class="h-5"
-                      />
-
-                      <UButton
-                        v-if="relation.action !== 'delete'"
+                  <div
+                    v-if="!currentCollection?.version?.published"
+                    class="flex items-center gap-4"
+                  >
+                    <div class="flex">
+                      <UBadge
+                        v-if="relation.action === 'create'"
                         color="info"
-                        icon="mdi:file-document-edit-outline"
-                        :disabled="relation.action === 'delete'"
-                        label="Edit"
-                        @click="openEditRelationDrawer(relation.id)"
-                      />
+                        icon="mdi:new-box"
+                      >
+                        New Relation
+                      </UBadge>
 
-                      <UButton
-                        v-if="relation.action !== 'delete'"
+                      <UBadge
+                        v-if="relation.action === 'update'"
+                        color="success"
+                        icon="mdi:file-document-edit-outline"
+                      >
+                        Updated
+                      </UBadge>
+
+                      <UBadge
+                        v-if="relation.action === 'delete'"
                         color="error"
                         icon="mdi:delete-outline"
-                        :loading="relationBeingDeleted === relation.id"
-                        label="Delete"
-                        @click="deleteRelation(relation.id)"
-                      />
-
-                      <UButton
-                        v-if="relation.action === 'delete'"
-                        color="warning"
-                        icon="mdi:undo"
-                        :loading="relationBeingRestored === relation.id"
-                        label="Undo delete"
-                        @click="restoreRelation(relation.id)"
-                      />
+                      >
+                        Marked for deletion
+                      </UBadge>
                     </div>
+
+                    <USeparator
+                      v-if="relation.action && relation.action !== 'clone'"
+                      orientation="vertical"
+                      class="h-5"
+                    />
+
+                    <UButton
+                      v-if="relation.action !== 'delete'"
+                      color="info"
+                      icon="mdi:file-document-edit-outline"
+                      :disabled="relation.action === 'delete'"
+                      label="Edit"
+                      @click="openEditRelationDrawer(relation.id)"
+                    />
+
+                    <UButton
+                      v-if="relation.action !== 'delete'"
+                      color="error"
+                      icon="mdi:delete-outline"
+                      :loading="relationBeingDeleted === relation.id"
+                      label="Delete"
+                      @click="deleteRelation(relation.id)"
+                    />
+
+                    <UButton
+                      v-if="relation.action === 'delete'"
+                      color="warning"
+                      icon="mdi:undo"
+                      :loading="relationBeingRestored === relation.id"
+                      label="Undo delete"
+                      @click="restoreRelation(relation.id)"
+                    />
                   </div>
                 </div>
               </div>
@@ -1206,5 +1198,5 @@ onMounted(() => {
         </UButton>
       </template>
     </USlideover>
-  </main>
+  </AppPageLayout>
 </template>
