@@ -72,10 +72,11 @@ workspaceStore.setWorkspaces(workspaces.value || []);
             <UAvatar
               size="xl"
               :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
+              class="mt-1"
             />
 
-            <div class="flex flex-col">
-              <div class="flex items-center justify-between gap-2">
+            <div class="flex w-full flex-col">
+              <div class="flex w-full items-start justify-between gap-2">
                 <span class="text-lg font-medium">
                   {{ workspace.title }}
                 </span>
@@ -84,6 +85,7 @@ workspaceStore.setWorkspaces(workspaces.value || []);
                   v-if="workspace.personal"
                   color="warning"
                   variant="outline"
+                  class="mt-1"
                 >
                   Personal
                 </UBadge>

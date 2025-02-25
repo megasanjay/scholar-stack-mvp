@@ -14,8 +14,8 @@ const truncateTables = async () => {
   console.log("Truncating table WorkspaceMember...");
   await prisma.$executeRaw`TRUNCATE TABLE "WorkspaceMember" RESTART IDENTITY CASCADE`;
 
-  console.log("Truncating table Workspace...");
-  await prisma.$executeRaw`TRUNCATE TABLE "Workspace" RESTART IDENTITY CASCADE`;
+  // console.log("Truncating table Workspace...");
+  // await prisma.$executeRaw`TRUNCATE TABLE "Workspace" RESTART IDENTITY CASCADE`;
 
   console.log("Truncating table Collection...");
   await prisma.$executeRaw`TRUNCATE TABLE "Collection" RESTART IDENTITY CASCADE`;
@@ -37,6 +37,9 @@ const truncateTables = async () => {
 
   console.log("Truncating table Notification...");
   await prisma.$executeRaw`TRUNCATE TABLE "Notification" RESTART IDENTITY CASCADE`;
+
+  // console.log("Truncating table User...");
+  // await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE`;
 };
 
 const main = async () => {
