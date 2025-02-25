@@ -77,6 +77,7 @@ export type Notification = {
 };
 export type Resource = {
     id: string;
+    canonicalId: string;
     identifierType: string;
     identifier: string;
     title: Generated<string>;

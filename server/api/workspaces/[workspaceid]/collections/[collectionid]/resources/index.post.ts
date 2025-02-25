@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { nanoid } from "nanoid";
 import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 import touchCollection from "~/server/utils/collection/touchCollection";
 
@@ -85,6 +86,7 @@ export default defineEventHandler(async (event) => {
       title,
       action: "create",
       backLinkId: null,
+      canonicalId: nanoid(),
       description,
       identifier,
       identifierType,

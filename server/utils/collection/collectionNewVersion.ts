@@ -70,6 +70,7 @@ export default async function (collectionId: number) {
           title: resource.title,
           action: "clone",
           backLinkId: null,
+          canonicalId: resource.canonicalId,
           description: resource.description,
           identifier: resource.identifier,
           identifierType: resource.identifierType,

@@ -171,6 +171,8 @@ model Version {
 model Resource {
     id String @id @default(cuid())
 
+    canonicalId String // the canonical id for the resource (tracking across versions)
+
     identifierType String // doi, url, ror, orcid, etc (prefix from identifiers.org)
     identifier     String // the actual identifier (10.1234/abc)
 
