@@ -15,6 +15,23 @@ const removeResourceLoadingIndicator = ref(false);
 const newResourceVersionModalIsOpen = ref(false);
 const newResourceVersionLoadingIndicator = ref(false);
 
+const newVersionDropdownItems = ref([
+  {
+    icon: "material-symbols:conversion-path",
+    label: "Clone resource only",
+    onSelect: () => {
+      newResourceVersionModalIsOpen.value = true;
+    },
+  },
+  {
+    icon: "material-symbols:conversion-path",
+    label: "Clone resource and relations",
+    onSelect: () => {
+      newResourceVersionModalIsOpen.value = true;
+    },
+  },
+]);
+
 const { collectionid, resourceid, workspaceid } = route.params as {
   collectionid: string;
   resourceid: string;
@@ -251,9 +268,16 @@ const createNewVersion = async () => {
                 </template>
               </UModal>
 
-              <UModal
-                v-model="newResourceVersionModalIsOpen"
-                :prevent-close="newResourceVersionLoadingIndicator"
+              <UDropdownMenu
+                :items="newVersionDropdownItems"
+                :content="{
+                  align: 'end',
+                  side: 'bottom',
+                  sideOffset: 8,
+                }"
+                :ui="{
+                  content: 'w-max',
+                }"
               >
                 <UButton
                   v-if="
@@ -263,6 +287,22 @@ const createNewVersion = async () => {
                     'action' in resource &&
                     resource?.action !== 'newVersion'
                   "
+                  variant="outline"
+                  size="lg"
+                  :disabled="disableEditing"
+                  :loading="newResourceVersionLoadingIndicator"
+                  icon="material-symbols:conversion-path"
+                >
+                  Create new version
+                </UButton>
+              </UDropdownMenu>
+
+              <UModal
+                v-model="newResourceVersionModalIsOpen"
+                :prevent-close="newResourceVersionLoadingIndicator"
+              >
+                <UButton
+                  class="hidden"
                   variant="outline"
                   size="lg"
                   :disabled="disableEditing"
