@@ -1,27 +1,18 @@
 import { z } from "zod";
-import { createId } from "@paralleldrive/cuid2";
 import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 import touchCollection from "~/server/utils/collection/touchCollection";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);
-  await collectionMinEditorPermission(event);
-
-  const { collectionid, workspaceid } = event.context.params as {
-    collectionid: string;
-    workspaceid: string;
-  };
-
-  const collectionId = parseInt(collectionid);
 
   const bodySchema = z
     .object({
       title: z.string().min(1),
-      description: z.string().max(350),
+      description: z.string(),
       identifier: z.string().min(1),
       identifierType: z.string().min(1),
       resourceType: z.string().min(1),
-      versionLabel: z.string().optional(),
+      versionLabel: z.string(),
     })
     .strict();
 
@@ -47,6 +38,16 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  await collectionMinEditorPermission(event);
+
+  const { collectionid, resourceid, workspaceid } = event.context.params as {
+    collectionid: string;
+    resourceid: string;
+    workspaceid: string;
+  };
+
+  const collectionId = parseInt(collectionid);
+
   const collection = await prisma.collection.findUnique({
     where: { id: collectionId, workspaceId: workspaceid },
   });
@@ -60,6 +61,9 @@ export default defineEventHandler(async (event) => {
 
   // get the latest version of the collection
   const version = await prisma.version.findFirst({
+    include: {
+      Resource: true,
+    },
     where: { collectionId, published: false },
   });
 
@@ -71,6 +75,20 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Check if the resource exists in the draft version
+  const resource = version.Resource.find((r) => r.id === resourceid);
+
+  if (!resource) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Resource not found",
+    });
+  }
+
+  if (resource.action === "clone") {
+    resource.action = "update";
+  }
+
   const {
     title,
     description,
@@ -80,35 +98,32 @@ export default defineEventHandler(async (event) => {
     versionLabel,
   } = parsedBody.data;
 
-  // Add the resource to the collection version
-  const resource = await prisma.resource.create({
+  const updatedResource = await prisma.resource.update({
     data: {
       title,
-      action: "create",
-      backLinkId: null,
-      // setting a default value but will be changed in the next step
-      canonicalId: createId(),
+      action: resource.action || "update",
       description,
       identifier,
       identifierType,
       resourceType,
-      versionId: version.id,
-      versionLabel: versionLabel || null,
+      versionLabel,
+    },
+    where: {
+      id: resourceid,
     },
   });
 
-  // The canonicalId needs to be updated to the newly created resource
-  await prisma.resource.update({
-    data: {
-      canonicalId: resource.id,
-    },
-    where: { id: resource.id },
-  });
+  if (!updatedResource) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Something went wrong",
+    });
+  }
 
   await touchCollection(collectionId);
 
   return {
-    resourceId: resource.id,
-    statusCode: 201,
+    statusCode: 200,
+    statusMessage: "Resource updated",
   };
 });

@@ -247,7 +247,7 @@ const navigateToResource = (resourceid: string) => {
                   />
 
                   <span
-                    class="text-base font-medium transition-all hover:text-gray-600"
+                    class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
                   >
                     {{ currentWorkspace?.title }}
                   </span>
@@ -285,7 +285,7 @@ const navigateToResource = (resourceid: string) => {
             enter-to-class="opacity-100 transform origin-top-right scale-100"
           >
             <HeadlessListboxOptions
-              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-slate-300 sm:text-sm"
+              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-slate-300 sm:text-sm"
             >
               <HeadlessListboxOption
                 v-slot="{ active, selected }"
@@ -310,8 +310,9 @@ const navigateToResource = (resourceid: string) => {
                         selected ? 'font-medium' : 'font-normal',
                         'block truncate',
                       ]"
-                      >{{ personalWorkspace?.title }}</span
                     >
+                      {{ personalWorkspace?.title }}
+                    </span>
                   </div>
 
                   <span
@@ -461,7 +462,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="collection in allCollections"
@@ -488,8 +489,9 @@ const navigateToResource = (resourceid: string) => {
                           selected ? 'font-medium' : 'font-normal',
                           'block max-w-40 truncate',
                         ]"
-                        >{{ collection.title }}</span
                       >
+                        {{ collection.title }}
+                      </span>
                     </div>
 
                     <span
@@ -608,7 +610,7 @@ const navigateToResource = (resourceid: string) => {
               enter-to-class="opacity-100 transform origin-top-right scale-100"
             >
               <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
+                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg sm:text-sm"
               >
                 <HeadlessListboxOption
                   v-for="resource in allResources"
@@ -635,8 +637,9 @@ const navigateToResource = (resourceid: string) => {
                           selected ? 'font-medium' : 'font-normal',
                           'block max-w-40 truncate',
                         ]"
-                        >{{ resource.title }}</span
                       >
+                        {{ resource.title }}
+                      </span>
                     </div>
 
                     <span
