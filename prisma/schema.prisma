@@ -171,7 +171,8 @@ model Version {
 model Resource {
     id String @id @default(cuid())
 
-    canonicalId String // the canonical id for the resource (tracking across versions)
+    canonicalId String // the canonical id for the resource (tracking different versions of the same resource across different collection versions)
+    lineageId   String? // the lineage id for the resource (tracking different versions of the same resource in the same collection version)
 
     identifierType String // doi, url, ror, orcid, etc (prefix from identifiers.org)
     identifier     String // the actual identifier (10.1234/abc)
@@ -182,21 +183,17 @@ model Resource {
     resourceType String  @default("other") //githubRepository, conferencePresentation, etc..
     versionLabel String?
 
-    backLink   Resource? @relation("NewVersionRelation", fields: [backLinkId], references: [id]) // Used for new verision
-    backLinkId String?
-
     originalResourceId String?
     originalResource   Resource? @relation("OriginalResourceRelation", fields: [originalResourceId], references: [id])
 
-    action String? // oldVersion | delete | clone
-
-    created DateTime @default(now())
-    updated DateTime @updatedAt
+    action String? // create | update | delete | clone
 
     versionId Int?
     version   Version? @relation(fields: [versionId], references: [id])
 
-    Resource         Resource[] @relation("NewVersionRelation")
+    created DateTime @default(now())
+    updated DateTime @updatedAt
+
     OriginalResource Resource[] @relation("OriginalResourceRelation")
 
     InternalRelationSource InternalRelation[] @relation("SourceRelation")

@@ -78,18 +78,18 @@ export type Notification = {
 export type Resource = {
     id: string;
     canonicalId: string;
+    lineageId: string | null;
     identifierType: string;
     identifier: string;
     title: Generated<string>;
     description: Generated<string>;
     resourceType: Generated<string>;
     versionLabel: string | null;
-    backLinkId: string | null;
     originalResourceId: string | null;
     action: string | null;
+    versionId: number | null;
     created: Generated<Timestamp>;
     updated: Timestamp;
-    versionId: number | null;
 };
 export type Starred = {
     userId: string;

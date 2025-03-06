@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { faker } from "@faker-js/faker";
+import type { FormSubmitEvent, FormError } from "#ui/types";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 import { displayLongDate } from "~/utils/displayDates";
 
@@ -10,27 +12,11 @@ definePageMeta({
 const toast = useToast();
 const route = useRoute();
 
+const createNewVersionForm = useTemplateRef("createNewVersionForm");
 const removeResourceModalIsOpen = ref(false);
 const removeResourceLoadingIndicator = ref(false);
 const newResourceVersionModalIsOpen = ref(false);
 const newResourceVersionLoadingIndicator = ref(false);
-
-const newVersionDropdownItems = ref([
-  {
-    icon: "material-symbols:conversion-path",
-    label: "Clone resource only",
-    onSelect: () => {
-      newResourceVersionModalIsOpen.value = true;
-    },
-  },
-  {
-    icon: "material-symbols:conversion-path",
-    label: "Clone resource and relations",
-    onSelect: () => {
-      newResourceVersionModalIsOpen.value = true;
-    },
-  },
-]);
 
 const { collectionid, resourceid, workspaceid } = route.params as {
   collectionid: string;
@@ -60,10 +46,7 @@ if (error.value) {
 if (resource.value && "action" in resource.value) {
   // If the resource is marked for deletion, redirect the user
   // to the collection page
-  if (
-    resource.value.action === "delete" ||
-    resource.value.action === "oldVersion"
-  ) {
+  if (resource.value.action === "delete") {
     toast.add({
       title: "Resource marked for deletion",
       color: "error",
@@ -151,8 +134,57 @@ const removeResource = async () => {
     });
 };
 
-const createNewVersion = async () => {
-  const body = { backLinkId: resourceid };
+const state = reactive({
+  cloneRelations: false,
+  identifier: faker.internet.url(),
+  identifierType: "url",
+  versionLabel: `v${faker.number.int({ max: 10, min: 1 })}.${faker.number.int({
+    max: 10,
+    min: 1,
+  })}.${faker.number.int({ max: 10, min: 1 })}`,
+});
+
+const validateForm = (_state: any): FormError[] => {
+  const errrors = [];
+
+  if (!state.identifier) {
+    errrors.push({
+      name: "identifier",
+      message: "Identifier is required",
+    });
+  }
+
+  if (!state.identifierType) {
+    errrors.push({
+      name: "identifierType",
+      message: "Identifier type is required",
+    });
+  }
+
+  if (state.identifierType && state.identifier) {
+    // run the identifier regex against the identifier
+    const identifierRegex = new RegExp(
+      PREFIX_JSON.find((i) => i.value === state.identifierType)?.pattern || "",
+    );
+
+    if (!identifierRegex.test(state.identifier)) {
+      errrors.push({
+        name: "identifier",
+        message: "Identifier is not in the correct format",
+      });
+    }
+  }
+
+  return errrors;
+};
+
+async function onSubmit(event: FormSubmitEvent<any>) {
+  const body = {
+    cloneRelations: event.data.cloneRelations || false,
+    identifier: event.data.identifier || "",
+    identifierType: event.data.identifierType || "",
+    versionLabel: event.data.versionLabel || "",
+  };
 
   newResourceVersionLoadingIndicator.value = true;
 
@@ -188,7 +220,7 @@ const createNewVersion = async () => {
     .finally(() => {
       newResourceVersionLoadingIndicator.value = false;
     });
-};
+}
 </script>
 
 <template>
@@ -268,41 +300,12 @@ const createNewVersion = async () => {
                 </template>
               </UModal>
 
-              <UDropdownMenu
-                :items="newVersionDropdownItems"
-                :content="{
-                  align: 'end',
-                  side: 'bottom',
-                  sideOffset: 8,
-                }"
-                :ui="{
-                  content: 'w-max',
-                }"
-              >
-                <UButton
-                  v-if="
-                    resource &&
-                    'originalResourceId' in resource &&
-                    resource?.originalResourceId &&
-                    'action' in resource &&
-                    resource?.action !== 'newVersion'
-                  "
-                  variant="outline"
-                  size="lg"
-                  :disabled="disableEditing"
-                  :loading="newResourceVersionLoadingIndicator"
-                  icon="material-symbols:conversion-path"
-                >
-                  Create new version
-                </UButton>
-              </UDropdownMenu>
-
               <UModal
-                v-model="newResourceVersionModalIsOpen"
+                v-model:open="newResourceVersionModalIsOpen"
                 :prevent-close="newResourceVersionLoadingIndicator"
               >
                 <UButton
-                  class="hidden"
+                  v-if="resource.action === 'clone'"
                   variant="outline"
                   size="lg"
                   :disabled="disableEditing"
@@ -336,9 +339,71 @@ const createNewVersion = async () => {
 
                         <div class="mt-2">
                           <p class="text-sm text-gray-500">
-                            This action will create a new version of this
-                            resource. This action is reversible until you
-                            publish this collection.
+                            You will need to provide a new unique identifier
+                            and/or version number. <br />
+
+                            <UForm
+                              ref="createNewVersionForm"
+                              :state="state"
+                              :validate="validateForm"
+                              class="mt-3 flex flex-col gap-2"
+                              @submit="onSubmit"
+                            >
+                              <UFormField
+                                label="Identifier Type"
+                                name="identifierType"
+                                size="sm"
+                              >
+                                <USelect
+                                  v-model="state.identifierType"
+                                  :items="PREFIX_JSON"
+                                  placeholder="DOI"
+                                  class="w-full"
+                                />
+                              </UFormField>
+
+                              <UFormField
+                                label="Identifier"
+                                name="identifier"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="state.identifier"
+                                  :placeholder="
+                                    PREFIX_JSON.find(
+                                      (i) => i.value === state.identifierType,
+                                    )?.placeholder || ''
+                                  "
+                                />
+                              </UFormField>
+
+                              <UFormField
+                                label="Version"
+                                name="version"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="state.versionLabel"
+                                  placeholder="v1.0.0"
+                                  clearable
+                                />
+
+                                <p class="mt-1 text-xs">
+                                  Adding a version label will allow you to keep
+                                  track of changes to your resource.
+                                </p>
+                              </UFormField>
+
+                              <UFormField name="cloneRelations" size="sm">
+                                <UCheckbox
+                                  v-model="state.cloneRelations"
+                                  size="sm"
+                                  label="Clone existing relations"
+                                  description="We will automatically create any required
+                              relations for you."
+                                />
+                              </UFormField>
+                            </UForm>
                           </p>
                         </div>
                       </div>
@@ -359,7 +424,7 @@ const createNewVersion = async () => {
                           color="primary"
                           :loading="newResourceVersionLoadingIndicator"
                           icon="material-symbols:conversion-path"
-                          @click="createNewVersion"
+                          @click="createNewVersionForm?.submit()"
                         >
                           Create new version
                         </UButton>
@@ -379,14 +444,6 @@ const createNewVersion = async () => {
                 Edit resource
               </UButton>
             </div>
-          </div>
-
-          <div v-if="resource?.backLinkId" class="flex items-center">
-            <span class="font-medium text-slate-500">Derived from</span>
-
-            <UBadge type="info" size="sm">
-              {{ resource?.backLinkId }}
-            </UBadge>
           </div>
         </div>
       </div>
@@ -422,12 +479,6 @@ const createNewVersion = async () => {
     <DataDisplay
       title="Identifier"
       :content="resource?.identifier || 'No identifier provided'"
-    />
-
-    <DataDisplay
-      v-if="resource?.backLinkId"
-      title="Derived from"
-      :content="resource?.backLinkId"
     />
 
     <DataDisplay
