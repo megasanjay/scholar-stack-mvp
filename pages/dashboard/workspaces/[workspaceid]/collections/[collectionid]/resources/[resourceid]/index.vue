@@ -305,7 +305,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
                 :prevent-close="newResourceVersionLoadingIndicator"
               >
                 <UButton
-                  v-if="resource.action === 'clone'"
+                  v-if="resource?.action === 'clone'"
                   variant="outline"
                   size="lg"
                   :disabled="disableEditing"
