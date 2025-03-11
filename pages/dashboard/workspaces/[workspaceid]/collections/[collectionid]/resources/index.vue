@@ -103,7 +103,6 @@ const selectIcon = (type: string) => {
             !resource.action || resource.action === 'clone',
           'border-blue-300 bg-cyan-50/20': resource.action === 'create',
           'border-emerald-400 bg-emerald-50/20': resource.action === 'update',
-          'border-cyan-400 bg-cyan-50/20': resource.action === 'newVersion',
           'border-red-600 bg-white': resource.filledIn === false,
         }"
       >
