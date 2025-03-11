@@ -1,7 +1,6 @@
 interface ResourceType {
   id: string;
   title: string;
-  backLinkId: string | null;
   versionLabel: string | null;
   description: string;
   resourceType: string;

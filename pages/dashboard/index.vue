@@ -14,6 +14,8 @@ const toast = useToast();
 
 const workspaceStore = useWorkspaceStore();
 
+const filterText = ref("");
+
 const { data: workspaces, error } = await useFetch("/api/workspaces", {});
 
 if (error.value) {
@@ -28,29 +30,37 @@ if (error.value) {
   navigateTo("/");
 }
 
+const personalWorkspace = workspaces.value?.find(
+  (workspace) => workspace.personal,
+);
+
+const filteredWorkspaces = computed(() => {
+  if (workspaces.value) {
+    // Remove personal workspace if it exists
+    const otherWorkspaces = workspaces.value.filter(
+      (workspace) => !workspace.personal,
+    );
+
+    if (filterText.value) {
+      return otherWorkspaces.filter((workspace) =>
+        workspace.title.toLowerCase().includes(filterText.value.toLowerCase()),
+      );
+    }
+
+    return otherWorkspaces;
+  } else {
+    return [];
+  }
+});
+
 workspaceStore.setWorkspaces(workspaces.value || []);
 </script>
 
 <template>
-  <main class="h-full bg-zinc-50 dark:bg-zinc-900">
-    <div
-      class="flex h-36 items-center border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-zinc-800"
-    >
-      <div
-        class="mx-auto flex w-full max-w-screen-xl items-center justify-between px-2.5 lg:px-20"
-      >
+  <AppPageLayout>
+    <template #header>
+      <div class="flex w-full items-center justify-between gap-2">
         <h1 class="text-4xl font-black">Dashboard</h1>
-      </div>
-    </div>
-
-    <div class="mx-auto w-full max-w-screen-xl px-2.5 lg:px-20">
-      <div class="flex items-center justify-between gap-4 py-10">
-        <UInput
-          placeholder="Search..."
-          icon="iconamoon:search-duotone"
-          size="lg"
-          type="search"
-        />
 
         <UButton
           color="primary"
@@ -60,53 +70,78 @@ workspaceStore.setWorkspaces(workspaces.value || []);
           <span class="w-max"> Create a new workspace </span>
         </UButton>
       </div>
+    </template>
 
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
-        <ULink
-          v-for="workspace in workspaces"
+    <div>
+      <h2 class="text-2xl font-bold">Your personal workspace</h2>
+
+      <NuxtLink
+        :to="`/dashboard/workspaces/${personalWorkspace?.id}`"
+        class="mt-4 flex w-full items-center justify-between gap-4 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+      >
+        <div class="flex items-center gap-3">
+          <UAvatar
+            size="sm"
+            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${personalWorkspace?.id}`"
+            class="mt-1"
+          />
+
+          <span class="font-medium">
+            {{ personalWorkspace?.title }}
+          </span>
+        </div>
+
+        <UBadge
+          v-if="personalWorkspace?.personal"
+          color="warning"
+          variant="outline"
+        >
+          Personal
+        </UBadge>
+      </NuxtLink>
+    </div>
+
+    <USeparator class="pt-10" />
+
+    <div class="flex flex-col gap-5 py-5">
+      <h2 class="text-2xl font-bold">Your other workspaces</h2>
+
+      <UInput
+        v-model="filterText"
+        placeholder="Filter..."
+        icon="iconamoon:search-duotone"
+        size="lg"
+        type="search"
+      />
+
+      <div class="grid grid-cols-1 gap-5">
+        <NuxtLink
+          v-for="workspace in filteredWorkspaces"
           :key="workspace.id"
           :to="`/dashboard/workspaces/${workspace.id}`"
-          class="flex w-full flex-col gap-4 rounded-md border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+          class="flex w-full flex-col gap-3 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
         >
           <div class="flex w-full items-start justify-start gap-2">
             <UAvatar
-              size="xl"
+              size="md"
               :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
               class="mt-1"
             />
 
-            <div class="flex w-full flex-col">
-              <div class="flex w-full items-start justify-between gap-2">
-                <span class="text-lg font-medium">
-                  {{ workspace.title }}
-                </span>
-
-                <UBadge
-                  v-if="workspace.personal"
-                  color="warning"
-                  variant="outline"
-                  class="mt-1"
-                >
-                  Personal
-                </UBadge>
-              </div>
+            <div class="flex w-full flex-col gap-1">
+              <span class="font-medium">
+                {{ workspace.title }}
+              </span>
 
               <span class="text-sm">
-                Created on
-                {{ $dayjs(workspace.created).format("MMMM DD, YYYY") }}
+                {{ workspace.description }}
               </span>
             </div>
           </div>
-
-          <div>
-            <span>
-              {{ workspace.description }}
-            </span>
-          </div>
-        </ULink>
+        </NuxtLink>
       </div>
     </div>
 
     <ModalNewWorkspace />
-  </main>
+  </AppPageLayout>
 </template>

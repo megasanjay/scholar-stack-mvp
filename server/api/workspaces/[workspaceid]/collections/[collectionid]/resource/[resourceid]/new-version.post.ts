@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createId } from "@paralleldrive/cuid2";
 import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 import touchCollection from "~/server/utils/collection/touchCollection";
 
@@ -7,7 +8,10 @@ export default defineEventHandler(async (event) => {
 
   const bodySchema = z
     .object({
-      backLinkId: z.string().min(1),
+      cloneRelations: z.boolean(),
+      identifier: z.string().min(1),
+      identifierType: z.string().min(1),
+      versionLabel: z.string().optional(),
     })
     .strict();
 
@@ -56,6 +60,11 @@ export default defineEventHandler(async (event) => {
 
   // get the latest version of the collection
   const version = await prisma.version.findFirst({
+    include: {
+      ExternalRelation: true,
+      InternalRelation: true,
+      Resource: true,
+    },
     where: { collectionId, published: false },
   });
 
@@ -68,8 +77,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // get the resource
-  const resource = await prisma.resource.findUnique({
-    where: { id: resourceid, versionId: version.id },
+  const resource = version.Resource.find((resource) => {
+    return resource.id === resourceid;
   });
 
   // if there is no resource return an error
@@ -88,51 +97,87 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // if the resource already has a new version return an error
-  if (resource.action === "newVersion") {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Resource already has a new version",
-    });
-  }
+  const { cloneRelations, identifier, identifierType, versionLabel } =
+    parsedBody.data;
 
   // Add the new resource to the collection version
-  const newResourceVersion = await prisma.resource.create({
+  const newResource = await prisma.resource.create({
     data: {
       title: resource.title,
-      action: "newVersion",
-      backLinkId: parsedBody.data.backLinkId, // used for front-end
+      action: "create",
+      // setting a default value but will be changed in the next step
+      canonicalId: createId(),
       description: resource.description,
-      identifier: resource.identifier,
-      identifierType: resource.identifierType,
+      identifier,
+      identifierType,
+      lineageId: resource.canonicalId,
       resourceType: resource.resourceType,
-      versionLabel: resource.versionLabel,
+      versionId: version.id,
+      versionLabel: versionLabel || "",
     },
   });
 
-  // Add the 'oldVersion' action to the old version
+  // The canonicalId needs to be updated to the newly created resource
   await prisma.resource.update({
     data: {
-      action: "oldVersion",
+      canonicalId: newResource.id,
     },
-    where: { id: resourceid },
+    where: { id: newResource.id },
   });
 
-  // todo: should the relations also be cloned for this new version?
-
-  await prisma.version.update({
-    data: {
-      Resource: {
-        connect: { id: newResourceVersion.id },
+  if (cloneRelations) {
+    // Get all the resources in the latest version
+    const InternalRelations = version.InternalRelation;
+    const InternalRelationsForResource = InternalRelations.filter(
+      (relation) => {
+        return relation.sourceId === resource.id;
       },
-    },
-    where: { id: version.id },
-  });
+    );
+
+    // Clone the internal relations
+    await prisma.internalRelation.createMany({
+      data: InternalRelationsForResource.map((internalRelation) => {
+        return {
+          action: "create",
+          mirror: internalRelation.mirror,
+          originalRelationId: null,
+          resourceType: internalRelation.resourceType,
+          sourceId: newResource.id,
+          targetId: internalRelation.targetId,
+          type: internalRelation.type,
+          versionId: version.id,
+        };
+      }),
+    });
+
+    const ExternalRelations = version.ExternalRelation;
+    const ExternalRelationsForResource = ExternalRelations.filter(
+      (relation) => {
+        return relation.sourceId === resource.id;
+      },
+    );
+
+    // Clone the external relations
+    await prisma.externalRelation.createMany({
+      data: ExternalRelationsForResource.map((externalRelation) => {
+        return {
+          action: "create",
+          originalRelationId: null,
+          resourceType: externalRelation.resourceType,
+          sourceId: newResource.id,
+          target: externalRelation.target,
+          targetType: externalRelation.targetType,
+          type: externalRelation.type,
+          versionId: version.id,
+        };
+      }),
+    });
+  }
 
   await touchCollection(collectionId);
 
   return {
-    resourceId: newResourceVersion.id,
+    resourceId: newResource.id,
     statusCode: 201,
   };
 });

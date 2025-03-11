@@ -45,6 +45,8 @@ export default defineEventHandler(async (event) => {
 
   const resourcesWithErrors = [];
 
+  const identifiers: string[] = [];
+
   for (const resource of resources) {
     // validate the resource
     const parsedResource = resourceSchema.safeParse(resource);
@@ -56,6 +58,19 @@ export default defineEventHandler(async (event) => {
         title: resource.title,
       });
     }
+
+    const identifier = `${resource.identifierType}:${resource.identifier.trim().toLowerCase()}:${resource.versionLabel?.trim().toLowerCase()}`;
+
+    // Check if the resource identifier is unique
+    if (identifiers.includes(identifier)) {
+      resourcesWithErrors.push({
+        id: resource.id,
+        title: resource.title,
+        message: "Identifier is not unique",
+      });
+    }
+
+    identifiers.push(identifier);
   }
 
   if (resourcesWithErrors.length > 0) {

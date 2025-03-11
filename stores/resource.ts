@@ -13,10 +13,8 @@ export const useResourceStore = defineStore("Resource", () => {
       return;
     }
 
-    // remove any resources that have an action of "delete" or "oldVersion"
-    resources.value = resources.value.filter(
-      (r) => r.action !== "delete" && r.action !== "oldVersion",
-    );
+    // remove any resources that have an action of "delete"
+    resources.value = resources.value.filter((r) => r.action !== "delete");
 
     // Sort the resources by alphabetical order
     resources.value.sort((a, b) => {

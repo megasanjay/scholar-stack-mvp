@@ -26,7 +26,6 @@ const { collectionid, resourceid, workspaceid } = route.params as {
 };
 
 const createForm = useTemplateRef("createForm");
-
 const loading = ref(false);
 
 const validateForm = (_state: any): FormError[] => {
@@ -126,10 +125,7 @@ if (error.value) {
 if (resource.value && "action" in resource.value) {
   // If the resource is marked for deletion, redirect the user
   // to the collection page
-  if (
-    resource.value.action === "delete" ||
-    resource.value.action === "oldVersion"
-  ) {
+  if (resource.value.action === "delete") {
     toast.add({
       title: "Resource marked for deletion",
       color: "error",
@@ -266,12 +262,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
           :items="identifierTypeOptions"
           placeholder="DOI"
           :disabled="
-            !!(
-              resource &&
-              'action' in resource &&
-              (resource?.action === 'clone' ||
-                resource?.action === 'oldVersion')
-            )
+            !!(resource && 'action' in resource && resource?.action === 'clone')
           "
           class="w-full"
           size="lg"
@@ -287,12 +278,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
           "
           clearable
           :disabled="
-            !!(
-              resource &&
-              'action' in resource &&
-              (resource?.action === 'clone' ||
-                resource?.action === 'oldVersion')
-            )
+            !!(resource && 'action' in resource && resource?.action === 'clone')
           "
           size="lg"
         />

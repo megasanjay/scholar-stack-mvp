@@ -91,19 +91,18 @@ const selectIcon = (type: string) => {
         v-for="resource in collection?.resources"
         :key="resource.id"
         :to="
-          resource.action === 'delete' || resource.action === 'oldVersion'
+          resource.action === 'delete'
             ? ''
             : `/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}`
         "
         class="flex w-full flex-grow flex-col rounded-md border px-6 pt-6 shadow-sm transition-all hover:shadow-md"
         :class="{
           'cursor-not-allowed border-red-300 bg-red-50 !shadow-none':
-            resource.action === 'delete' || resource.action === 'oldVersion',
+            resource.action === 'delete',
           'border-slate-300 bg-white':
             !resource.action || resource.action === 'clone',
           'border-blue-300 bg-cyan-50/20': resource.action === 'create',
           'border-emerald-400 bg-emerald-50/20': resource.action === 'update',
-          'border-cyan-400 bg-cyan-50/20': resource.action === 'newVersion',
           'border-red-600 bg-white': resource.filledIn === false,
         }"
       >
@@ -134,8 +133,7 @@ const selectIcon = (type: string) => {
                     !(
                       resource.action === 'create' ||
                       resource.action === 'update' ||
-                      resource.action === 'delete' ||
-                      resource.action === 'oldVersion'
+                      resource.action === 'delete'
                     )
                   "
                 >
@@ -151,10 +149,7 @@ const selectIcon = (type: string) => {
                     </UBadge>
 
                     <UBadge
-                      v-if="
-                        resource.action === 'delete' ||
-                        resource.action === 'oldVersion'
-                      "
+                      v-if="resource.action === 'delete'"
                       type="error"
                       size="md"
                       variant="outline"
@@ -181,31 +176,6 @@ const selectIcon = (type: string) => {
                   </template>
                 </UTooltip>
 
-                <UBadge
-                  v-if="resource.action === 'oldVersion'"
-                  color="warning"
-                  size="md"
-                  variant="outline"
-                  icon="ic:round-history"
-                >
-                  Newer Version Available
-                </UBadge>
-
-                <UBadge
-                  v-if="resource.action === 'newVersion'"
-                  color="info"
-                  size="md"
-                  variant="outline"
-                  icon="clarity:new-solid"
-                >
-                  New Version
-                </UBadge>
-
-                <USeparator
-                  v-if="resource.action && resource.action !== 'oldVersion'"
-                  orientation="vertical"
-                />
-
                 <UButton
                   v-if="resource.action === 'delete'"
                   size="sm"
@@ -218,7 +188,6 @@ const selectIcon = (type: string) => {
                 <NuxtLink
                   v-if="
                     resource.action !== 'delete' &&
-                    resource.action !== 'oldVersion' &&
                     !collection?.version?.published
                   "
                   :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}/edit`"

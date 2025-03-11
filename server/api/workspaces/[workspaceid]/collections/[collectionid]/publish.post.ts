@@ -91,39 +91,12 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  // Remove the old version resources from the resources array
-  const oldVersionResources = resources.filter(
-    (resource) => resource.action === "oldVersion",
-  );
-
-  await prisma.resource.deleteMany({
-    where: {
-      id: {
-        in: oldVersionResources.map((resource) => resource.id),
-      },
-    },
-  });
-
   // Clean up the rest of the resources
-  const clonedResources = resources.filter(
-    (resource) => resource.action === "clone",
-  );
-
-  await prisma.resource.updateMany({
-    data: {
-      action: null,
-      originalResourceId: null,
-    },
-    where: {
-      id: {
-        in: clonedResources.map((resource) => resource.id),
-      },
-    },
-  });
-
-  const updatedResources = resources.filter(
-    (resource) => resource.action === "update",
-  );
+  const updatedResources = [
+    ...resources.filter((resource) => resource.action === "update"),
+    ...resources.filter((resource) => resource.action === "clone"),
+    ...resources.filter((resource) => resource.action === "create"),
+  ];
 
   await prisma.resource.updateMany({
     data: {
@@ -133,38 +106,6 @@ export default defineEventHandler(async (event) => {
     where: {
       id: {
         in: updatedResources.map((resource) => resource.id),
-      },
-    },
-  });
-
-  const newResources = resources.filter(
-    (resource) => resource.action === "create",
-  );
-
-  await prisma.resource.updateMany({
-    data: {
-      action: null,
-      originalResourceId: null,
-    },
-    where: {
-      id: {
-        in: newResources.map((resource) => resource.id),
-      },
-    },
-  });
-
-  const newVersionResources = resources.filter(
-    (resource) => resource.action === "newVersion",
-  );
-
-  await prisma.resource.updateMany({
-    data: {
-      action: null,
-      originalResourceId: null,
-    },
-    where: {
-      id: {
-        in: newVersionResources.map((resource) => resource.id),
       },
     },
   });

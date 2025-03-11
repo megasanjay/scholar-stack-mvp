@@ -238,8 +238,7 @@ const generateTargetResourceListOptions = () => {
         ...resource,
         disabled:
           resource.value === selectedSourceResource ||
-          resource.action === "delete" ||
-          resource.action === "oldVersion",
+          resource.action === "delete",
       };
     },
   );

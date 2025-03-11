@@ -85,7 +85,6 @@ export default defineEventHandler(async (event) => {
     data: {
       title,
       action: "create",
-      backLinkId: null,
       // setting a default value but will be changed in the next step
       canonicalId: createId(),
       description,
