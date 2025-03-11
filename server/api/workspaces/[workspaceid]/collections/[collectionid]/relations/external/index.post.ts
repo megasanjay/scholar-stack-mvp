@@ -86,11 +86,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if the source resource is deleted or is an old version
-  if (
-    !resource.action ||
-    resource.action === "delete" ||
-    resource.action === "oldVersion"
-  ) {
+  if (!resource.action || resource.action === "delete") {
     throw createError({
       message: "Source resource cannot accept relations",
       statusCode: 400,
