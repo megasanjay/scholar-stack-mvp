@@ -145,17 +145,17 @@ const state = reactive({
 });
 
 const validateForm = (_state: any): FormError[] => {
-  const errrors = [];
+  const errors = [];
 
   if (!state.identifier) {
-    errrors.push({
+    errors.push({
       name: "identifier",
       message: "Identifier is required",
     });
   }
 
   if (!state.identifierType) {
-    errrors.push({
+    errors.push({
       name: "identifierType",
       message: "Identifier type is required",
     });
@@ -168,14 +168,14 @@ const validateForm = (_state: any): FormError[] => {
     );
 
     if (!identifierRegex.test(state.identifier)) {
-      errrors.push({
+      errors.push({
         name: "identifier",
         message: "Identifier is not in the correct format",
       });
     }
   }
 
-  return errrors;
+  return errors;
 };
 
 async function onSubmit(event: FormSubmitEvent<any>) {
