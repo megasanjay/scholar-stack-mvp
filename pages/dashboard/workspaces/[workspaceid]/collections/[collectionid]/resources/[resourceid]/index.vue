@@ -498,5 +498,17 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     />
 
     <DataDisplay title="Internal ID" :content="resource?.id" secondary />
+
+    <DataDisplay
+      title="Canonical ID"
+      :content="resource?.canonicalId"
+      secondary
+    />
+
+    <DataDisplay
+      title="Lineage ID"
+      :content="resource?.lineageId || 'No lineage ID provided'"
+      secondary
+    />
   </AppPageLayout>
 </template>
