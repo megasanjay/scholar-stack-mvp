@@ -275,6 +275,51 @@ const copyToClipboard = (input: string) => {
     });
   }
 };
+
+const exportCollection = () => {
+  if (!data.value) {
+    toast.add({
+      title: "Something went wrong",
+      color: "error",
+      description: "We couldn't load the collection",
+      icon: "material-symbols:error",
+    });
+
+    return;
+  }
+
+  const resources = data.value.Resource || [];
+  const collection = data.value.collection || {};
+
+  const exportData = {
+    collection,
+    resources: resources.map((resource) => {
+      return {
+        id: resource.id,
+        title: resource.title,
+        description: resource.description,
+        identifier: resource.identifier,
+        identifierType: resource.identifierType,
+        resourceType: resource.resourceType,
+        versionLabel: resource.versionLabel,
+      };
+    }),
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `${collection.title}.json`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
 </script>
 
 <template>
@@ -309,19 +354,19 @@ const copyToClipboard = (input: string) => {
         />
       </div>
 
-      <div class="flex items-center justify-between pl-5 pr-5">
+      <div class="flex items-center justify-between pr-5 pl-5">
         <div class="flex items-center gap-2">
-          <UBadge color="success" size="sm" variant="outline">
+          <UBadge color="success" size="md" variant="outline">
             Version {{ data?.name || "N/A" }}
           </UBadge>
 
-          <UBadge color="info" size="sm" variant="outline">
+          <UBadge color="info" size="md" variant="outline">
             {{ dayjs(data?.publishedOn).format("MMMM DD, YYYY") || "N/A" }}
           </UBadge>
 
           <UBadge
             color="info"
-            size="sm"
+            size="md"
             variant="outline"
             :icon="selectCollectionType(data?.collection.type || '').icon"
           >
@@ -329,18 +374,59 @@ const copyToClipboard = (input: string) => {
           </UBadge>
         </div>
 
-        <UPopover v-if="!loggedIn" mode="hover">
+        <div class="flex items-center gap-2">
+          <UPopover v-if="!loggedIn" mode="hover">
+            <UButton
+              label="Open"
+              color="neutral"
+              variant="subtle"
+              :loading="starLoading"
+              to="/login"
+            >
+              <div class="flex items-center gap-2">
+                <Icon name="material-symbols:star-rounded" size="20" />
+
+                <span> Star </span>
+
+                <USeparator orientation="vertical" class="h-5" />
+
+                <span class="pl-1"> {{ starCount }} </span>
+              </div>
+            </UButton>
+
+            <template #content>
+              <span class="px-2 py-1">
+                You must be logged in to star this collection.
+              </span>
+            </template>
+          </UPopover>
+
           <UButton
+            v-else
             label="Open"
             color="neutral"
             variant="subtle"
             :loading="starLoading"
-            to="/login"
+            @click="
+              loggedIn
+                ? starredStatus
+                  ? removeCollectionStar()
+                  : starCollection()
+                : null
+            "
           >
             <div class="flex items-center gap-2">
-              <Icon name="material-symbols:star-rounded" size="20" />
+              <Icon
+                name="material-symbols:star-rounded"
+                size="20"
+                :class="{
+                  'text-yellow-400': starredStatus,
+                }"
+              />
 
-              <span> Star </span>
+              <span>
+                {{ starredStatus ? "Starred" : "Star" }}
+              </span>
 
               <USeparator orientation="vertical" class="h-5" />
 
@@ -348,45 +434,14 @@ const copyToClipboard = (input: string) => {
             </div>
           </UButton>
 
-          <template #content>
-            <span class="px-2 py-1">
-              You must be logged in to star this collection.
-            </span>
-          </template>
-        </UPopover>
-
-        <UButton
-          v-else
-          label="Open"
-          color="neutral"
-          variant="subtle"
-          :loading="starLoading"
-          @click="
-            loggedIn
-              ? starredStatus
-                ? removeCollectionStar()
-                : starCollection()
-              : null
-          "
-        >
-          <div class="flex items-center gap-2">
-            <Icon
-              name="material-symbols:star-rounded"
-              size="20"
-              :class="{
-                'text-yellow-400': starredStatus,
-              }"
-            />
-
-            <span>
-              {{ starredStatus ? "Starred" : "Star" }}
-            </span>
-
-            <USeparator orientation="vertical" class="h-5" />
-
-            <span class="pl-1"> {{ starCount }} </span>
-          </div>
-        </UButton>
+          <UButton
+            label="Export as JSON"
+            icon="si:json-duotone"
+            color="neutral"
+            variant="subtle"
+            @click="exportCollection"
+          />
+        </div>
       </div>
 
       <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-3">
@@ -508,7 +563,7 @@ const copyToClipboard = (input: string) => {
         </div>
       </div>
 
-      <USeparator class="my-5" />
+      <hr class="dark:border-gray-70 my-5 border-dashed border-gray-200" />
 
       <UTabs
         :items="tabItems"
@@ -518,7 +573,7 @@ const copyToClipboard = (input: string) => {
         :ui="{ trigger: 'cursor-pointer' }"
       >
         <template #resources>
-          <div class="flex w-full items-center gap-2">
+          <div class="flex w-full items-center gap-2 px-2">
             <div
               v-for="(group, name, index) in groupedResources"
               :key="index"
@@ -551,7 +606,7 @@ const copyToClipboard = (input: string) => {
                     {{ resource.description || "No description provided" }}
                   </p>
 
-                  <div class="flex items-center justify-between pb-4 pt-2">
+                  <div class="flex items-center justify-between pt-2 pb-4">
                     <div class="flex items-center gap-2">
                       <UBadge
                         :color="resource.identifierType ? 'info' : 'error'"
@@ -640,6 +695,10 @@ const copyToClipboard = (input: string) => {
         <template #impact> <DiscoverImpactCloud /> </template>
       </UTabs>
     </div>
+
+    <pre
+      >{{ data }}
+    </pre>
 
     <div
       class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"

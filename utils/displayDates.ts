@@ -78,9 +78,14 @@ const displayStandardDate = (date: string) => {
   return dayjs(date).format("MMMM DD, YYYY");
 };
 
+const convertToStandardDate = (date: string) => {
+  return dayjs(date).utc().format("YYYY-MM-DDTHH:mm:ssZ");
+};
+
 export {
   displayShortDate,
   displayLongDate,
   displayDateDifference,
   displayStandardDate,
+  convertToStandardDate,
 };
