@@ -347,7 +347,10 @@ const exportCollection = () => {
   link.download = `${collection.title}.json`;
   link.click();
 
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    // prevent issues with slower devices
+    URL.revokeObjectURL(url);
+  }, 100);
 };
 </script>
 
