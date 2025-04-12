@@ -290,9 +290,36 @@ const exportCollection = () => {
 
   const resources = data.value.Resource || [];
   const collection = data.value.collection || {};
+  const internalRelations = data.value.InternalRelation || [];
+  const externalRelations = data.value.ExternalRelation || [];
 
   const exportData = {
-    collection,
+    title: collection.title,
+    changelog: data.value.changelog,
+    creators: data.value.creators,
+    description: collection.description,
+    detailedDescription: collection.detailedDescription,
+    imageUrl: collection.imageUrl,
+    relations: {
+      external: externalRelations.map((relation) => {
+        return {
+          resourceType: relation.resourceType,
+          sourceId: relation.sourceId,
+          target: relation.target,
+          targetType: relation.targetType,
+          type: relation.type,
+        };
+      }),
+      internal: internalRelations.map((relation) => {
+        return {
+          mirror: relation.mirror,
+          resourceType: relation.resourceType,
+          sourceId: relation.sourceId,
+          targetId: relation.targetId,
+          type: relation.type,
+        };
+      }),
+    },
     resources: resources.map((resource) => {
       return {
         id: resource.id,
@@ -304,6 +331,8 @@ const exportCollection = () => {
         versionLabel: resource.versionLabel,
       };
     }),
+    type: collection.type,
+    version: data.value.name,
   };
 
   const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -695,10 +724,6 @@ const exportCollection = () => {
         <template #impact> <DiscoverImpactCloud /> </template>
       </UTabs>
     </div>
-
-    <pre
-      >{{ data }}
-    </pre>
 
     <div
       class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"

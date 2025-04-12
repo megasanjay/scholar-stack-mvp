@@ -69,7 +69,6 @@ export default async function (collectionId: number) {
         return {
           title: resource.title,
           action: "clone",
-          backLinkId: null,
           canonicalId: resource.canonicalId,
           description: resource.description,
           identifier: resource.identifier,
