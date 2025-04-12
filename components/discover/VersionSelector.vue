@@ -67,7 +67,7 @@ const copyToClipboard = (input: string) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4 px-2 py-5">
     <UAlert title="Info" color="info" icon="i-lucide-terminal" variant="soft">
       <template #description>
         <div class="flex items-center justify-between gap-5">
@@ -157,49 +157,37 @@ const copyToClipboard = (input: string) => {
               </NuxtLink>
             </div>
 
-            <NuxtLink
-              :to="`/view/v${version.id}`"
-              class="text-sm transition-all hover:text-slate-400 hover:underline"
-              :class="{
-                'text-stone-600 dark:text-stone-600':
-                  version.id === selectedVersionIdentifier,
-                'text-stone-500 dark:text-stone-400':
-                  version.id !== selectedVersionIdentifier,
-              }"
-            >
-              v{{ version.id }}
-            </NuxtLink>
-          </div>
-
-          <div class="flex flex-col items-end gap-1">
-            <UPopover mode="hover">
-              <UButton
-                color="neutral"
-                variant="subtle"
-                size="xs"
-                icon="solar:copy-bold"
-                @click="
-                  copyToClipboard(`https://sciconnect.io/view/v${version.id}`)
-                "
-              />
-
-              <template #content>
-                <span class="px-2 py-1 text-sm">
-                  Copy this URL to your clipboard.
-                </span>
-              </template>
-            </UPopover>
-
             <time
               class="text-sm"
               :class="{
                 'text-stone-900': version.id === selectedVersionIdentifier,
                 'text-stone-5 0': version.id !== selectedVersionIdentifier,
               }"
+              :datetime="convertToStandardDate(version.publishedOn as string)"
             >
+              Published on
               {{ displayStandardDate(version.publishedOn as string) }}
             </time>
           </div>
+
+          <UPopover mode="hover">
+            <UButton
+              color="neutral"
+              variant="subtle"
+              size="md"
+              label="Copy URL"
+              icon="solar:copy-bold"
+              @click="
+                copyToClipboard(`https://sciconnect.io/view/v${version.id}`)
+              "
+            />
+
+            <template #content>
+              <span class="px-2 py-1 text-sm">
+                Copy this URL to your clipboard.
+              </span>
+            </template>
+          </UPopover>
         </div>
       </div>
     </div>

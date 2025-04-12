@@ -27,7 +27,7 @@ const emailVerified = computed(
           </NuxtLink>
 
           <div class="flex items-center gap-3 lg:order-2">
-            <UiColorModeToggle />
+            <AppColorModeButton />
 
             <NuxtLink v-if="!loggedIn" to="/login">
               <UButton label="Log in" size="lg" />
@@ -46,7 +46,7 @@ const emailVerified = computed(
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
-              class="ml-1 inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 lg:hidden"
+              class="ml-1 inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-2 focus:ring-gray-200 focus:outline-none lg:hidden"
               aria-controls="mobile-menu-2"
               aria-expanded="false"
             >
@@ -90,7 +90,7 @@ const emailVerified = computed(
               <li>
                 <a
                   href="#"
-                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pl-3 pr-4 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
+                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
                 >
                   Team
                 </a>
@@ -99,7 +99,7 @@ const emailVerified = computed(
               <li>
                 <a
                   href="#"
-                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pl-3 pr-4 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
+                  class="lg:hover:text-primary-700 block border-b border-gray-100 py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-50 lg:border-0 lg:p-0 lg:hover:bg-transparent"
                 >
                   Contact
                 </a>

@@ -897,7 +897,7 @@ onMounted(() => {
     <div
       v-else
       size="large"
-      class="divide flex w-full flex-col gap-3 divide-y divide-dashed divide-stone-200"
+      class="divide flex w-full flex-col gap-3 divide-y divide-solid divide-stone-200"
     >
       <!-- <pre>{{ groupedResources }}</pre> -->
 
@@ -1081,7 +1081,7 @@ onMounted(() => {
           ref="createForm"
           :validate="validateForm"
           :state="selectedRelation"
-          class="gap-4"
+          class="flex flex-col gap-4"
           @submit="onSubmit"
           @error="onError"
         >
