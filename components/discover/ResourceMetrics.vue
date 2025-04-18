@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { usePreferredLanguages } from "@vueuse/core";
+
 defineProps({
   resourceType: {
     required: true,
@@ -7,7 +9,14 @@ defineProps({
 });
 
 const generateRandomNumber = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  const languages = usePreferredLanguages();
+
+  const formatter = new Intl.NumberFormat(languages.value, {
+    compactDisplay: "short",
+    notation: "compact",
+  });
+
+  return formatter.format(Math.floor(Math.random() * (max - min + 1) + min));
 };
 </script>
 

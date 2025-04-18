@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 /**
  * Create a new unpublished draft version of a collection
  * @param collectionId - The id of the collection to create a new version for
@@ -22,7 +23,7 @@ export default async function (collectionId: number) {
     const draftVersion = await prisma.version.create({
       data: {
         name: "Draft",
-        changelog: "xxx",
+        changelog: faker.lorem.paragraphs(3, "\n\n"),
         collectionId,
       },
     });
@@ -54,7 +55,7 @@ export default async function (collectionId: number) {
     const draftVersion = await prisma.version.create({
       data: {
         name: "Draft",
-        changelog: "xxx",
+        changelog: faker.lorem.paragraphs(3, "\n\n"),
         collectionId,
         creators: latestVersion.creators || "[]",
       },

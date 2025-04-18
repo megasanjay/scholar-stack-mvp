@@ -352,6 +352,26 @@ const exportCollection = () => {
     URL.revokeObjectURL(url);
   }, 100);
 };
+
+const navigateToResource = (identifier: string) => {
+  const resource = data.value?.Resource.find(
+    (resource) => resource.identifier === identifier,
+  );
+
+  if (resource) {
+    const targetUrl =
+      resource.identifierType === "url"
+        ? resource.identifier
+        : `https://identifiers.org/${resource.identifierType}/${resource.identifier}`;
+
+    navigateTo(targetUrl, {
+      external: true,
+      open: {
+        target: "_blank",
+      },
+    });
+  }
+};
 </script>
 
 <template>
@@ -562,10 +582,7 @@ const exportCollection = () => {
                 <div class="flex items-center gap-2">
                   <Icon name="ph:link-bold" size="20" />
 
-                  <ULink
-                    :to="`https://sciconnect.io/view/c${data?.collection.id}`"
-                    target="_blank"
-                  >
+                  <ULink :to="`/view/c${data?.collection.id}`" target="_blank">
                     https://sciconnect.io/view/c{{ data?.collection.id }}
                   </ULink>
                 </div>
@@ -605,7 +622,7 @@ const exportCollection = () => {
         :ui="{ trigger: 'cursor-pointer' }"
       >
         <template #resources>
-          <div class="flex w-full items-center gap-2 px-2">
+          <div class="flex w-full flex-col items-center gap-2 px-2">
             <div
               v-for="(group, name, index) in groupedResources"
               :key="index"
@@ -628,13 +645,41 @@ const exportCollection = () => {
                   :key="idx"
                   class="flex w-full flex-grow flex-col rounded-md border border-stone-200 bg-white px-6 pt-4 shadow-sm dark:bg-stone-800"
                 >
-                  <div class="flex w-full items-center justify-start pb-2">
+                  <div
+                    class="flex w-full items-center justify-between gap-2 pb-2"
+                  >
                     <h3 class="text-lg font-semibold">
                       {{ resource.title || "No title provided" }}
                     </h3>
+
+                    <div class="flex items-center gap-2">
+                      <UButton
+                        v-if="resource.identifierType === 'url'"
+                        label="Copy URL"
+                        icon="ph:copy-bold"
+                        color="info"
+                        variant="subtle"
+                        size="xs"
+                        @click="
+                          copyToClipboard(
+                            `https://identifiers.org/${resource.identifierType}/${resource.identifier}`,
+                          )
+                        "
+                      />
+
+                      <UButton
+                        label="View resource"
+                        icon="mingcute:external-link-fill"
+                        color="primary"
+                        size="xs"
+                        @click="navigateToResource(resource.identifier)"
+                      />
+                    </div>
                   </div>
 
-                  <p class="border-t border-dashed py-3 font-normal">
+                  <p
+                    class="border-t border-dashed border-stone-200 py-3 font-normal"
+                  >
                     {{ resource.description || "No description provided" }}
                   </p>
 
