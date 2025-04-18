@@ -1,16 +1,12 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: "public",
-});
+definePageMeta({ layout: "public" });
 
 const toast = useToast();
 
 const page = ref(1);
 
 const queryParams = computed(() => {
-  return {
-    page: page.value - 1,
-  };
+  return { page: page.value - 1 };
 });
 
 const { data, error } = await useFetch(`/api/discover/collections`, {
@@ -34,12 +30,7 @@ if (error.value) {
 const requestNewPage = (newPage: number) => {
   page.value = newPage;
 
-  navigateTo({
-    path: "/view",
-    query: {
-      page: newPage,
-    },
-  });
+  navigateTo({ path: "/view", query: { page: newPage } });
 };
 </script>
 
@@ -83,7 +74,7 @@ const requestNewPage = (newPage: number) => {
                   <Icon name="mingcute:eye-line" size="20" />
 
                   <span class="text-base">
-                    {{ item.views }}
+                    {{ displayAbbreviatedNumber(item.views) }}
                   </span>
                 </div>
 

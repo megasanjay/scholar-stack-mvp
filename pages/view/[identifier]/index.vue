@@ -6,9 +6,7 @@ import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
 const { loggedIn } = useUserSession();
 
-definePageMeta({
-  layout: "public",
-});
+definePageMeta({ layout: "public" });
 
 const toast = useToast();
 const route = useRoute();
@@ -28,27 +26,11 @@ const tabItems = [
     label: "Resources",
     slot: "resources",
   },
-  {
-    icon: "tabler:circles-relation",
-    label: "Relations",
-    slot: "relations",
-  },
-  {
-    icon: "fluent:history-24-filled",
-    label: "Changelog",
-    slot: "changelog",
-  },
-  {
-    icon: "mingcute:version-fill",
-    label: "Versions",
-    slot: "versions",
-  },
+  { icon: "tabler:circles-relation", label: "Relations", slot: "relations" },
+  { icon: "fluent:history-24-filled", label: "Changelog", slot: "changelog" },
+  { icon: "mingcute:version-fill", label: "Versions", slot: "versions" },
 
-  {
-    icon: "ph:list-heart",
-    label: "Impact",
-    slot: "impact",
-  },
+  { icon: "ph:list-heart", label: "Impact", slot: "impact" },
 ];
 
 const { data, error } = await useFetch(
@@ -73,16 +55,10 @@ const selectIcon = (type: string) => {
   );
 
   if (resourceType) {
-    return {
-      name: resourceType.label,
-      icon: resourceType.icon,
-    };
+    return { name: resourceType.label, icon: resourceType.icon };
   }
 
-  return {
-    name: "Unknown",
-    icon: "mdi:file-question",
-  };
+  return { name: "Unknown", icon: "mdi:file-question" };
 };
 
 const selectCollectionType = (type: string) => {
@@ -94,11 +70,7 @@ const selectCollectionType = (type: string) => {
     return collectionType;
   }
 
-  return {
-    icon: "mdi:file-question",
-    label: "Unknown",
-    value: "unknown",
-  };
+  return { icon: "mdi:file-question", label: "Unknown", value: "unknown" };
 };
 
 const groupedResources = computed(() => {
@@ -349,10 +321,10 @@ const exportCollection = () => {
   }, 100);
 };
 
-const navigateToResource = (identifier: string) => {
-  const resource = data.value?.Resource.find(
-    (resource) => resource.identifier === identifier,
-  );
+const navigateToResource = (id: string) => {
+  const resource = data.value?.Resource.find((resource) => resource.id === id);
+
+  recordClick(id); // store the click info in the database
 
   if (resource) {
     const targetUrl =
@@ -360,12 +332,24 @@ const navigateToResource = (identifier: string) => {
         ? resource.identifier
         : `https://identifiers.org/${resource.identifierType}/${resource.identifier}`;
 
-    navigateTo(targetUrl, {
-      external: true,
-      open: {
-        target: "_blank",
-      },
-    });
+    navigateTo(targetUrl, { external: true, open: { target: "_blank" } });
+  }
+};
+
+const recordClick = (resourceId: string) => {
+  // Check if the resource id is part of the collection
+  const resource = data.value?.Resource.find(
+    (resource) => resource.id === resourceId,
+  );
+
+  if (resource) {
+    $fetch(`/api/discover/collections/${data?.value?.id}/${resource.id}`, {
+      method: "POST",
+    })
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+      });
   }
 };
 </script>
@@ -444,6 +428,15 @@ const navigateToResource = (identifier: string) => {
           >
             {{ selectCollectionType(data?.collection.type || "").label }}
           </UBadge>
+
+          <UBadge
+            color="info"
+            size="md"
+            variant="outline"
+            icon="mingcute:eye-line"
+          >
+            {{ displayAbbreviatedNumber(data?.views || 0) }} views
+          </UBadge>
         </div>
 
         <div class="flex items-center gap-2">
@@ -462,7 +455,9 @@ const navigateToResource = (identifier: string) => {
 
                 <USeparator orientation="vertical" class="h-5" />
 
-                <span class="pl-1"> {{ starCount }} </span>
+                <span class="pl-1">
+                  {{ displayAbbreviatedNumber(starCount) }}
+                </span>
               </div>
             </UButton>
 
@@ -491,9 +486,7 @@ const navigateToResource = (identifier: string) => {
               <Icon
                 name="material-symbols:star-rounded"
                 size="20"
-                :class="{
-                  'text-yellow-400': starredStatus,
-                }"
+                :class="{ 'text-yellow-400': starredStatus }"
               />
 
               <span>
@@ -746,7 +739,7 @@ const navigateToResource = (identifier: string) => {
                         icon="iconoir:internet"
                         color="primary"
                         size="xs"
-                        @click="navigateToResource(resource.identifier)"
+                        @click="navigateToResource(resource.id)"
                       />
                     </div>
                   </div>
@@ -774,18 +767,18 @@ const navigateToResource = (identifier: string) => {
                       <div class="group w-max">
                         <NuxtLink
                           :to="
-                            resource.identifier_type !== 'url'
+                            resource.identifierType !== 'url'
                               ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
                               : resource.identifier
                           "
                           class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
                           target="_blank"
-                          @click.stop=""
+                          @click.stop="recordClick(resource.id)"
                         >
                           {{ resource.identifier }}
 
                           <Icon
-                            v-if="resource.identifier_type"
+                            v-if="resource.identifierType"
                             name="mdi:external-link"
                             size="16"
                             class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
@@ -796,6 +789,7 @@ const navigateToResource = (identifier: string) => {
 
                     <DiscoverResourceMetrics
                       :resource-type="resource.resourceType"
+                      :clicks="resource.clicks"
                     />
                   </div>
                 </div>

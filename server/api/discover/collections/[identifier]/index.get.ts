@@ -4,10 +4,7 @@ export default defineEventHandler(async (event) => {
   const regex = /^[cv]\d+/;
 
   if (!regex.test(identifier)) {
-    throw createError({
-      message: "Invalid identifier",
-      statusCode: 400,
-    });
+    throw createError({ message: "Invalid identifier", statusCode: 400 });
   }
 
   // Get the first character of the identifier
@@ -31,10 +28,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!collection) {
-      throw createError({
-        message: "Collection not found",
-        statusCode: 404,
-      });
+      throw createError({ message: "Collection not found", statusCode: 404 });
     }
 
     versionId = collection.Version[0].id;
@@ -47,18 +41,11 @@ export default defineEventHandler(async (event) => {
       InternalRelation: true,
       Resource: true,
     },
-    where: {
-      id: versionId,
-      collection: { private: false },
-      published: true,
-    },
+    where: { id: versionId, collection: { private: false }, published: true },
   });
 
   if (!version) {
-    throw createError({
-      message: "Version not found",
-      statusCode: 404,
-    });
+    throw createError({ message: "Version not found", statusCode: 404 });
   }
 
   const allVersions = await prisma.version.findMany({
@@ -70,22 +57,14 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const collectionIdentifier = `c${version.collectionId}`;
-
-  await prisma.analytics.create({
-    data: {
-      event: "view",
-      identifier: collectionIdentifier,
-      type: "collection",
-    },
+  await prisma.collection.update({
+    data: { views: { increment: 1 } },
+    where: { id: version.collectionId },
   });
 
-  await prisma.analytics.create({
-    data: {
-      event: "resolve",
-      identifier: `v${version.id}`,
-      type: "version",
-    },
+  await prisma.version.update({
+    data: { views: { increment: 1 } },
+    where: { id: version.id },
   });
 
   return {
@@ -94,6 +73,6 @@ export default defineEventHandler(async (event) => {
       allVersions.length > 1 ? allVersions[0].id === version.id : true,
     stars: Math.floor(Math.random() * 500),
     Versions: allVersions,
-    views: Math.floor(Math.random() * 500),
+    views: version.views,
   };
 });

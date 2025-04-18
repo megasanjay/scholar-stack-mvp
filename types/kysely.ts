@@ -20,6 +20,7 @@ export type Collection = {
     imageUrl: Generated<string>;
     private: Generated<boolean>;
     randomInt: Generated<number>;
+    views: Generated<number>;
     created: Generated<Timestamp>;
     updated: Timestamp;
     workspaceId: string | null;
@@ -88,6 +89,7 @@ export type Resource = {
     originalResourceId: string | null;
     action: string | null;
     versionId: number | null;
+    clicks: Generated<number>;
     created: Generated<Timestamp>;
     updated: Timestamp;
 };
@@ -120,6 +122,7 @@ export type Version = {
     creators: Generated<unknown>;
     published: Generated<boolean>;
     publishedOn: Timestamp | null;
+    views: Generated<number>;
     created: Generated<Timestamp>;
     updated: Timestamp;
 };

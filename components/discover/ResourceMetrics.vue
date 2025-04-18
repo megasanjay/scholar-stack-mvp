@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import { usePreferredLanguages } from "@vueuse/core";
-
 defineProps({
-  resourceType: {
+  clicks: {
+    default: 0,
     required: true,
-    type: String,
+    type: Number,
   },
+  resourceType: { required: true, type: String },
 });
 
 const generateRandomNumber = (min: number, max: number) => {
-  const languages = usePreferredLanguages();
-
-  const formatter = new Intl.NumberFormat(languages.value, {
-    compactDisplay: "short",
-    notation: "compact",
-  });
-
-  return formatter.format(Math.floor(Math.random() * (max - min + 1) + min));
+  return displayAbbreviatedNumber(
+    Math.floor(Math.random() * (max - min + 1) + min),
+  );
 };
 </script>
 
@@ -70,7 +65,9 @@ const generateRandomNumber = (min: number, max: number) => {
       variant="soft"
       icon="tabler:click"
     >
-      {{ generateRandomNumber(545, 15234) }} clicks
+      {{ clicks }}
+      {{ generateRandomNumber(545, 15234) }}
+      clicks
     </UBadge>
 
     <UBadge
