@@ -4,6 +4,7 @@ import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
 import { VueFlow, useVueFlow, type Node, type Edge } from "@vue-flow/core";
+import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
 
 const { addEdges, onConnect } = useVueFlow();
 
@@ -15,6 +16,7 @@ const props = defineProps<{
 }>();
 
 const remappedRelations = [];
+const relationTypeOptions = RELATION_TYPE_JSON;
 
 for (const relation of props.relations.internal) {
   remappedRelations.push({
@@ -42,7 +44,9 @@ nodes.value = props.resources.map((resource) => {
   return {
     id: resource.id,
     data: {
+      identifier: `${resource.identifierType}:${resource.identifier}`,
       label: resource.title,
+      versionLabel: resource.versionLabel,
     },
     position: { x: 0, y: 0 },
     type: "custom",
@@ -93,13 +97,19 @@ for (const relation of remappedRelations) {
   }
 }
 
+const getRelationName = (relationType: string) => {
+  const relation = relationTypeOptions.find((r) => r.value === relationType);
+
+  return relation?.label || relationType;
+};
+
 const edges = ref<Edge[]>([]);
 
 for (const relation of remappedRelations) {
   edges.value.push({
     id: relation.id,
     animated: true,
-    label: relation.label,
+    label: getRelationName(relation.label),
     source: relation.source,
     target: relation.target,
   });
@@ -173,6 +183,8 @@ onConnect((params) => {
             <FlowCustomNode
               v-bind="{
                 ...nodeProps,
+                versionLabel: nodeProps.data.versionLabel || '',
+                identifier: nodeProps.data.identifier || '',
                 label: nodeProps.data.label || '', // Provide a default empty string for label if undefined
               }"
             />

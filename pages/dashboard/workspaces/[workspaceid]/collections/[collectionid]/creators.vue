@@ -412,7 +412,7 @@ function onError(event: FormErrorEvent) {
             ref="createForm"
             :validate="validateForm"
             :state="selectedCreator"
-            class="gap-4"
+            class="flex flex-col gap-4"
             @submit="onSubmit"
             @error="onError"
           >

@@ -86,10 +86,12 @@ interface AllRelationsItem {
   source: string | null;
   sourceName: string | null;
   sourceOriginalId: string | null;
+  sourceVersionLabel: string | null;
   target: string | null;
   targetName?: string | null;
   targetOriginalId?: string | null;
   targetType?: string | null;
+  targetVersionLabel?: string | null;
   type: string;
 }
 

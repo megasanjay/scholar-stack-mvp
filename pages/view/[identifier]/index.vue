@@ -43,11 +43,7 @@ const tabItems = [
     label: "Versions",
     slot: "versions",
   },
-  {
-    icon: "bi:bar-chart-fill",
-    label: "Analytics",
-    slot: "analytics",
-  },
+
   {
     icon: "ph:list-heart",
     label: "Impact",
@@ -375,7 +371,7 @@ const navigateToResource = (identifier: string) => {
 </script>
 
 <template>
-  <main class="relative w-full grow px-2 py-10 sm:px-6">
+  <main class="relative w-full grow px-2 pt-5 pb-10 sm:px-6">
     <div class="relative mx-auto max-w-screen-2xl">
       <div
         class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
@@ -406,7 +402,31 @@ const navigateToResource = (identifier: string) => {
         />
       </div>
 
-      <div class="flex items-center justify-between pr-5 pl-5">
+      <div
+        v-if="!data?.isLatestVersion"
+        class="flex items-center justify-between px-5 pb-5"
+      >
+        <UAlert
+          color="warning"
+          variant="subtle"
+          size="sm"
+          title="A newer version of this collection has been published."
+          icon="ic:baseline-new-releases"
+          orientation="horizontal"
+          :actions="[
+            {
+              label: 'Go to latest version',
+              to: `/view/c${data?.collection.id}`,
+              target: '_blank',
+              color: 'info',
+              icon: 'ic:baseline-open-in-new',
+              variant: 'outline',
+            },
+          ]"
+        />
+      </div>
+
+      <div class="flex items-center justify-between px-5">
         <div class="flex items-center gap-2">
           <UBadge color="success" size="md" variant="outline">
             Version {{ data?.name || "N/A" }}
@@ -548,15 +568,15 @@ const navigateToResource = (identifier: string) => {
                 Links to this collection
               </p>
 
-              <div class="flex items-center gap-2">
+              <div v-if="data?.isLatestVersion" class="flex items-center gap-2">
                 <div class="flex items-center gap-2">
                   <Icon name="simple-icons:doi" size="20" />
 
                   <ULink
-                    :to="`https://doi.org/10.5281/c${data?.collection.id}`"
+                    :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}`"
                     target="_blank"
                   >
-                    10.5281/c{{ data?.collection.id }}
+                    10.5281/sciconnect.{{ data?.collection.id }}
                   </ULink>
                 </div>
 
@@ -566,7 +586,9 @@ const navigateToResource = (identifier: string) => {
                   size="xs"
                   icon="solar:copy-bold"
                   @click="
-                    copyToClipboard(`https://doi.org/c${data?.collection.id}`)
+                    copyToClipboard(
+                      `https://doi.org/sciconnect.${data?.collection.id}`,
+                    )
                   "
                 />
 
@@ -579,6 +601,38 @@ const navigateToResource = (identifier: string) => {
               </div>
 
               <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2">
+                  <Icon name="simple-icons:doi" size="20" />
+
+                  <ULink
+                    :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}.${data?.id}`"
+                    target="_blank"
+                  >
+                    10.5281/sciconnect.{{ data?.collection.id }}.{{ data?.id }}
+                  </ULink>
+                </div>
+
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="solar:copy-bold"
+                  @click="
+                    copyToClipboard(
+                      `https://doi.org/sciconnect.${data?.collection.id}.${data?.id}`,
+                    )
+                  "
+                />
+
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="fluent:qr-code-20-regular"
+                />
+              </div>
+
+              <div v-if="data?.isLatestVersion" class="flex items-center gap-2">
                 <div class="flex items-center gap-2">
                   <Icon name="ph:link-bold" size="20" />
 
@@ -596,6 +650,26 @@ const navigateToResource = (identifier: string) => {
                     copyToClipboard(
                       `https://sciconnect.io/view/c${data?.collection.id}`,
                     )
+                  "
+                />
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2">
+                  <Icon name="ph:link-bold" size="20" />
+
+                  <ULink :to="`/view/v${data?.id}`" target="_blank">
+                    https://sciconnect.io/view/v{{ data?.id }}
+                  </ULink>
+                </div>
+
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="xs"
+                  icon="solar:copy-bold"
+                  @click="
+                    copyToClipboard(`https://sciconnect.io/view/v${data?.id}`)
                   "
                 />
               </div>
@@ -669,7 +743,7 @@ const navigateToResource = (identifier: string) => {
 
                       <UButton
                         label="View resource"
-                        icon="mingcute:external-link-fill"
+                        icon="iconoir:internet"
                         color="primary"
                         size="xs"
                         @click="navigateToResource(resource.identifier)"
@@ -754,18 +828,6 @@ const navigateToResource = (identifier: string) => {
             :selected-version-identifier="selectedVersionIdentifier || 0"
             :versions="(data?.Versions as Version[]) || []"
             :collection-identifier="data?.collection.id || 0"
-          />
-        </template>
-
-        <template #analytics>
-          <DiscoverCollectionViewsChart
-            class="py-5"
-            :collection-identifier="data?.collection.id || 0"
-          />
-
-          <DiscoverVersionResolutionsChart
-            class="py-5"
-            :version-identifier="data?.id || 0"
           />
         </template>
 

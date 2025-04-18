@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import type { EdgeProps } from "@vue-flow/core";
-import { BaseEdge, getSmoothStepPath, useVueFlow } from "@vue-flow/core";
+import { BaseEdge, getSmoothStepPath } from "@vue-flow/core";
 
 const props = defineProps<EdgeProps>();
-
-const { removeEdges } = useVueFlow();
 
 const path = computed(() => getSmoothStepPath(props));
 </script>

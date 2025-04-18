@@ -1,43 +1,28 @@
 [
   {
-    "label": "GitHub Repository",
-    "value": "gitHubRepository",
-    "icon": "mdi:github"
+    "label": "Audiovisual",
+    "value": "audiovisual",
+    "icon": "tdesign:video"
   },
   {
-    "label": "Git Repository",
-    "value": "gitRepository",
-    "icon": "mdi:git"
+    "label": "Award",
+    "value": "award",
+    "icon": "solar:hand-money-bold"
   },
   {
-    "label": "GitLab Repository",
-    "value": "gitLabRepository",
-    "icon": "ri:gitlab-fill"
+    "label": "Book",
+    "value": "book",
+    "icon": "material-symbols:book-5-rounded"
   },
   {
-    "label": "Dataset",
-    "value": "dataset",
-    "icon": "material-symbols:dataset"
+    "label": "Collection",
+    "value": "collection",
+    "icon": "hugeicons:shape-collection"
   },
   {
-    "label": "Journal Article",
-    "value": "journalArticle",
-    "icon": "ooui:journal-ltr"
-  },
-  {
-    "label": "Presentation",
-    "value": "presentation",
-    "icon": "tabler:presentation"
-  },
-  {
-    "label": "Poster",
-    "value": "poster",
-    "icon": "ep:data-board"
-  },
-  {
-    "label": "Genomic Data",
-    "value": "genomicData",
-    "icon": "solar:dna-bold"
+    "label": "Computational Notebook",
+    "value": "computationalNotebook",
+    "icon": "fluent:notebook-lightning-20-regular"
   },
   {
     "label": "Clinical Data",
@@ -45,44 +30,69 @@
     "icon": "material-symbols:clinical-notes"
   },
   {
-    "label": "Taxonomy",
-    "value": "taxonomy",
-    "icon": "icon-park-twotone:children-pyramid"
+    "label": "Conference Paper",
+    "value": "conferencePaper",
+    "icon": "mingcute:paper-2-fill"
   },
   {
-    "label": "Amazon Product",
-    "value": "amazonProduct",
-    "icon": "ion:logo-amazon"
+    "label": "Conference Proceeding",
+    "value": "conferenceProceeding",
+    "icon": "carbon:group-presentation"
   },
   {
-    "label": "Antibody",
-    "value": "antibody",
-    "icon": "game-icons:antibody"
+    "label": "Data Paper",
+    "value": "dataPaper",
+    "icon": "famicons:newspaper"
   },
   {
-    "label": "Adverse Outcome Pathways",
-    "value": "adverseOutcomePathways",
-    "icon": "material-symbols:view-timeline"
+    "label": "Dataset",
+    "value": "dataset",
+    "icon": "material-symbols:dataset"
   },
   {
-    "label": "Peptide",
-    "value": "peptide",
-    "icon": "lets-icons:molecule-light"
+    "label": "Dissertation",
+    "value": "dissertation",
+    "icon": "jam:newspaper"
   },
   {
-    "label": "Grant",
-    "value": "grant",
-    "icon": "solar:hand-money-bold"
+    "label": "Document",
+    "value": "document",
+    "icon": "carbon:document"
   },
   {
-    "label": "preprint",
-    "value": "Preprint",
-    "icon": "ri:article-fill"
+    "label": "Image",
+    "value": "image",
+    "icon": "carbon:image"
   },
   {
-    "label": "Software",
-    "value": "software",
-    "icon": "eos-icons:application"
+    "label": "Event",
+    "value": "event",
+    "icon": "carbon:calendar"
+  },
+  {
+    "label": "Genomic Data",
+    "value": "genomicData",
+    "icon": "solar:dna-bold"
+  },
+  {
+    "label": "Journal Article",
+    "value": "journalArticle",
+    "icon": "ooui:journal-ltr"
+  },
+  {
+    "label": "Model",
+    "value": "model",
+    "icon": "carbon:model"
+  },
+  {
+    "label": "Other",
+    "value": "other",
+    "icon": "material-symbols:other-admission-sharp"
+  },
+  {
+    "label": "Output Management Plan",
+    "value": "outputManagementPlan",
+    "icon": "solar:document-text-broken"
   },
   {
     "label": "Person",
@@ -90,25 +100,78 @@
     "icon": "carbon:user-avatar-filled"
   },
   {
-    "value": "conferencePresentation",
-    "label": "Conference Presentation",
-    "icon": "carbon:group-presentation"
+    "label": "Physical Object",
+    "value": "physicalObject",
+    "icon": "fluent:box-48-filled"
   },
   {
-    "value": "webArticle",
+    "label": "Poster",
+    "value": "poster",
+    "icon": "ep:data-board"
+  },
+  {
+    "label": "Preprint",
+    "value": "preprint",
+    "icon": "ri:article-fill"
+  },
+  {
+    "label": "Presentation",
+    "value": "presentation",
+    "icon": "tabler:presentation"
+  },
+  {
+    "label": "Project",
+    "value": "project",
+    "icon": "octicon:project-template-16"
+  },
+  {
+    "label": "Protocol",
+    "value": "protocol",
+    "icon": "fluent:protocol-handler-16-filled"
+  },
+  {
+    "label": "Report",
+    "value": "report",
+    "icon": "carbon:report"
+  },
+  {
+    "label": "Service",
+    "value": "service",
+    "icon": "material-symbols:linked-services-outline"
+  },
+  {
+    "label": "Software",
+    "value": "software",
+    "icon": "eos-icons:application"
+  },
+  {
+    "label": "Standard",
+    "value": "standard",
+    "icon": "material-symbols:document-scanner-outline"
+  },
+  {
+    "label": "Study Registration",
+    "value": "studyRegistration",
+    "icon": "fluent:document-catch-up-16-regular"
+  },
+  {
+    "label": "Taxonomy",
+    "value": "taxonomy",
+    "icon": "icon-park-twotone:children-pyramid"
+  },
+  {
     "label": "Web Article",
+    "value": "webArticle",
     "icon": "ri:article-line"
   },
   {
-    "value": "webPage",
     "label": "Web Page",
+    "value": "webPage",
     "icon": "mdi:web"
   },
-  { "label": "video", "value": "video", "icon": "mdi:video" },
-
   {
-    "label": "Other",
-    "value": "other",
-    "icon": "mdi:resource-description-framework"
+    "value": "Workflow",
+    "label": "Workflow",
+    "icon": "lucide:workflow"
   }
 ]

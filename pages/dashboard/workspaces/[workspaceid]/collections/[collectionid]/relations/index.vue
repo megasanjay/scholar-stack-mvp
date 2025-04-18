@@ -128,6 +128,7 @@ const groupedResources = computed(() => {
         grouped[relation.source] = {
           name: relation.sourceName || "Untitled Resource",
           relations: {},
+          versionLabel: relation.sourceVersionLabel || "",
         };
       }
 
@@ -874,6 +875,7 @@ onMounted(() => {
       class="divide flex w-full flex-col gap-3 divide-y divide-solid divide-stone-200"
     >
       <!-- <pre>{{ groupedResources }}</pre> -->
+      <!-- <pre>{{ allRelations }}</pre> -->
 
       <!-- <pre class="text-xs">{{ targetResourceList }}</pre> -->
 
@@ -883,11 +885,23 @@ onMounted(() => {
         class="py-10"
       >
         <div class="flex items-center justify-between">
-          <h2
-            class="border-b border-dashed border-slate-300 pr-4 pb-1 font-semibold"
-          >
-            {{ gr1.name }}
-          </h2>
+          <div class="flex items-start gap-2">
+            <h2
+              class="border-b border-dashed border-slate-300 pb-1 font-semibold"
+            >
+              {{ gr1.name }}
+            </h2>
+
+            <UBadge
+              v-if="gr1.versionLabel"
+              color="info"
+              size="sm"
+              variant="subtle"
+              class="mt-1"
+            >
+              {{ gr1.versionLabel }}
+            </UBadge>
+          </div>
 
           <UDropdownMenu
             :items="
@@ -946,8 +960,18 @@ onMounted(() => {
                     />
                   </NuxtLink>
 
-                  <div v-else class="flex items-center font-medium">
+                  <div v-else class="flex items-center gap-2 font-medium">
                     {{ relation.targetName }}
+
+                    <UBadge
+                      v-if="relation.targetVersionLabel"
+                      color="info"
+                      size="sm"
+                      variant="subtle"
+                      class="mt-1"
+                    >
+                      {{ relation.targetVersionLabel }}
+                    </UBadge>
                   </div>
                 </div>
 

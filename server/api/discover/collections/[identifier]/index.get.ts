@@ -90,6 +90,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...version,
+    isLatestVersion:
+      allVersions.length > 1 ? allVersions[0].id === version.id : true,
     stars: Math.floor(Math.random() * 500),
     Versions: allVersions,
     views: Math.floor(Math.random() * 500),
