@@ -65,7 +65,7 @@ const generateRandomNumber = (min: number, max: number) => {
       variant="soft"
       icon="tabler:click"
     >
-      {{ clicks }}
+      <!-- {{ clicks }} -->
       {{ generateRandomNumber(545, 15234) }}
       clicks
     </UBadge>
