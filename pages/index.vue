@@ -42,7 +42,7 @@ useSeoMeta({
           :offset-x="0"
           :offset-y="0"
           :size="60"
-          class="absolute -inset-px h-full w-full stroke-slate-300/80 stroke-[4] [mask-image:radial-gradient(white,transparent_90%)] [stroke-dasharray:5_6] [stroke-dashoffset:10]"
+          class="absolute -inset-px h-full w-full [mask-image:radial-gradient(white,transparent_90%)] stroke-slate-300/80 stroke-[4] [stroke-dasharray:5_6] [stroke-dashoffset:10]"
         >
         </GridPattern>
 
@@ -205,7 +205,7 @@ useSeoMeta({
         <NuxtLink to="/#">
           <img
             class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/broad-institute.svg"
+            src="https://irp.cdn-website.com/5209b07d/dms3rep/multi/logo.svg"
             alt=""
           />
         </NuxtLink>
@@ -213,7 +213,7 @@ useSeoMeta({
         <NuxtLink to="/#">
           <img
             class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/emory-university.svg"
+            src="https://lirp.cdn-website.com/5209b07d/dms3rep/multi/opt/logo-356w.png"
             alt=""
           />
         </NuxtLink>
@@ -221,7 +221,7 @@ useSeoMeta({
         <NuxtLink to="/#">
           <img
             class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/university-of-surrey.svg"
+            src="https://3dtholdings.com/wp-content/uploads/2018/03/acculab-logo.png"
             alt=""
           />
         </NuxtLink>
@@ -229,55 +229,7 @@ useSeoMeta({
         <NuxtLink to="/#">
           <img
             class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://upload.wikimedia.org/wikipedia/commons/7/75/Caltech_Logo.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/university-of-bristol-1.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/the-university-of-sydney-3.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/the-university-of-chicago.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/the-university-of-arizona.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Missouri_State_University.svg/1024px-Missouri_State_University.svg.png"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://cdn.worldvectorlogo.com/logos/northwestern-university.svg"
+            src="https://3dtholdings.com/wp-content/themes/3dt-holdings/assets/images/logo.png"
             alt=""
           />
         </NuxtLink>
