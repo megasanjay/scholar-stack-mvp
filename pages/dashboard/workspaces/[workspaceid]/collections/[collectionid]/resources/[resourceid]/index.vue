@@ -4,10 +4,7 @@ import type { FormSubmitEvent, FormError } from "#ui/types";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 import { displayLongDate } from "~/utils/displayDates";
 
-definePageMeta({
-  layout: "app-layout",
-  middleware: ["auth"],
-});
+definePageMeta({ layout: "app-layout", middleware: ["auth"] });
 
 const toast = useToast();
 const route = useRoute();
@@ -98,9 +95,7 @@ const removeResource = async () => {
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resource/${resourceid}`,
-    {
-      method: "DELETE",
-    },
+    { method: "DELETE" },
   )
     .then((_response) => {
       removeResourceLoadingIndicator.value = false;
@@ -148,10 +143,7 @@ const validateForm = (_state: any): FormError[] => {
   const errors = [];
 
   if (!state.identifier) {
-    errors.push({
-      name: "identifier",
-      message: "Identifier is required",
-    });
+    errors.push({ name: "identifier", message: "Identifier is required" });
   }
 
   if (!state.identifierType) {
@@ -190,10 +182,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resource/${resourceid}/new-version`,
-    {
-      body: JSON.stringify(body),
-      method: "POST",
-    },
+    { body: JSON.stringify(body), method: "POST" },
   )
     .then((response) => {
       toast.add({
@@ -356,7 +345,12 @@ async function onSubmit(event: FormSubmitEvent<any>) {
                               >
                                 <USelect
                                   v-model="state.identifierType"
-                                  :items="PREFIX_JSON"
+                                  :items="
+                                    PREFIX_JSON.map((i) => ({
+                                      ...i,
+                                      type: 'item' as const,
+                                    }))
+                                  "
                                   placeholder="DOI"
                                   class="w-full"
                                 />

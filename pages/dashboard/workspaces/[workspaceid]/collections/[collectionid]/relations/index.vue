@@ -8,14 +8,9 @@ import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
 import RESOURCE_TYPE_JSON from "@/assets/json/relation-resource-type.json";
 import { UBadge, UButton, USeparator } from "#components";
 
-definePageMeta({
-  layout: "app-layout",
-  middleware: ["auth"],
-});
+definePageMeta({ layout: "app-layout", middleware: ["auth"] });
 
-useSeoMeta({
-  title: "Relations",
-});
+useSeoMeta({ title: "Relations" });
 
 const toast = useToast();
 const route = useRoute();
@@ -29,9 +24,12 @@ const { collectionid, workspaceid } = route.params as {
 
 const createForm = useTemplateRef("createForm");
 
-const typeOptions = PREFIX_JSON;
+const typeOptions = PREFIX_JSON.map((i) => ({ ...i, type: "item" as const }));
 const relationTypeOptions = RELATION_TYPE_JSON;
-const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const resourceTypeOptions = RESOURCE_TYPE_JSON.map((i) => ({
+  ...i,
+  type: "item" as const,
+}));
 
 const showRelationDrawer = ref(false);
 const addNewRelationLoading = ref(false);
@@ -58,24 +56,15 @@ const validateForm = (_state: any): FormError[] => {
   const errrors = [];
 
   if (!selectedRelation.value.source) {
-    errrors.push({
-      name: "source",
-      message: "Source is required",
-    });
+    errrors.push({ name: "source", message: "Source is required" });
   }
 
   if (!selectedRelation.value.target) {
-    errrors.push({
-      name: "target",
-      message: "Target is required",
-    });
+    errrors.push({ name: "target", message: "Target is required" });
   }
 
   if (!selectedRelation.value.type) {
-    errrors.push({
-      name: "type",
-      message: "Relation type is required",
-    });
+    errrors.push({ name: "type", message: "Relation type is required" });
   }
 
   if (!selectedRelation.value.resourceType) {
@@ -87,10 +76,7 @@ const validateForm = (_state: any): FormError[] => {
 
   if (selectedRelation.value.external) {
     if (!selectedRelation.value.targetType) {
-      errrors.push({
-        name: "targetType",
-        message: "Target type is required",
-      });
+      errrors.push({ name: "targetType", message: "Target type is required" });
     }
   }
 
@@ -98,13 +84,7 @@ const validateForm = (_state: any): FormError[] => {
 };
 
 const currentCollection = computed(() => {
-  return (
-    collectionStore.collection || {
-      version: {
-        published: false,
-      },
-    }
-  );
+  return collectionStore.collection || { version: { published: false } };
 });
 
 const allRelations = ref<AllRelationsItem[]>([]);
@@ -151,9 +131,7 @@ const groupedResources = computed(() => {
         };
       }
 
-      const formattedRelation = {
-        ...relation,
-      };
+      const formattedRelation = { ...relation };
 
       // Create a nested list under the source resource but for relation type
       if (relation.type in grouped[relation.source].relations) {
@@ -414,9 +392,7 @@ const deleteRelation = async (relationid: string) => {
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
-    {
-      method: "DELETE",
-    },
+    { method: "DELETE" },
   )
     .then((response) => {
       if (response.statusCode === 204) {
@@ -729,9 +705,7 @@ const restoreRelation = async (relationid: string) => {
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/${relation.external ? "external" : "internal"}/${relationid}`,
-    {
-      method: "PATCH",
-    },
+    { method: "PATCH" },
   )
     .then((response) => {
       relation.action = response.updatedAction;
@@ -919,14 +893,8 @@ onMounted(() => {
             :items="
               generateAddRelationFromDropdownOptions(resourceID as string)
             "
-            :content="{
-              align: 'end',
-              side: 'bottom',
-              sideOffset: 8,
-            }"
-            :ui="{
-              content: 'w-max',
-            }"
+            :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+            :ui="{ content: 'w-max' }"
           >
             <UButton
               icon="mdi:plus"

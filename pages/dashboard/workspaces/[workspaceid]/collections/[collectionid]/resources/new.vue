@@ -11,15 +11,16 @@ definePageMeta({
   middleware: ["auth"],
 });
 
-useSeoMeta({
-  title: "Add a new resource",
-});
+useSeoMeta({ title: "Add a new resource" });
 
 const toast = useToast();
 const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
-const identifierTypeOptions = PREFIX_JSON;
+const identifierTypeOptions = PREFIX_JSON.map((i) => ({
+  ...i,
+  type: "item" as const,
+}));
 
 const { collectionid, workspaceid } = route.params as {
   collectionid: string;
@@ -34,24 +35,15 @@ const validateForm = (_state: any): FormError[] => {
   const errrors = [];
 
   if (!state.title) {
-    errrors.push({
-      name: "title",
-      message: "Title is required",
-    });
+    errrors.push({ name: "title", message: "Title is required" });
   }
 
   if (!state.description) {
-    errrors.push({
-      name: "description",
-      message: "Description is required",
-    });
+    errrors.push({ name: "description", message: "Description is required" });
   }
 
   if (!state.identifier) {
-    errrors.push({
-      name: "identifier",
-      message: "Identifier is required",
-    });
+    errrors.push({ name: "identifier", message: "Identifier is required" });
   }
 
   if (!state.identifierType) {
@@ -112,10 +104,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 
   await $fetch(
     `/api/workspaces/${workspaceid}/collections/${collectionid}/resources`,
-    {
-      body,
-      method: "POST",
-    },
+    { body, method: "POST" },
   )
     .then(() => {
       loading.value = false;
