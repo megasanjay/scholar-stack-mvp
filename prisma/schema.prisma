@@ -124,9 +124,8 @@ model CollectionAccess {
 model Collection {
     id Int @id @default(autoincrement())
 
-    title               String @default("")
-    description         String @default("")
-    detailedDescription String @default("")
+    title       String @default("")
+    description String @default("")
 
     type String @default("other") // project | person | ... | other
 

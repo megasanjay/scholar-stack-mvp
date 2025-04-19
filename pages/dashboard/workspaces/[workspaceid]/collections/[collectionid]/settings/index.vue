@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import sanitizeHtml from "sanitize-html";
-import { MdEditor, config } from "md-editor-v3";
+import { config } from "md-editor-v3";
 import COLLECTION_TYPE_JSON from "@/assets/json/collection-type.json";
 
 import TargetBlankExtension from "~/utils/TargetBlankExtension";
@@ -21,15 +20,12 @@ const versionId = ref(0);
 const collectionImage = ref("");
 const collectionName = ref("");
 const collectionDescription = ref("");
-const collectionDetailedDescription = ref("");
 const collectionType = ref("");
 const discardVersionModalIsOpen = ref(false);
 
 const discardVersionLoading = ref(false);
 const thumbnailLoading = ref(false);
 const saveLoading = ref(false);
-
-const sanitize = (html: string) => sanitizeHtml(html);
 
 const { collectionid, workspaceid } = useRoute().params as {
   collectionid: string;
@@ -57,7 +53,6 @@ if (error.value) {
 if (collection.value) {
   collectionName.value = collection.value.title;
   collectionDescription.value = collection.value.description;
-  collectionDetailedDescription.value = collection.value.detailedDescription;
   collectionImage.value = `${collection.value.imageUrl}?t=${collection.value.updated}`;
   collectionType.value = collection.value.type;
 
@@ -170,7 +165,6 @@ const updateCollectionDetails = async () => {
     body: JSON.stringify({
       title: collectionName.value.trim(),
       description: collectionDescription.value.trim(),
-      detailedDescription: collectionDetailedDescription.value.trim(),
       type: collectionType.value,
     }),
 
@@ -395,6 +389,7 @@ const updateThumbnail = async (evt: any) => {
       </template>
     </CardWithAction>
 
+    <!--
     <CardWithAction title="Detailed Description">
       <p class="my-3 text-sm">
         If you need to provide a detailed description of your collection, you
@@ -427,6 +422,7 @@ const updateThumbnail = async (evt: any) => {
         </div>
       </template>
     </CardWithAction>
+    -->
 
     <CardWithAction title="Collection Type">
       <p class="my-3 text-sm">
@@ -527,7 +523,7 @@ const updateThumbnail = async (evt: any) => {
                   </div>
 
                   <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                    <h3 class="text-base font-semibold leading-6 text-gray-900">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
                       Are you sure you want to reset this collection?
                     </h3>
 

@@ -15,7 +15,6 @@ export type Collection = {
     id: Generated<number>;
     title: Generated<string>;
     description: Generated<string>;
-    detailedDescription: Generated<string>;
     type: Generated<string>;
     imageUrl: Generated<string>;
     private: Generated<boolean>;

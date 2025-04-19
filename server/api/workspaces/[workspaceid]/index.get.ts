@@ -58,7 +58,6 @@ export default defineEventHandler(async (event) => {
       title: collection.title,
       created: collection.created.toISOString(),
       description: collection.description,
-      detailedDescription: collection.detailedDescription,
       imageUrl: collection.imageUrl,
       updated: collection.updated.toISOString(),
       version: collection.Version[0]

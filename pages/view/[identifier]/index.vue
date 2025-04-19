@@ -266,7 +266,6 @@ const exportCollection = () => {
     changelog: data.value.changelog,
     creators: data.value.creators,
     description: collection.description,
-    detailedDescription: collection.detailedDescription,
     imageUrl: collection.imageUrl,
     relations: {
       external: externalRelations.map((relation) => {
@@ -544,13 +543,11 @@ const recordClick = (resourceId: string) => {
             </ul>
 
             <MarkdownRender
-              v-if="data?.collection.detailedDescription"
-              :content="data?.collection.detailedDescription"
+              v-if="data?.collection.description"
+              :content="data?.collection.description"
             />
 
-            <p v-else class="text-lg">
-              {{ data?.collection.description || "No description provided." }}
-            </p>
+            <p v-else class="text-lg">No description provided.</p>
 
             <USeparator class="" />
 

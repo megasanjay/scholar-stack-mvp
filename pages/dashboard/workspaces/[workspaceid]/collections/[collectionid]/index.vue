@@ -55,18 +55,13 @@ if (error.value) {
       <h2 class="text-2xl font-bold">About</h2>
     </div>
 
-    <DataDisplay
-      title="Overview"
-      :content="collection?.description || 'No description provided'"
-    />
-
-    <DataDisplay title="Detailed Description">
+    <DataDisplay title="Overview">
       <MarkdownRender
-        v-if="collection?.detailedDescription"
-        :content="collection?.detailedDescription || ''"
+        v-if="collection?.description"
+        :content="collection?.description || ''"
       />
 
-      <p v-else class="text-lg">No detailed description provided</p>
+      <p v-else class="text-lg">No description provided</p>
     </DataDisplay>
 
     <DataDisplay title="Collection Type">
