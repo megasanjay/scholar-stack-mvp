@@ -1,177 +1,163 @@
 [
   {
     "label": "Audiovisual",
-    "value": "audiovisual",
+    "value": "Audiovisual",
     "icon": "tdesign:video"
   },
   {
     "label": "Award",
-    "value": "award",
+    "value": "Award",
     "icon": "solar:hand-money-bold"
   },
   {
     "label": "Book",
-    "value": "book",
+    "value": "Book",
     "icon": "material-symbols:book-5-rounded"
   },
   {
+    "label": "Book Chapter",
+    "value": "BookChapter",
+    "icon": "material-symbols:book-chapter-outline"
+  },
+  {
     "label": "Collection",
-    "value": "collection",
+    "value": "Collection",
     "icon": "hugeicons:shape-collection"
   },
   {
     "label": "Computational Notebook",
-    "value": "computationalNotebook",
+    "value": "ComputationalNotebook",
     "icon": "fluent:notebook-lightning-20-regular"
   },
   {
-    "label": "Clinical Data",
-    "value": "clinicalData",
-    "icon": "material-symbols:clinical-notes"
-  },
-  {
     "label": "Conference Paper",
-    "value": "conferencePaper",
+    "value": "ConferencePaper",
     "icon": "mingcute:paper-2-fill"
   },
   {
     "label": "Conference Proceeding",
-    "value": "conferenceProceeding",
+    "value": "ConferenceProceeding",
     "icon": "carbon:group-presentation"
   },
   {
     "label": "Data Paper",
-    "value": "dataPaper",
+    "value": "DataPaper",
     "icon": "famicons:newspaper"
   },
   {
     "label": "Dataset",
-    "value": "dataset",
+    "value": "Dataset",
     "icon": "material-symbols:dataset"
   },
   {
     "label": "Dissertation",
-    "value": "dissertation",
+    "value": "Dissertation",
     "icon": "jam:newspaper"
   },
   {
-    "label": "Document",
-    "value": "document",
-    "icon": "carbon:document"
-  },
-  {
-    "label": "Image",
-    "value": "image",
-    "icon": "carbon:image"
-  },
-  {
     "label": "Event",
-    "value": "event",
+    "value": "Event",
     "icon": "carbon:calendar"
   },
   {
-    "label": "Genomic Data",
-    "value": "genomicData",
-    "icon": "solar:dna-bold"
+    "label": "Image",
+    "value": "Image",
+    "icon": "carbon:image"
+  },
+  {
+    "label": "Interactive Resource",
+    "value": "InteractiveResource",
+    "icon": "fluent:browser-32-filled"
+  },
+  {
+    "label": "Instrument",
+    "value": "Instrument",
+    "icon": "material-symbols:instrument-picking-outline"
+  },
+  {
+    "label": "Journal",
+    "value": "Journal",
+    "icon": "material-symbols:journal-outline"
   },
   {
     "label": "Journal Article",
-    "value": "journalArticle",
+    "value": "JournalArticle",
     "icon": "ooui:journal-ltr"
   },
   {
     "label": "Model",
-    "value": "model",
+    "value": "Model",
     "icon": "carbon:model"
   },
-  {
-    "label": "Other",
-    "value": "other",
-    "icon": "material-symbols:other-admission-sharp"
-  },
+
   {
     "label": "Output Management Plan",
-    "value": "outputManagementPlan",
+    "value": "OutputManagementPlan",
     "icon": "solar:document-text-broken"
   },
   {
-    "label": "Person",
-    "value": "person",
-    "icon": "carbon:user-avatar-filled"
+    "label": "Peer Review",
+    "value": "PeerReview",
+    "icon": "carbon:peer-review"
   },
   {
     "label": "Physical Object",
-    "value": "physicalObject",
+    "value": "PhysicalObject",
     "icon": "fluent:box-48-filled"
   },
   {
-    "label": "Poster",
-    "value": "poster",
-    "icon": "ep:data-board"
-  },
-  {
     "label": "Preprint",
-    "value": "preprint",
+    "value": "Preprint",
     "icon": "ri:article-fill"
   },
   {
-    "label": "Presentation",
-    "value": "presentation",
-    "icon": "tabler:presentation"
-  },
-  {
     "label": "Project",
-    "value": "project",
+    "value": "Project",
     "icon": "octicon:project-template-16"
   },
   {
-    "label": "Protocol",
-    "value": "protocol",
-    "icon": "fluent:protocol-handler-16-filled"
-  },
-  {
     "label": "Report",
-    "value": "report",
+    "value": "Report",
     "icon": "carbon:report"
   },
   {
     "label": "Service",
-    "value": "service",
+    "value": "Service",
     "icon": "material-symbols:linked-services-outline"
   },
   {
     "label": "Software",
-    "value": "software",
+    "value": "Software",
     "icon": "eos-icons:application"
   },
   {
+    "label": "Sound",
+    "value": "Sound",
+    "icon": "material-symbols:sound-outline"
+  },
+  {
     "label": "Standard",
-    "value": "standard",
+    "value": "Standard",
     "icon": "material-symbols:document-scanner-outline"
   },
   {
     "label": "Study Registration",
-    "value": "studyRegistration",
+    "value": "StudyRegistration",
     "icon": "fluent:document-catch-up-16-regular"
   },
   {
-    "label": "Taxonomy",
-    "value": "taxonomy",
-    "icon": "icon-park-twotone:children-pyramid"
-  },
-  {
-    "label": "Web Article",
-    "value": "webArticle",
-    "icon": "ri:article-line"
-  },
-  {
-    "label": "Web Page",
-    "value": "webPage",
-    "icon": "mdi:web"
+    "label": "Text",
+    "value": "Text",
+    "icon": "material-symbols:text-snippet-sharp"
   },
   {
     "value": "Workflow",
     "label": "Workflow",
     "icon": "lucide:workflow"
+  },
+  {
+    "label": "Other",
+    "value": "Other",
+    "icon": "material-symbols:other-admission-sharp"
   }
 ]
