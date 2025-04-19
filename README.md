@@ -16,7 +16,7 @@ You will need the following installed on your system:
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/eyeact/envision-portal.git
+   git clone https://github.com/fairdataihub/sciconnect.git
    ```
 
 2. Install the dependencies

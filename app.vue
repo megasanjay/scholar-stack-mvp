@@ -21,11 +21,11 @@ useHead({
 
 useSeoMeta({
   ogImage:
-    "https://kalai.fairdataihub.org/api/generate?title=Envision%20Portal&description=Some%20description%20here%0A&app=Envision%20Portal&org=eyeact",
+    "https://kalai.fairdataihub.org/api/generate?title=SciConnect&description=Some%20description%20here%0A&app=SciConnect&org=eyeact",
   titleTemplate: "%s - SciConnect",
   twitterCard: "summary_large_image",
   twitterImage:
-    "https://kalai.fairdataihub.org/api/generate?title=Envision%20Portal&description=Some%20description%20here%0A&app=Envision%20Portal&org=eyeact",
+    "https://kalai.fairdataihub.org/api/generate?title=SciConnect&description=Some%20description%20here%0A&app=SciConnect&org=eyeact",
 });
 </script>
 

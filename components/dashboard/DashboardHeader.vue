@@ -45,9 +45,7 @@ const toggleSidebar = () => {
           @click="toggleSidebar"
         />
 
-        <NuxtLink to="/" class="flex text-2xl font-bold">
-          Envision Portal
-        </NuxtLink>
+        <NuxtLink to="/" class="flex text-2xl font-bold"> SciConnect </NuxtLink>
       </div>
 
       <div class="flex items-center justify-center gap-3">
