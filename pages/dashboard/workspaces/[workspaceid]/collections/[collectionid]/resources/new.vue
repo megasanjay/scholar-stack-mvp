@@ -3,6 +3,7 @@ import type { FormSubmitEvent, FormError } from "#ui/types";
 import { faker } from "@faker-js/faker";
 
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import RESOURCE_SUB_TYPE_JSON from "@/assets/json/resource-sub-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 
 definePageMeta({
@@ -17,6 +18,7 @@ const toast = useToast();
 const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const resourceSubTypeOptions = RESOURCE_SUB_TYPE_JSON;
 const identifierTypeOptions = PREFIX_JSON.map((i) => ({
   ...i,
   type: "item" as const,
@@ -83,7 +85,8 @@ const state = reactive({
   description: faker.lorem.paragraph(),
   identifier: faker.internet.url(),
   identifierType: "url",
-  resourceType: "other",
+  resourceSubType: "",
+  resourceType: "Other",
   versionLabel: `v${faker.number.int({ max: 10, min: 1 })}.${faker.number.int({
     max: 10,
     min: 1,
@@ -96,6 +99,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     description: event.data.description,
     identifier: event.data.identifier,
     identifierType: event.data.identifierType,
+    resourceSubType: event.data.resourceSubType,
     resourceType: event.data.resourceType,
     versionLabel: event.data.versionLabel,
   };
@@ -137,9 +141,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       loading.value = false;
     });
 }
-
-// Reorganize resource type options in alphabetical order
-resourceTypeOptions.sort((a, b) => a.label.localeCompare(b.label));
 
 const { collectionPermissionAbility, collectionPermissionGetLoading } =
   await useCollectionPermission(workspaceid, collectionid);
@@ -224,7 +225,7 @@ const disableEditing = computed(() => {
         <USelect
           v-model="state.resourceType"
           :items="resourceTypeOptions"
-          placeholder="Other"
+          placeholder="Please select a resource type"
           class="w-full"
           size="lg"
         />
@@ -232,6 +233,16 @@ const disableEditing = computed(() => {
         <p class="mt-2 text-sm text-slate-500">
           Select the type of resource you are linking to.
         </p>
+      </UFormField>
+
+      <UFormField label="Resource Sub Type" name="resourceSubType">
+        <USelect
+          v-model="state.resourceSubType"
+          :items="resourceSubTypeOptions"
+          placeholder="Please select a resource sub type"
+          class="w-full"
+          size="lg"
+        />
       </UFormField>
 
       <UFormField label="Version" name="version">

@@ -70,7 +70,7 @@ const disableEditing = computed(() => {
   );
 });
 
-const resourceType = computed(() => {
+const identifierType = computed(() => {
   if (!resource.value) {
     return "Unknown";
   }
@@ -85,6 +85,34 @@ const resourceType = computed(() => {
 
   if (prefix) {
     return prefix.label;
+  }
+
+  return "Unknown";
+});
+
+const resourceType = computed(() => {
+  if (!resource.value) {
+    return "Unknown";
+  }
+
+  const type = resource.value.resourceType;
+
+  if (type) {
+    return type;
+  }
+
+  return "Unknown";
+});
+
+const resourceSubType = computed(() => {
+  if (!resource.value) {
+    return "Unknown";
+  }
+
+  const type = resource.value.resourceSubType;
+
+  if (type) {
+    return type;
   }
 
   return "Unknown";
@@ -468,12 +496,16 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       :content="resource?.description || 'No description available'"
     />
 
-    <DataDisplay title="Type" :content="resourceType" />
+    <DataDisplay title="Identifier Type" :content="identifierType" />
 
     <DataDisplay
       title="Identifier"
       :content="resource?.identifier || 'No identifier provided'"
     />
+
+    <DataDisplay title="Type" :content="resourceType" />
+
+    <DataDisplay title="Sub Type" :content="resourceSubType" />
 
     <DataDisplay
       v-if="resource?.versionLabel"

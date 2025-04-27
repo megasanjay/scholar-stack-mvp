@@ -183,8 +183,9 @@ model Resource {
     title       String @default("")
     description String @default("")
 
-    resourceType String  @default("other") //githubRepository, conferencePresentation, etc..
-    versionLabel String?
+    resourceType    String  @default("other") //article, software etc.. (from datacite)
+    resourceSubType String? // additional inforamtion about the resource type (dataset > clinicalData)
+    versionLabel    String?
 
     originalResourceId String?
     originalResource   Resource? @relation("OriginalResourceRelation", fields: [originalResourceId], references: [id])

@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       description: z.string(),
       identifier: z.string().min(1),
       identifierType: z.string().min(1),
+      resourceSubType: z.string(),
       resourceType: z.string().min(1),
       versionLabel: z.string(),
     })
@@ -94,6 +95,7 @@ export default defineEventHandler(async (event) => {
     description,
     identifier,
     identifierType,
+    resourceSubType,
     resourceType,
     versionLabel,
   } = parsedBody.data;
@@ -105,6 +107,7 @@ export default defineEventHandler(async (event) => {
       description,
       identifier,
       identifierType,
+      resourceSubType: resourceSubType || null,
       resourceType,
       versionLabel,
     },
