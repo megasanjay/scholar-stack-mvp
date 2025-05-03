@@ -121,6 +121,7 @@ export default defineEventHandler(async (event) => {
     source: resource.id,
     sourceName: resource.title,
     sourceOriginalId: resource.originalResourceId,
+    sourceVersionLabel: resource.versionLabel,
     target: externalRelation.target,
     targetType: externalRelation.targetType,
     type: externalRelation.type,

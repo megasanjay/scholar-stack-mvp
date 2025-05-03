@@ -29,4 +29,12 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/image",
   ],
+
+  runtimeConfig: {
+    public: {
+      ENABLE_RESOURCES_SUBTYPE: process.env.FLAGS_ENABLE_RESOURCE_SUBTYPE
+        ? process.env.FLAGS_ENABLE_RESOURCE_SUBTYPE === "true"
+        : false,
+    },
+  },
 });

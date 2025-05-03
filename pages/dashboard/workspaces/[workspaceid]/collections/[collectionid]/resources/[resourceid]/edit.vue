@@ -15,6 +15,8 @@ definePageMeta({
 
 useSeoMeta({ title: "Edit resource" });
 
+const config = useRuntimeConfig();
+
 const toast = useToast();
 const route = useRoute();
 
@@ -79,8 +81,8 @@ const state = reactive({
   description: faker.lorem.paragraph(),
   identifier: faker.internet.url(),
   identifierType: "url",
-  resourceSubType: "",
-  resourceType: null,
+  resourceSubType: undefined as string | undefined,
+  resourceType: "",
   versionLabel: `v${faker.number.int({ max: 10, min: 1 })}.${faker.number.int({
     max: 10,
     min: 1,
@@ -137,7 +139,7 @@ if (resource.value && "action" in resource.value) {
   state.identifier = resource.value.identifier || faker.internet.url();
   state.identifierType = resource.value.identifierType || "url";
   state.resourceType = resource.value.resourceType || "Other";
-  state.resourceSubType = resource.value.resourceSubType || null;
+  state.resourceSubType = resource.value.resourceSubType || undefined;
   state.versionLabel = resource.value.versionLabel || "";
 }
 
@@ -286,7 +288,11 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         </p>
       </UFormField>
 
-      <UFormField label="Resource Sub Type" name="resourceSubType">
+      <UFormField
+        v-show="config.public.ENABLE_RESOURCES_SUBTYPE"
+        label="Resource Sub Type"
+        name="resourceSubType"
+      >
         <USelect
           v-model="state.resourceSubType"
           :items="resourceSubTypeOptions"
