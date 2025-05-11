@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
         action: resource.action,
         disabled: resourceid === resource.id || resource.action === "delete",
         label: resource.title,
+        resourceType: resource.resourceType,
         value: resource.id,
         versionLabel: resource.versionLabel,
       };

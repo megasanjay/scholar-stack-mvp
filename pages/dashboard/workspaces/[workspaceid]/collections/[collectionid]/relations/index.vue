@@ -711,6 +711,8 @@ const selectRelationResourceType = (resourceid: string) => {
 
   if (resource) {
     selectedRelation.value.resourceType = resource.relationResourceType;
+  } else {
+    selectedRelation.value.resourceType = null;
   }
 };
 
@@ -1090,7 +1092,9 @@ onMounted(() => {
               :loading="targetResourceListLoadingIndicator"
               :items="generateTargetResourceListOptions()"
               class="w-full"
-              @update:value="selectRelationResourceType"
+              @update:model-value="
+                selectRelationResourceType(selectedRelation.source || '')
+              "
             />
           </UFormField>
 
@@ -1117,17 +1121,42 @@ onMounted(() => {
             />
           </UFormField>
 
-          <UFormField
-            v-show="selectedRelation.external"
-            label="Resource Type"
-            name="resourceType"
-          >
-            <USelect
-              v-model="selectedRelation.resourceType as string"
-              :items="resourceTypeOptions"
-              placeholder="Dataset"
-              class="w-full"
-            />
+          <UFormField label="Resource Type" name="resourceType">
+            <div class="flex items-center gap-2">
+              <USelect
+                v-if="selectedRelation.external"
+                v-model="selectedRelation.resourceType as string"
+                :items="resourceTypeOptions"
+                placeholder="Dataset"
+                class="w-full"
+              />
+
+              {{ selectedRelation }}
+
+              <UPopover v-if="!selectedRelation.external" mode="hover">
+                <USelect
+                  v-model="selectedRelation.resourceType as string"
+                  :items="resourceTypeOptions"
+                  placeholder="Dataset"
+                  disabled
+                  class="w-full"
+                />
+
+                <template #content>
+                  <p class="p-1 text-sm">
+                    The resource type for internal relations are automatically
+                    pulled from your resource.
+                  </p>
+                </template>
+              </UPopover>
+
+              <UButton
+                v-if="!selectedRelation.external"
+                icon="mdi:refresh"
+                size="sm"
+                variant="outline"
+              />
+            </div>
           </UFormField>
 
           <UAlert
