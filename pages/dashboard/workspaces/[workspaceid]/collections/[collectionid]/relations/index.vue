@@ -529,7 +529,6 @@ const editRelation = async () => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/external/${selectedRelation.value.id}`,
       {
         body: JSON.stringify(d),
-
         method: "PUT",
       },
     )
@@ -1058,7 +1057,49 @@ onMounted(() => {
               :loading="sourceResourceListLoadingIndicator"
               :items="sourceResourceList || []"
               class="w-full"
-            />
+            >
+              <div class="flex items-center gap-2">
+                <UBadge
+                  v-if="selectedRelation.source"
+                  color="info"
+                  size="xs"
+                  variant="subtle"
+                >
+                  {{
+                    sourceResourceList.find(
+                      (item: any) => item.value === selectedRelation.source,
+                    )?.versionLabel
+                  }}
+                </UBadge>
+
+                <span v-else class="text-sm text-gray-500">
+                  Please select a source resource
+                </span>
+
+                <span>
+                  {{
+                    sourceResourceList.find(
+                      (item: any) => item.value === selectedRelation.source,
+                    )?.label
+                  }}</span
+                >
+              </div>
+
+              <template #item="{ item }">
+                <div class="flex items-center gap-2">
+                  <UBadge
+                    v-if="item.versionLabel"
+                    color="info"
+                    size="xs"
+                    variant="subtle"
+                  >
+                    {{ item.versionLabel }}
+                  </UBadge>
+
+                  <span>{{ item.label }}</span>
+                </div>
+              </template>
+            </USelect>
           </UFormField>
 
           <USeparator class="my-5" />
@@ -1095,7 +1136,45 @@ onMounted(() => {
               @update:model-value="
                 selectRelationResourceType(selectedRelation.source || '')
               "
-            />
+            >
+              <div class="flex items-center gap-2">
+                <UBadge
+                  v-if="selectedRelation.target"
+                  color="info"
+                  size="xs"
+                  variant="subtle"
+                >
+                  {{ selectedRelation.target }}
+                </UBadge>
+
+                <span v-else class="text-sm text-gray-500">
+                  Please select a target resource
+                </span>
+
+                <span>
+                  {{
+                    targetResourceList.find(
+                      (item: any) => item.value === selectedRelation.target,
+                    )?.label
+                  }}
+                </span>
+              </div>
+
+              <template #item="{ item }">
+                <div class="flex items-center gap-2">
+                  <UBadge
+                    v-if="item.versionLabel"
+                    color="info"
+                    size="xs"
+                    variant="subtle"
+                  >
+                    {{ item.versionLabel }}
+                  </UBadge>
+
+                  <span>{{ item.label }}</span>
+                </div>
+              </template>
+            </USelect>
           </UFormField>
 
           <UFormField
@@ -1130,8 +1209,6 @@ onMounted(() => {
                 placeholder="Dataset"
                 class="w-full"
               />
-
-              {{ selectedRelation }}
 
               <UPopover v-if="!selectedRelation.external" mode="hover">
                 <USelect
@@ -1173,6 +1250,8 @@ onMounted(() => {
             description="This relation might already exist. We found a relation for this source and target resource. Please check if you want to create a new relation in this instance."
           />
         </UForm>
+
+        <pre>{{ selectedRelation }}</pre>
       </template>
 
       <template #footer>
