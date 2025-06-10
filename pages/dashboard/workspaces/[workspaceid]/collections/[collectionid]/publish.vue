@@ -256,7 +256,9 @@ const publishCollection = async () => {
 
                   <ul>
                     <li
-                      v-for="(issue, index) of error.issues"
+                      v-for="(issue, index) of 'issues' in error
+                        ? error.issues
+                        : []"
                       :key="index"
                       class="py-1 pl-2 text-base"
                     >
