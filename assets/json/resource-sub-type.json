@@ -1,0 +1,440 @@
+[
+  {
+    "label": "Video Recording",
+    "value": "VideoRecording",
+    "icon": "tdesign:video",
+    "parentType": "Audiovisual"
+  },
+  {
+    "label": "Audio Recording",
+    "value": "AudioRecording",
+    "icon": "tdesign:audio",
+    "parentType": "Audiovisual"
+  },
+  {
+    "label": "Research Grant",
+    "value": "ResearchGrant",
+    "icon": "solar:hand-money-bold",
+    "parentType": "Award"
+  },
+  {
+    "label": "Fellowship",
+    "value": "Fellowship",
+    "icon": "solar:hand-money-bold",
+    "parentType": "Award"
+  },
+  {
+    "label": "Scholarship",
+    "value": "Scholarship",
+    "icon": "solar:hand-money-bold",
+    "parentType": "Award"
+  },
+  {
+    "label": "Monograph",
+    "value": "Monograph",
+    "icon": "material-symbols:book-5-rounded",
+    "parentType": "Book"
+  },
+  {
+    "label": "Textbook",
+    "value": "Textbook",
+    "icon": "material-symbols:book-5-rounded",
+    "parentType": "Book"
+  },
+  {
+    "label": "Edited Volume",
+    "value": "EditedVolume",
+    "icon": "material-symbols:book-5-rounded",
+    "parentType": "Book"
+  },
+  {
+    "label": "Research Chapter",
+    "value": "ResearchChapter",
+    "icon": "ic:twotone-menu-book",
+    "parentType": "BookChapter"
+  },
+  {
+    "label": "Review Chapter",
+    "value": "ReviewChapter",
+    "icon": "ic:twotone-menu-book",
+    "parentType": "BookChapter"
+  },
+  {
+    "label": "Data Collection",
+    "value": "DataCollection",
+    "icon": "hugeicons:shape-collection",
+    "parentType": "Collection"
+  },
+  {
+    "label": "Artifact Collection",
+    "value": "ArtifactCollection",
+    "icon": "hugeicons:shape-collection",
+    "parentType": "Collection"
+  },
+  {
+    "label": "Jupyter Notebook",
+    "value": "JupyterNotebook",
+    "icon": "fluent:notebook-lightning-20-regular",
+    "parentType": "ComputationalNotebook"
+  },
+  {
+    "label": "R Markdown",
+    "value": "RMarkdown",
+    "icon": "fluent:notebook-lightning-20-regular",
+    "parentType": "ComputationalNotebook"
+  },
+  {
+    "label": "Research Paper",
+    "value": "ResearchPaper",
+    "icon": "mingcute:paper-2-fill",
+    "parentType": "ConferencePaper"
+  },
+  {
+    "label": "Poster",
+    "value": "Poster",
+    "icon": "mingcute:paper-2-fill",
+    "parentType": "ConferencePaper"
+  },
+  {
+    "label": "Conference Abstract",
+    "value": "ConferenceAbstract",
+    "icon": "mingcute:paper-2-fill",
+    "parentType": "ConferencePaper"
+  },
+  {
+    "label": "Proceedings Volume",
+    "value": "ProceedingsVolume",
+    "icon": "carbon:group-presentation",
+    "parentType": "ConferenceProceeding"
+  },
+  {
+    "label": "Conference Program",
+    "value": "ConferenceProgram",
+    "icon": "carbon:group-presentation",
+    "parentType": "ConferenceProceeding"
+  },
+  {
+    "label": "Data Description",
+    "value": "DataDescription",
+    "icon": "famicons:newspaper",
+    "parentType": "DataPaper"
+  },
+  {
+    "label": "Data Validation",
+    "value": "DataValidation",
+    "icon": "famicons:newspaper",
+    "parentType": "DataPaper"
+  },
+  {
+    "label": "Survey Data",
+    "value": "SurveyData",
+    "icon": "material-symbols:dataset",
+    "parentType": "Dataset"
+  },
+  {
+    "label": "Experimental Data",
+    "value": "ExperimentalData",
+    "icon": "material-symbols:dataset",
+    "parentType": "Dataset"
+  },
+  {
+    "label": "Simulation Data",
+    "value": "SimulationData",
+    "icon": "material-symbols:dataset",
+    "parentType": "Dataset"
+  },
+  {
+    "label": "PhD Dissertation",
+    "value": "PhDThesis",
+    "icon": "jam:newspaper",
+    "parentType": "Dissertation"
+  },
+  {
+    "label": "Master's Thesis",
+    "value": "MastersThesis",
+    "icon": "jam:newspaper",
+    "parentType": "Dissertation"
+  },
+  {
+    "label": "Workshop",
+    "value": "Workshop",
+    "icon": "carbon:calendar",
+    "parentType": "Event"
+  },
+  {
+    "label": "Conference",
+    "value": "Conference",
+    "icon": "carbon:calendar",
+    "parentType": "Event"
+  },
+  {
+    "label": "Seminar",
+    "value": "Seminar",
+    "icon": "carbon:calendar",
+    "parentType": "Event"
+  },
+  {
+    "label": "Photograph",
+    "value": "Photograph",
+    "icon": "carbon:image",
+    "parentType": "Image"
+  },
+  {
+    "label": "Diagram",
+    "value": "Diagram",
+    "icon": "carbon:image",
+    "parentType": "Image"
+  },
+  {
+    "label": "Infographic",
+    "value": "Infographic",
+    "icon": "carbon:image",
+    "parentType": "Image"
+  },
+  {
+    "label": "Web Application",
+    "value": "WebApplication",
+    "icon": "mingcute:video-fill",
+    "parentType": "InteractiveResource"
+  },
+  {
+    "label": "Mobile App",
+    "value": "MobileApp",
+    "icon": "mingcute:video-fill",
+    "parentType": "InteractiveResource"
+  },
+  {
+    "label": "Laboratory Equipment",
+    "value": "LaboratoryEquipment",
+    "icon": "mingcute:microscope-fill",
+    "parentType": "Instrument"
+  },
+  {
+    "label": "Measurement Device",
+    "value": "MeasurementDevice",
+    "icon": "mingcute:microscope-fill",
+    "parentType": "Instrument"
+  },
+  {
+    "label": "Research Journal",
+    "value": "ResearchJournal",
+    "icon": "mdi:journal",
+    "parentType": "Journal"
+  },
+  {
+    "label": "Review Journal",
+    "value": "ReviewJournal",
+    "icon": "mdi:journal",
+    "parentType": "Journal"
+  },
+  {
+    "label": "Original Research",
+    "value": "OriginalResearch",
+    "icon": "ooui:journal-ltr",
+    "parentType": "JournalArticle"
+  },
+  {
+    "label": "Review Article",
+    "value": "ReviewArticle",
+    "icon": "ooui:journal-ltr",
+    "parentType": "JournalArticle"
+  },
+  {
+    "label": "Case Study",
+    "value": "CaseStudy",
+    "icon": "ooui:journal-ltr",
+    "parentType": "JournalArticle"
+  },
+  {
+    "label": "Mathematical Model",
+    "value": "MathematicalModel",
+    "icon": "carbon:model",
+    "parentType": "Model"
+  },
+  {
+    "label": "Statistical Model",
+    "value": "StatisticalModel",
+    "icon": "carbon:model",
+    "parentType": "Model"
+  },
+  {
+    "label": "Simulation Model",
+    "value": "SimulationModel",
+    "icon": "carbon:model",
+    "parentType": "Model"
+  },
+  {
+    "label": "Data Management Plan",
+    "value": "DataManagementPlan",
+    "icon": "solar:document-text-broken",
+    "parentType": "OutputManagementPlan"
+  },
+  {
+    "label": "Project Management Plan",
+    "value": "ProjectManagementPlan",
+    "icon": "solar:document-text-broken",
+    "parentType": "OutputManagementPlan"
+  },
+  {
+    "label": "Journal Review",
+    "value": "JournalReview",
+    "icon": "hugeicons:peer-to-peer-02",
+    "parentType": "PeerReview"
+  },
+  {
+    "label": "Grant Review",
+    "value": "GrantReview",
+    "icon": "hugeicons:peer-to-peer-02",
+    "parentType": "PeerReview"
+  },
+  {
+    "label": "Artifact",
+    "value": "Artifact",
+    "icon": "fluent:box-48-filled",
+    "parentType": "PhysicalObject"
+  },
+  {
+    "label": "Specimen",
+    "value": "Specimen",
+    "icon": "fluent:box-48-filled",
+    "parentType": "PhysicalObject"
+  },
+  {
+    "label": "Research Preprint",
+    "value": "ResearchPreprint",
+    "icon": "ri:article-fill",
+    "parentType": "Preprint"
+  },
+  {
+    "label": "Review Preprint",
+    "value": "ReviewPreprint",
+    "icon": "ri:article-fill",
+    "parentType": "Preprint"
+  },
+  {
+    "label": "Research Project",
+    "value": "ResearchProject",
+    "icon": "octicon:project-template-16",
+    "parentType": "Project"
+  },
+  {
+    "label": "Development Project",
+    "value": "DevelopmentProject",
+    "icon": "octicon:project-template-16",
+    "parentType": "Project"
+  },
+  {
+    "label": "Technical Report",
+    "value": "TechnicalReport",
+    "icon": "carbon:report",
+    "parentType": "Report"
+  },
+  {
+    "label": "Progress Report",
+    "value": "ProgressReport",
+    "icon": "carbon:report",
+    "parentType": "Report"
+  },
+  {
+    "label": "Final Report",
+    "value": "FinalReport",
+    "icon": "carbon:report",
+    "parentType": "Report"
+  },
+  {
+    "label": "Web Service",
+    "value": "WebService",
+    "icon": "material-symbols:linked-services-outline",
+    "parentType": "Service"
+  },
+  {
+    "label": "API Service",
+    "value": "APIService",
+    "icon": "material-symbols:linked-services-outline",
+    "parentType": "Service"
+  },
+  {
+    "label": "Desktop Application",
+    "value": "DesktopApplication",
+    "icon": "eos-icons:application",
+    "parentType": "Software"
+  },
+  {
+    "label": "Library",
+    "value": "Library",
+    "icon": "eos-icons:application",
+    "parentType": "Software"
+  },
+  {
+    "label": "Framework",
+    "value": "Framework",
+    "icon": "eos-icons:application",
+    "parentType": "Software"
+  },
+  {
+    "label": "Music",
+    "value": "Music",
+    "icon": "subway:sound-2",
+    "parentType": "Sound"
+  },
+  {
+    "label": "Interview",
+    "value": "Interview",
+    "icon": "subway:sound-2",
+    "parentType": "Sound"
+  },
+  {
+    "label": "Technical Standard",
+    "value": "TechnicalStandard",
+    "icon": "material-symbols:document-scanner-outline",
+    "parentType": "Standard"
+  },
+  {
+    "label": "Protocol",
+    "value": "Protocol",
+    "icon": "material-symbols:document-scanner-outline",
+    "parentType": "Standard"
+  },
+  {
+    "label": "Clinical Trial",
+    "value": "ClinicalTrial",
+    "icon": "fluent:document-catch-up-16-regular",
+    "parentType": "StudyRegistration"
+  },
+  {
+    "label": "Observational Study",
+    "value": "ObservationalStudy",
+    "icon": "fluent:document-catch-up-16-regular",
+    "parentType": "StudyRegistration"
+  },
+  {
+    "label": "Research Note",
+    "value": "ResearchNote",
+    "icon": "material-symbols:text-snippet-sharp",
+    "parentType": "Text"
+  },
+  {
+    "label": "Technical Documentation",
+    "value": "TechnicalDocumentation",
+    "icon": "material-symbols:text-snippet-sharp",
+    "parentType": "Text"
+  },
+  {
+    "label": "Data Workflow",
+    "value": "DataWorkflow",
+    "icon": "lucide:workflow",
+    "parentType": "Workflow"
+  },
+  {
+    "label": "Analysis Workflow",
+    "value": "AnalysisWorkflow",
+    "icon": "lucide:workflow",
+    "parentType": "Workflow"
+  },
+  {
+    "label": "Unspecified",
+    "value": "Unspecified",
+    "icon": "material-symbols:other-admission-sharp",
+    "parentType": "Other"
+  }
+]

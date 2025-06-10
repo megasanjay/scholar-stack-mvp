@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
 
   const bodySchema = z
     .object({
-      resourceType: z.string(),
       target: z.string(),
       type: z.string(),
     })
@@ -90,12 +89,27 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { resourceType, target, type } = parsedBody.data;
+  const { target, type } = parsedBody.data;
 
   if (target === relation.sourceId) {
     throw createError({
       message: "Cannot create a relation to itself",
       statusCode: 400,
+    });
+  }
+
+  // Check if the target resource exists and is part of the draft version of the collection
+  const targetResource = await prisma.resource.findUnique({
+    where: {
+      id: target,
+      versionId: version.id,
+    },
+  });
+
+  if (!targetResource) {
+    throw createError({
+      message: "Target resource not found",
+      statusCode: 404,
     });
   }
 
@@ -119,14 +133,11 @@ export default defineEventHandler(async (event) => {
      * * If it has, add the update action
      * * If it hasn't, add the clone action
      */
-    if (
-      originalRelation.resourceType !== resourceType ||
-      originalRelation.type !== type
-    ) {
+    if (originalRelation.type !== type) {
       await prisma.internalRelation.update({
         data: {
           action: "update",
-          resourceType,
+          resourceType: targetResource.resourceType,
           type,
         },
         where: { id: relationid },
@@ -135,7 +146,7 @@ export default defineEventHandler(async (event) => {
       await prisma.internalRelation.update({
         data: {
           action: "clone",
-          resourceType,
+          resourceType: targetResource.resourceType,
           type,
         },
         where: { id: relationid },
@@ -143,25 +154,9 @@ export default defineEventHandler(async (event) => {
     }
   } else {
     // This would mean the relation is a new relation
-
-    // Check if the target resource exists and is part of the draft version of the collection
-    const targetResource = await prisma.resource.findUnique({
-      where: {
-        id: target,
-        versionId: version.id,
-      },
-    });
-
-    if (!targetResource) {
-      throw createError({
-        message: "Target resource not found",
-        statusCode: 404,
-      });
-    }
-
     await prisma.internalRelation.update({
       data: {
-        resourceType,
+        resourceType: targetResource.resourceType,
         targetId: target,
         type,
       },

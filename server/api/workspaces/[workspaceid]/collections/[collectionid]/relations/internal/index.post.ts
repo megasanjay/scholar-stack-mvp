@@ -6,7 +6,6 @@ export default defineEventHandler(async (event) => {
 
   const bodySchema = z
     .object({
-      resourceType: z.string(),
       source: z.string(),
       target: z.string(),
       type: z.string(),
@@ -67,7 +66,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { resourceType, source, target, type } = parsedBody.data;
+  const { source, target, type } = parsedBody.data;
 
   /**
    * TODO: Check if we are using the correct source (with respect to versions)
@@ -128,7 +127,7 @@ export default defineEventHandler(async (event) => {
   const internalRelation = await prisma.internalRelation.create({
     data: {
       action: "create",
-      resourceType,
+      resourceType: targetResource.resourceType,
       sourceId: source,
       targetId: target,
       type,
@@ -152,6 +151,7 @@ export default defineEventHandler(async (event) => {
     source: sourceResource.id,
     sourceName: sourceResource.title,
     sourceOriginalId: sourceResource.originalResourceId,
+    sourceVersionLabel: sourceResource.versionLabel,
     target: internalRelation.targetId,
     targetName: targetResource.title,
     targetType: null,

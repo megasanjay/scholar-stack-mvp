@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker";
 
 import PREFIX_JSON from "@/assets/json/prefix.json";
 import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
-import RESOURCE_TYPE_JSON from "@/assets/json/relation-resource-type.json";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
 import { UBadge, UButton, USeparator } from "#components";
 
 definePageMeta({ layout: "app-layout", middleware: ["auth"] });
@@ -232,40 +232,9 @@ const getRelationName = (relationType: string) => {
 };
 
 const getResourceTypeName = (resourceType: string) => {
-  // First we need to flatten the resourceTypeOptions array
-  const flattenedResourceTypeOptions = resourceTypeOptions.reduce(
-    (acc, curr) => {
-      if (curr.children) {
-        // Attach the parent label as a prefix to the child labels
-        acc.push(
-          ...curr.children.map((child) => ({
-            ...child,
-            label: `${curr.label} - ${child.label}`,
-          })),
-        );
-      } else {
-        acc.push(curr);
-      }
+  const resource = RESOURCE_TYPE_JSON.find((r) => r.value === resourceType);
 
-      return acc;
-    },
-    [] as any[],
-  );
-
-  // Then we need to find the resourceType in the flattened array
-  const resourceTypeOption = flattenedResourceTypeOptions.find(
-    (r) => r.value === resourceType,
-  );
-
-  if (resourceTypeOption) {
-    return resourceTypeOption.label;
-  }
-
-  return resourceType;
-
-  // const resource = resourceTypeOptions.find((r) => r.value === resourceType);
-
-  // return resource?.label || resourceType;
+  return resource?.label || resourceType;
 };
 
 const getResourceIdentifierTypeName = (identifierType: string) => {
@@ -501,7 +470,6 @@ const addNewRelation = async () => {
       });
   } else {
     const d = {
-      resourceType: selectedRelation.value.resourceType,
       source: selectedRelation.value.source,
       target: selectedRelation.value.target,
       type: selectedRelation.value.type,
@@ -609,7 +577,6 @@ const editRelation = async () => {
       });
   } else {
     const d = {
-      resourceType: selectedRelation.value.resourceType,
       target: selectedRelation.value.target,
       type: selectedRelation.value.type,
     };
@@ -744,6 +711,8 @@ const selectRelationResourceType = (resourceid: string) => {
 
   if (resource) {
     selectedRelation.value.resourceType = resource.relationResourceType;
+  } else {
+    selectedRelation.value.resourceType = null;
   }
 };
 
@@ -976,9 +945,10 @@ onMounted(() => {
                 </div>
 
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center justify-start gap-4">
+                  <div class="flex items-center justify-start gap-2">
                     <UBadge color="info">
                       {{ getResourceTypeName(relation?.resourceType || "") }}
+                      {{ relation?.resourceType }}
                     </UBadge>
 
                     <UBadge v-if="relation.targetType" color="success">
@@ -1122,7 +1092,9 @@ onMounted(() => {
               :loading="targetResourceListLoadingIndicator"
               :items="generateTargetResourceListOptions()"
               class="w-full"
-              @update:value="selectRelationResourceType"
+              @update:model-value="
+                selectRelationResourceType(selectedRelation.source || '')
+              "
             />
           </UFormField>
 
@@ -1150,12 +1122,41 @@ onMounted(() => {
           </UFormField>
 
           <UFormField label="Resource Type" name="resourceType">
-            <USelect
-              v-model="selectedRelation.resourceType as string"
-              :items="resourceTypeOptions"
-              placeholder="Dataset"
-              class="w-full"
-            />
+            <div class="flex items-center gap-2">
+              <USelect
+                v-if="selectedRelation.external"
+                v-model="selectedRelation.resourceType as string"
+                :items="resourceTypeOptions"
+                placeholder="Dataset"
+                class="w-full"
+              />
+
+              {{ selectedRelation }}
+
+              <UPopover v-if="!selectedRelation.external" mode="hover">
+                <USelect
+                  v-model="selectedRelation.resourceType as string"
+                  :items="resourceTypeOptions"
+                  placeholder="Dataset"
+                  disabled
+                  class="w-full"
+                />
+
+                <template #content>
+                  <p class="p-1 text-sm">
+                    The resource type for internal relations are automatically
+                    pulled from your resource.
+                  </p>
+                </template>
+              </UPopover>
+
+              <UButton
+                v-if="!selectedRelation.external"
+                icon="mdi:refresh"
+                size="sm"
+                variant="outline"
+              />
+            </div>
           </UFormField>
 
           <UAlert

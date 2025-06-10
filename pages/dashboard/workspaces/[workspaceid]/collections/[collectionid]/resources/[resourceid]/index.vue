@@ -2,9 +2,13 @@
 import { faker } from "@faker-js/faker";
 import type { FormSubmitEvent, FormError } from "#ui/types";
 import PREFIX_JSON from "@/assets/json/prefix.json";
+import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import RESOURCE_SUBTYPE_JSON from "@/assets/json/resource-sub-type.json";
 import { displayLongDate } from "~/utils/displayDates";
 
 definePageMeta({ layout: "app-layout", middleware: ["auth"] });
+
+const config = useRuntimeConfig();
 
 const toast = useToast();
 const route = useRoute();
@@ -70,7 +74,7 @@ const disableEditing = computed(() => {
   );
 });
 
-const resourceType = computed(() => {
+const identifierType = computed(() => {
   if (!resource.value) {
     return "Unknown";
   }
@@ -81,10 +85,44 @@ const resourceType = computed(() => {
     return "URL";
   }
 
-  const prefix = PREFIX_JSON.find((prefix) => prefix.value === type);
+  const prefix = PREFIX_JSON.find((p) => p.value === type);
 
   if (prefix) {
     return prefix.label;
+  }
+
+  return "Unknown";
+});
+
+const resourceType = computed(() => {
+  if (!resource.value) {
+    return "Unknown";
+  }
+
+  const type = resource.value.resourceType;
+
+  const formattedType = RESOURCE_TYPE_JSON.find((i) => i.value === type)?.label;
+
+  if (formattedType) {
+    return formattedType;
+  }
+
+  return "Unknown";
+});
+
+const resourceSubType = computed(() => {
+  if (!resource.value) {
+    return "Unknown";
+  }
+
+  const type = resource.value.resourceSubType;
+
+  const formattedType = RESOURCE_SUBTYPE_JSON.find(
+    (i) => i.value === type,
+  )?.label;
+
+  if (formattedType) {
+    return formattedType;
   }
 
   return "Unknown";
@@ -468,11 +506,19 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       :content="resource?.description || 'No description available'"
     />
 
-    <DataDisplay title="Type" :content="resourceType" />
+    <DataDisplay title="Identifier Type" :content="identifierType" />
 
     <DataDisplay
       title="Identifier"
       :content="resource?.identifier || 'No identifier provided'"
+    />
+
+    <DataDisplay title="Type" :content="resourceType" />
+
+    <DataDisplay
+      v-if="config.public.ENABLE_RESOURCES_SUBTYPE"
+      title="Sub Type"
+      :content="resourceSubType"
     />
 
     <DataDisplay

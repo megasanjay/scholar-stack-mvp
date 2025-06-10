@@ -17,7 +17,7 @@
   {
     "label": "Book Chapter",
     "value": "BookChapter",
-    "icon": "material-symbols:book-chapter-outline"
+    "icon": "ic:twotone-menu-book"
   },
   {
     "label": "Collection",
@@ -67,17 +67,17 @@
   {
     "label": "Interactive Resource",
     "value": "InteractiveResource",
-    "icon": "fluent:browser-32-filled"
+    "icon": "mingcute:video-fill"
   },
   {
     "label": "Instrument",
     "value": "Instrument",
-    "icon": "material-symbols:instrument-picking-outline"
+    "icon": "mingcute:microscope-fill"
   },
   {
     "label": "Journal",
     "value": "Journal",
-    "icon": "material-symbols:journal-outline"
+    "icon": "mdi:journal"
   },
   {
     "label": "Journal Article",
@@ -98,7 +98,7 @@
   {
     "label": "Peer Review",
     "value": "PeerReview",
-    "icon": "carbon:peer-review"
+    "icon": "hugeicons:peer-to-peer-02"
   },
   {
     "label": "Physical Object",
@@ -133,7 +133,7 @@
   {
     "label": "Sound",
     "value": "Sound",
-    "icon": "material-symbols:sound-outline"
+    "icon": "subway:sound-2"
   },
   {
     "label": "Standard",

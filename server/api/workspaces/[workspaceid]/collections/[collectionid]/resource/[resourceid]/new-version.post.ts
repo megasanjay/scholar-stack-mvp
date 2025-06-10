@@ -111,6 +111,7 @@ export default defineEventHandler(async (event) => {
       identifier,
       identifierType,
       lineageId: resource.canonicalId,
+      resourceSubType: resource.resourceSubType,
       resourceType: resource.resourceType,
       versionId: version.id,
       versionLabel: versionLabel || "",

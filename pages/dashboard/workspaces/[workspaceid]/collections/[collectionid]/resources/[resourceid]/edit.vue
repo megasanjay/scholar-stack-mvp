@@ -4,6 +4,7 @@ import type { FormSubmitEvent, FormError } from "#ui/types";
 import { faker } from "@faker-js/faker";
 
 import RESOURCE_TYPE_JSON from "@/assets/json/resource-type.json";
+import RESOURCE_SUB_TYPE_JSON from "@/assets/json/resource-sub-type.json";
 import PREFIX_JSON from "@/assets/json/prefix.json";
 
 definePageMeta({
@@ -13,6 +14,8 @@ definePageMeta({
 });
 
 useSeoMeta({ title: "Edit resource" });
+
+const config = useRuntimeConfig();
 
 const toast = useToast();
 const route = useRoute();
@@ -78,7 +81,8 @@ const state = reactive({
   description: faker.lorem.paragraph(),
   identifier: faker.internet.url(),
   identifierType: "url",
-  resourceType: "other",
+  resourceSubType: undefined as string | undefined,
+  resourceType: "",
   versionLabel: `v${faker.number.int({ max: 10, min: 1 })}.${faker.number.int({
     max: 10,
     min: 1,
@@ -86,13 +90,11 @@ const state = reactive({
 });
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
+const resourceSubTypeOptions = RESOURCE_SUB_TYPE_JSON;
 const identifierTypeOptions = PREFIX_JSON.map((i) => ({
   ...i,
   type: "item" as const,
 }));
-
-// Reorganize resource type options in alphabetical order
-resourceTypeOptions.sort((a, b) => a.label.localeCompare(b.label));
 
 const { data: resource, error } = await useFetch(
   `/api/workspaces/${workspaceid}/collections/${collectionid}/resource/${resourceid}`,
@@ -136,7 +138,8 @@ if (resource.value && "action" in resource.value) {
   state.description = resource.value.description || faker.lorem.paragraph();
   state.identifier = resource.value.identifier || faker.internet.url();
   state.identifierType = resource.value.identifierType || "url";
-  state.resourceType = resource.value.resourceType || "other";
+  state.resourceType = resource.value.resourceType || "Other";
+  state.resourceSubType = resource.value.resourceSubType || undefined;
   state.versionLabel = resource.value.versionLabel || "";
 }
 
@@ -156,6 +159,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     description: event.data.description || "",
     identifier: event.data.identifier || "",
     identifierType: event.data.identifierType || "",
+    resourceSubType: event.data.resourceSubType || "",
     resourceType: event.data.resourceType || "",
     versionLabel: event.data.versionLabel || "",
   };
@@ -182,8 +186,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       );
     })
     .catch((error) => {
-      loading.value = false;
-
       console.log(error);
 
       toast.add({
@@ -276,7 +278,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         <USelect
           v-model="state.resourceType"
           :items="resourceTypeOptions"
-          placeholder="Other"
+          placeholder="Please select a resource type"
           class="w-full"
           size="lg"
         />
@@ -284,6 +286,20 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         <p class="mt-2 text-sm text-slate-500">
           Select the type of resource you are linking to.
         </p>
+      </UFormField>
+
+      <UFormField
+        v-show="config.public.ENABLE_RESOURCES_SUBTYPE"
+        label="Resource Sub Type"
+        name="resourceSubType"
+      >
+        <USelect
+          v-model="state.resourceSubType"
+          :items="resourceSubTypeOptions"
+          placeholder="Please select a resource sub type"
+          class="w-full"
+          size="lg"
+        />
       </UFormField>
 
       <UFormField label="Version" name="version">

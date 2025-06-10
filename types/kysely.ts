@@ -84,6 +84,7 @@ export type Resource = {
     title: Generated<string>;
     description: Generated<string>;
     resourceType: Generated<string>;
+    resourceSubType: string | null;
     versionLabel: string | null;
     originalResourceId: string | null;
     action: string | null;
