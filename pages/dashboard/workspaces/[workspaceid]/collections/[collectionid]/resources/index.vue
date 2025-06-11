@@ -11,6 +11,9 @@ const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
+const selectedView = ref("grouped");
+const selectedSort = ref("activity");
+
 const { collectionid, workspaceid } = route.params as {
   collectionid: string;
   workspaceid: string;
@@ -33,6 +36,95 @@ if (error.value) {
 
   navigateTo(`/dashboard/workspaces/${workspaceid}`);
 }
+
+const sortedResources = computed(() => {
+  const resources = collection.value?.resources || [];
+
+  if (selectedSort.value === "activity") {
+    return resources.sort((a, b) => {
+      const aDate = new Date(a.updated);
+      const bDate = new Date(b.updated);
+
+      if (aDate > bDate) {
+        return -1;
+      }
+
+      if (aDate < bDate) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
+
+  if (selectedSort.value === "name") {
+    return resources.sort((a, b) => {
+      if (a.title.toLowerCase() < b.title.toLowerCase()) {
+        return -1;
+      }
+
+      if (a.title.toLowerCase() > b.title.toLowerCase()) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
+});
+
+const groupedResources = computed(() => {
+  const resources = collection.value?.resources || [];
+  const grouped: { [key: string]: any[] } = {};
+
+  for (const resource of resources) {
+    if (resource.resourceType) {
+      if (resource.resourceType in grouped) {
+        grouped[resource.resourceType].push(resource);
+      } else {
+        grouped[resource.resourceType] = [resource];
+      }
+    }
+  }
+
+  Object.keys(grouped).forEach((key) => {
+    const group = grouped[key];
+
+    if (group) {
+      group.sort((a, b) => {
+        if (a.title.toLowerCase() < b.title.toLowerCase()) {
+          return -1;
+        }
+
+        if (a.title.toLowerCase() > b.title.toLowerCase()) {
+          return 1;
+        }
+
+        return 0;
+      });
+    }
+  });
+
+  // Sort the keys
+  const sortedKeys = Object.keys(grouped).sort((a, b) => {
+    if (a.toLowerCase() < b.toLowerCase()) {
+      return -1;
+    }
+
+    if (a.toLowerCase() > b.toLowerCase()) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  const sortedGrouped: { [key: string]: any[] } = {};
+
+  for (const key of sortedKeys) {
+    sortedGrouped[key] = grouped[key];
+  }
+
+  return sortedGrouped;
+});
 
 const { collectionPermissionAbility, collectionPermissionGetLoading } =
   await useCollectionPermission(workspaceid, collectionid);
@@ -61,6 +153,38 @@ const selectResourceType = (type: string) => {
         size="lg"
         type="search"
       />
+
+      <USelect
+        v-if="selectedView === 'list'"
+        v-model="selectedSort"
+        size="lg"
+        :items="[
+          {
+            label: 'Sort by activity',
+            value: 'activity',
+          },
+          {
+            label: 'Sort by name',
+            value: 'name',
+          },
+        ]"
+      />
+
+      <UButtonGroup>
+        <UButton
+          color="neutral"
+          :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
+          icon="fluent:group-list-24-filled"
+          @click="selectedView = 'grouped'"
+        />
+
+        <UButton
+          color="neutral"
+          :variant="selectedView === 'list' ? 'subtle' : 'outline'"
+          icon="fa-solid:list"
+          @click="selectedView = 'list'"
+        />
+      </UButtonGroup>
 
       <UButton
         color="primary"
@@ -92,193 +216,55 @@ const selectResourceType = (type: string) => {
     </div>
 
     <div
-      v-if="collection?.version && collection?.resources"
+      v-if="
+        collection?.version && collection?.resources && selectedView === 'list'
+      "
       class="flex flex-col gap-4"
     >
-      <NuxtLink
-        v-for="resource in collection?.resources"
+      <ResourceCard
+        v-for="resource in sortedResources"
         :key="resource.id"
-        :to="
-          resource.action === 'delete'
-            ? ''
-            : `/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}`
-        "
-        class="flex w-full flex-grow flex-col rounded-md border px-6 pt-6 shadow-sm transition-all hover:shadow-md"
-        :class="{
-          'cursor-not-allowed border-red-300 bg-red-50 !shadow-none':
-            resource.action === 'delete',
-          'border-slate-300 bg-white':
-            !resource.action || resource.action === 'clone',
-          'border-blue-300 bg-cyan-50/20': resource.action === 'create',
-          'border-emerald-400 bg-emerald-50/20': resource.action === 'update',
-          'border-red-600 bg-white': resource.filledIn === false,
-        }"
+        :resource="resource"
+        :workspaceid="workspaceid"
+        :collectionid="collectionid"
+        :collection="collection"
+      />
+    </div>
+
+    <div
+      v-if="
+        collection?.version &&
+        collection?.resources &&
+        selectedView === 'grouped'
+      "
+      class="flex flex-col gap-4"
+    >
+      <div
+        v-for="(group, name, index) in groupedResources"
+        :key="index"
+        class="w-full py-5"
       >
-        <div class="flex w-full items-center justify-start gap-2 pb-2">
-          <UIcon :name="selectIcon(resource.resourceType)" class="size-6" />
+        <div class="flex flex-col items-start justify-between gap-5">
+          <div class="flex items-center gap-2">
+            <Icon :name="selectIcon(name as string)" size="30" />
 
-          <USeparator orientation="vertical" class="h-5" />
+            <h2 class="text-xl font-semibold">
+              {{ selectResourceType(name as string).label }}
+            </h2>
+          </div>
 
-          <div class="flex w-full flex-col gap-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-lg leading-5 font-medium">
-                {{ resource.title || "No title provided" }}
-              </span>
-
-              <div class="flex items-center justify-end gap-2">
-                <UBadge
-                  v-if="resource.filledIn === false"
-                  color="error"
-                  size="md"
-                  variant="outline"
-                  icon="mdi:alert"
-                >
-                  Needs to be filled in
-                </UBadge>
-
-                <UTooltip
-                  :disabled="
-                    !(
-                      resource.action === 'create' ||
-                      resource.action === 'update' ||
-                      resource.action === 'delete'
-                    )
-                  "
-                >
-                  <div class="flex gap-2">
-                    <UBadge
-                      v-if="resource.action === 'create'"
-                      type="info"
-                      size="md"
-                      variant="outline"
-                      icon="mdi:new-box"
-                    >
-                      New Resource
-                    </UBadge>
-
-                    <UBadge
-                      v-if="resource.action === 'delete'"
-                      type="error"
-                      size="md"
-                      variant="outline"
-                      icon="jam:delete"
-                    >
-                      Marked for deletion
-                    </UBadge>
-
-                    <UBadge
-                      v-if="resource.action === 'update'"
-                      type="success"
-                      size="md"
-                      variant="outline"
-                      icon="clarity:new-solid"
-                    >
-                      Updated
-                    </UBadge>
-                  </div>
-
-                  <template #content>
-                    <span>
-                      Last modified on {{ displayLongDate(resource.updated) }}
-                    </span>
-                  </template>
-                </UTooltip>
-
-                <UButton
-                  v-if="resource.action === 'delete'"
-                  size="sm"
-                  color="error"
-                  icon="mdi:undo"
-                >
-                  Undo delete
-                </UButton>
-
-                <USeparator
-                  v-if="resource.action !== 'clone'"
-                  orientation="vertical"
-                  class="h-5"
-                />
-
-                <UBadge color="info" variant="outline">
-                  {{
-                    selectResourceType(resource.resourceType).label || "Unknown"
-                  }}
-                </UBadge>
-
-                <USeparator
-                  v-if="resource.versionLabel"
-                  orientation="vertical"
-                  class="h-5"
-                />
-
-                <UBadge
-                  v-if="resource.versionLabel"
-                  color="info"
-                  variant="soft"
-                >
-                  {{ resource.versionLabel || "No version label" }}
-                </UBadge>
-              </div>
-            </div>
+          <div class="flex w-full flex-col gap-3">
+            <ResourceCard
+              v-for="resource in group"
+              :key="resource.id"
+              :resource="resource"
+              :workspaceid="workspaceid"
+              :collectionid="collectionid"
+              :collection="collection"
+            />
           </div>
         </div>
-
-        <p class="border-t border-dashed border-slate-300 py-3">
-          {{ resource.description || "No description provided" }}
-        </p>
-
-        <div
-          class="flex w-full items-center gap-2 border-t border-slate-400 pt-3 pb-4"
-        >
-          <UBadge
-            :color="resource.identifierType ? 'info' : 'error'"
-            size="sm"
-            variant="outline"
-          >
-            {{ resource.identifierType || "No identifier provided" }}
-          </UBadge>
-
-          <USeparator orientation="vertical" class="h-5" />
-
-          <div class="flex w-full justify-between gap-8">
-            <div class="group w-max">
-              <ULink
-                :to="
-                  resource.identifierType !== 'url'
-                    ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
-                    : resource.identifier
-                "
-                class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                target="_blank"
-                @click.stop=""
-              >
-                {{ resource.identifier }}
-
-                <Icon
-                  v-if="resource.identifierType"
-                  name="mdi:external-link"
-                  size="16"
-                  class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                />
-              </ULink>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <NuxtLink
-                v-if="
-                  resource.action !== 'delete' &&
-                  !collection?.version?.published
-                "
-                :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}/edit`"
-              >
-                <UButton size="sm" icon="akar-icons:edit" color="primary">
-                  Edit
-                </UButton>
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-      </NuxtLink>
+      </div>
     </div>
   </AppPageLayout>
 </template>
