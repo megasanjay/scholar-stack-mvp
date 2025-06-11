@@ -437,7 +437,6 @@ const addNewRelation = async () => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/external`,
       {
         body: JSON.stringify(d),
-
         method: "POST",
       },
     )
@@ -481,7 +480,6 @@ const addNewRelation = async () => {
       `/api/workspaces/${workspaceid}/collections/${collectionid}/relations/internal`,
       {
         body: JSON.stringify(d),
-
         method: "POST",
       },
     )
@@ -709,7 +707,7 @@ const selectRelationResourceType = (resourceid: string) => {
   );
 
   if (resource) {
-    selectedRelation.value.resourceType = resource.relationResourceType;
+    selectedRelation.value.resourceType = resource.resourceType;
   } else {
     selectedRelation.value.resourceType = null;
   }
@@ -947,7 +945,6 @@ onMounted(() => {
                   <div class="flex items-center justify-start gap-2">
                     <UBadge color="info">
                       {{ getResourceTypeName(relation?.resourceType || "") }}
-                      {{ relation?.resourceType }}
                     </UBadge>
 
                     <UBadge v-if="relation.targetType" color="success">
@@ -1134,7 +1131,7 @@ onMounted(() => {
               :items="generateTargetResourceListOptions()"
               class="w-full"
               @update:model-value="
-                selectRelationResourceType(selectedRelation.source || '')
+                selectRelationResourceType(selectedRelation.target || '')
               "
             >
               <div class="flex items-center gap-2">
@@ -1144,7 +1141,11 @@ onMounted(() => {
                   size="xs"
                   variant="subtle"
                 >
-                  {{ selectedRelation.target }}
+                  {{
+                    targetResourceList.find(
+                      (item: any) => item.value === selectedRelation.target,
+                    )?.versionLabel
+                  }}
                 </UBadge>
 
                 <span v-else class="text-sm text-gray-500">

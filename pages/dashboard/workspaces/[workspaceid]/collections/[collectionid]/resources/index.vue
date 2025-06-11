@@ -38,15 +38,17 @@ const { collectionPermissionAbility, collectionPermissionGetLoading } =
   await useCollectionPermission(workspaceid, collectionid);
 
 const selectIcon = (type: string) => {
-  const resourceType = resourceTypeOptions.find(
-    (resourceType) => resourceType.value === type,
+  return selectResourceType(type).icon;
+};
+
+const selectResourceType = (type: string) => {
+  return (
+    resourceTypeOptions.find((resourceType) => resourceType.value === type) || {
+      icon: "mdi:file-question",
+      label: "Unknown",
+      value: "unknown",
+    }
   );
-
-  if (resourceType) {
-    return resourceType.icon;
-  }
-
-  return "mdi:file-question";
 };
 </script>
 
@@ -77,10 +79,16 @@ const selectIcon = (type: string) => {
     </div>
 
     <div
-      v-if="collection?.version === null"
-      class="rounded-lg border border-dashed px-4 py-8"
+      v-if="collection?.version === null || collection?.resources?.length === 0"
+      class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8"
     >
-      No resources found
+      <UIcon name="mingcute:empty-box-line" size="48" />
+
+      <p class="text-center text-lg font-medium">No resources found</p>
+
+      <p class="text-center text-sm text-slate-500">
+        You can add a new resource by clicking the button above.
+      </p>
     </div>
 
     <div
@@ -185,17 +193,23 @@ const selectIcon = (type: string) => {
                   Undo delete
                 </UButton>
 
-                <NuxtLink
-                  v-if="
-                    resource.action !== 'delete' &&
-                    !collection?.version?.published
-                  "
-                  :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}/edit`"
-                >
-                  <UButton size="sm" icon="akar-icons:edit" color="primary">
-                    Edit
-                  </UButton>
-                </NuxtLink>
+                <USeparator
+                  v-if="resource.action !== 'delete'"
+                  orientation="vertical"
+                  class="h-5"
+                />
+
+                <UBadge color="info" variant="outline">
+                  {{
+                    selectResourceType(resource.resourceType).label || "Unknown"
+                  }}
+                </UBadge>
+
+                <USeparator orientation="vertical" class="h-5" />
+
+                <UBadge color="info" variant="soft">
+                  {{ resource.versionLabel || "No version label" }}
+                </UBadge>
               </div>
             </div>
           </div>
@@ -218,26 +232,42 @@ const selectIcon = (type: string) => {
 
           <USeparator orientation="vertical" class="h-5" />
 
-          <div class="group w-max">
-            <ULink
-              :to="
-                resource.identifierType !== 'url'
-                  ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
-                  : resource.identifier
-              "
-              class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              target="_blank"
-              @click.stop=""
-            >
-              {{ resource.identifier }}
+          <div class="flex w-full justify-between gap-8">
+            <div class="group w-max">
+              <ULink
+                :to="
+                  resource.identifierType !== 'url'
+                    ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
+                    : resource.identifier
+                "
+                class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                target="_blank"
+                @click.stop=""
+              >
+                {{ resource.identifier }}
 
-              <Icon
-                v-if="resource.identifierType"
-                name="mdi:external-link"
-                size="16"
-                class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              />
-            </ULink>
+                <Icon
+                  v-if="resource.identifierType"
+                  name="mdi:external-link"
+                  size="16"
+                  class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                />
+              </ULink>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <NuxtLink
+                v-if="
+                  resource.action !== 'delete' &&
+                  !collection?.version?.published
+                "
+                :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/${resource.id}/edit`"
+              >
+                <UButton size="sm" icon="akar-icons:edit" color="primary">
+                  Edit
+                </UButton>
+              </NuxtLink>
+            </div>
           </div>
         </div>
       </NuxtLink>

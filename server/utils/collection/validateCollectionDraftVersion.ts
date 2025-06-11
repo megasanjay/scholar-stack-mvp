@@ -11,6 +11,8 @@ export default defineEventHandler(async (event) => {
   // get the draft versions of the collection
   const versions = await prisma.version.findMany({
     include: {
+      ExternalRelation: true,
+      InternalRelation: true,
       Resource: true,
     },
     orderBy: { created: "desc" },
@@ -47,6 +49,11 @@ export default defineEventHandler(async (event) => {
 
   const identifiers: string[] = [];
 
+  // Create a map of resource IDs to titles for efficient lookups
+  const resourcesMap = new Map(
+    resources.map((resource) => [resource.id, resource]),
+  );
+
   for (const resource of resources) {
     // validate the resource
     const parsedResource = resourceSchema.safeParse(resource);
@@ -71,6 +78,132 @@ export default defineEventHandler(async (event) => {
     }
 
     identifiers.push(identifier);
+  }
+
+  // Check if there are any relations with the same source and target
+  const internalRelations = version.InternalRelation;
+
+  for (const relation of internalRelations) {
+    if (relation.sourceId === relation.targetId) {
+      const resource = resourcesMap.get(relation.sourceId);
+
+      resourcesWithErrors.push({
+        id: resource?.id,
+        title: resource?.title || "Unknown resource",
+        message: "Relation has the same source and target",
+      });
+    }
+  }
+
+  // Check for duplicate relations
+  const seenRelations = new Set<string>();
+
+  // Check internal relations
+  for (const relation of internalRelations) {
+    const relationKey = `${relation.sourceId}:${relation.targetId}:${relation.type}`;
+
+    if (seenRelations.has(relationKey)) {
+      const resource = resourcesMap.get(relation.sourceId);
+
+      resourcesWithErrors.push({
+        id: resource?.id,
+        title: resource?.title || "Unknown resource",
+        message:
+          "Duplicate relation found with same source, target, and relation type",
+      });
+    }
+
+    seenRelations.add(relationKey);
+
+    // check the flipped relation as well just in case
+    const flippedRelationKey = `${relation.targetId}:${relation.sourceId}:${relation.type}`;
+
+    if (seenRelations.has(flippedRelationKey)) {
+      const resource = resourcesMap.get(relation.targetId);
+
+      resourcesWithErrors.push({
+        id: resource?.id,
+        title: resource?.title || "Unknown resource",
+        message:
+          "Duplicate relation found with same source, target, and relation type",
+      });
+    }
+
+    seenRelations.add(flippedRelationKey);
+  }
+
+  // clear the seen relations
+  seenRelations.clear();
+
+  // Check external relations
+  const externalRelations = version.ExternalRelation;
+
+  for (const relation of externalRelations) {
+    const relationKey = `${relation.sourceId}:${relation.target}:${relation.type}`;
+
+    if (seenRelations.has(relationKey)) {
+      const resource = resourcesMap.get(relation.sourceId);
+
+      resourcesWithErrors.push({
+        id: resource?.id,
+        title: resource?.title || "Unknown resource",
+        message:
+          "Duplicate relation found with same source, target, and relation type",
+      });
+    }
+
+    seenRelations.add(relationKey);
+  }
+
+  // If any relation type is IsNewVersionOf, IsPreviousVersionOf or IsVersionOf, check if the version label is provided for both the source and target for internal relations and source for external relations
+
+  for (const relation of internalRelations) {
+    if (
+      relation.type === "IsNewVersionOf" ||
+      relation.type === "IsPreviousVersionOf" ||
+      relation.type === "IsVersionOf"
+    ) {
+      const sourceResource = resourcesMap.get(relation.sourceId);
+
+      if (!sourceResource?.versionLabel) {
+        resourcesWithErrors.push({
+          id: sourceResource?.id,
+          title: sourceResource?.title || "Unknown resource",
+          message:
+            "If a relation of `Is New Version Of`, `Is Previous Version Of` or `Is Version Of` is provided, then a `Version` must be provided for both the source and target resources",
+        });
+      }
+
+      const targetResource = resourcesMap.get(relation.targetId);
+
+      if (!targetResource?.versionLabel) {
+        resourcesWithErrors.push({
+          id: targetResource?.id,
+          title: targetResource?.title || "Unknown resource",
+          message:
+            "If a relation of `Is New Version Of`, `Is Previous Version Of` or `Is Version Of` is provided, then a `Version` must be provided for both the source and target resources",
+        });
+      }
+    }
+  }
+
+  for (const relation of externalRelations) {
+    if (
+      relation.type === "IsNewVersionOf" ||
+      relation.type === "IsPreviousVersionOf" ||
+      relation.type === "IsVersionOf"
+    ) {
+      const sourceResource = resourcesMap.get(relation.sourceId);
+
+      if (!sourceResource?.versionLabel) {
+        resourcesWithErrors.push({
+          id: relation.id,
+          title: sourceResource?.title || "Unknown resource",
+          message:
+            "If a relation of `Is New Version Of`, `Is Previous Version Of` or `Is Version Of` is provided, then a `Version` must be provided for the source resource",
+        });
+      }
+    }
   }
 
   if (resourcesWithErrors.length > 0) {
