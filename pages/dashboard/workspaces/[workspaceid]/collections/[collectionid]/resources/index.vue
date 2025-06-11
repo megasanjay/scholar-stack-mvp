@@ -194,7 +194,7 @@ const selectResourceType = (type: string) => {
                 </UButton>
 
                 <USeparator
-                  v-if="resource.action !== 'delete'"
+                  v-if="resource.action !== 'clone'"
                   orientation="vertical"
                   class="h-5"
                 />
@@ -205,9 +205,17 @@ const selectResourceType = (type: string) => {
                   }}
                 </UBadge>
 
-                <USeparator orientation="vertical" class="h-5" />
+                <USeparator
+                  v-if="resource.versionLabel"
+                  orientation="vertical"
+                  class="h-5"
+                />
 
-                <UBadge color="info" variant="soft">
+                <UBadge
+                  v-if="resource.versionLabel"
+                  color="info"
+                  variant="soft"
+                >
                   {{ resource.versionLabel || "No version label" }}
                 </UBadge>
               </div>
