@@ -475,16 +475,31 @@ const navigateToResource = (resourceid: string) => {
                   <li
                     :class="[
                       active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                      'flex w-full cursor-pointer items-center justify-between px-4 py-2',
+                      'flex w-full cursor-pointer items-center justify-between px-4 py-1',
                     ]"
                   >
                     <div class="flex items-center justify-start gap-2 pr-4">
                       <UAvatar
                         :src="`${collection?.imageUrl}?t=${collection?.updated}`"
-                        size="xl"
+                        size="sm"
                       />
 
+                      <UTooltip
+                        v-if="collection.title.length > 19"
+                        :text="collection.title"
+                      >
+                        <span
+                          :class="[
+                            selected ? 'font-medium' : 'font-normal',
+                            'block max-w-40 truncate',
+                          ]"
+                        >
+                          {{ collection.title }}
+                        </span>
+                      </UTooltip>
+
                       <span
+                        v-else
                         :class="[
                           selected ? 'font-medium' : 'font-normal',
                           'block max-w-40 truncate',
@@ -623,16 +638,31 @@ const navigateToResource = (resourceid: string) => {
                   <li
                     :class="[
                       active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                      'flex w-full cursor-pointer items-center justify-between px-4 py-2',
+                      'flex w-full cursor-pointer items-center justify-between px-4 py-1',
                     ]"
                   >
                     <div class="flex items-center justify-start gap-2 pr-4">
                       <UAvatar
                         :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${resource.id}`"
-                        size="xl"
+                        size="sm"
                       />
 
+                      <UTooltip
+                        v-if="resource.title.length > 19"
+                        :text="resource.title"
+                      >
+                        <span
+                          :class="[
+                            selected ? 'font-medium' : 'font-normal',
+                            'block max-w-40 truncate',
+                          ]"
+                        >
+                          {{ resource.title }}
+                        </span>
+                      </UTooltip>
+
                       <span
+                        v-else
                         :class="[
                           selected ? 'font-medium' : 'font-normal',
                           'block max-w-40 truncate',

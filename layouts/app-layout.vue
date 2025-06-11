@@ -43,9 +43,6 @@ const currentLayout = computed(() => {
             "
             :key="$route.fullPath"
             class="px-4 lg:px-6"
-            :class="{
-              'border-b border-gray-200': currentLayout === 'resource-layout',
-            }"
           />
         </div>
 
