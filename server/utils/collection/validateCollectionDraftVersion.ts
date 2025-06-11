@@ -1,4 +1,5 @@
 import { z } from "zod";
+import RELATION_TYPE_JSON from "@/assets/json/relation-type.json";
 
 export default defineEventHandler(async (event) => {
   const { collectionid } = event.context.params as {
@@ -201,6 +202,38 @@ export default defineEventHandler(async (event) => {
           title: sourceResource?.title || "Unknown resource",
           message:
             "If a relation of `Is New Version Of`, `Is Previous Version Of` or `Is Version Of` is provided, then a `Version` must be provided for the source resource",
+        });
+      }
+    }
+  }
+
+  // Check internal relations for mirror relations
+  for (const relation of internalRelations) {
+    const relationType = relation.type;
+
+    const mirrorRelationType =
+      RELATION_TYPE_JSON.find((type) => type.value === relationType)?.mirror ||
+      "";
+
+    if (mirrorRelationType) {
+      if (relation.sourceId === relation.targetId) {
+        continue;
+      }
+
+      const mirrorRelation = internalRelations.find(
+        (r) =>
+          r.sourceId === relation.targetId &&
+          r.targetId === relation.sourceId &&
+          r.type === mirrorRelationType,
+      );
+
+      const sourceResource = resourcesMap.get(relation.sourceId);
+
+      if (mirrorRelation) {
+        resourcesWithErrors.push({
+          id: relation.id,
+          title: sourceResource?.title || "Unknown resource",
+          message: "Mirror relation found",
         });
       }
     }
