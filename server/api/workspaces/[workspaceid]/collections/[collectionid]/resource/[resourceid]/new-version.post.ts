@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       cloneRelations: z.boolean(),
       identifier: z.string().min(1),
       identifierType: z.string().min(1),
-      versionLabel: z.string().optional(),
+      versionLabel: z.string().min(1),
     })
     .strict();
 

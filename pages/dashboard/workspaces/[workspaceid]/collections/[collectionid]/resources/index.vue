@@ -208,37 +208,50 @@ const selectIcon = (type: string) => {
         <div
           class="flex w-full items-center gap-2 border-t border-slate-400 pt-3 pb-4"
         >
-          <UBadge
-            :color="resource.identifierType ? 'info' : 'error'"
-            size="sm"
-            variant="outline"
-          >
-            {{ resource.identifierType || "No identifier provided" }}
-          </UBadge>
+          <div class="flex w-full items-center justify-between gap-2">
+            <div class="flex w-full items-center gap-2">
+              <UBadge
+                :color="resource.identifierType ? 'info' : 'error'"
+                size="sm"
+                variant="outline"
+              >
+                {{ resource.identifierType || "No identifier provided" }}
+              </UBadge>
 
-          <USeparator orientation="vertical" class="h-5" />
+              <USeparator orientation="vertical" class="h-5" />
 
-          <div class="group w-max">
-            <ULink
-              :to="
-                resource.identifierType !== 'url'
-                  ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
-                  : resource.identifier
-              "
-              class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              target="_blank"
-              @click.stop=""
-            >
-              {{ resource.identifier }}
+              <div class="group w-max">
+                <ULink
+                  :to="
+                    resource.identifierType !== 'url'
+                      ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
+                      : resource.identifier
+                  "
+                  class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                  target="_blank"
+                  @click.stop=""
+                >
+                  {{ resource.identifier }}
 
-              <Icon
-                v-if="resource.identifierType"
-                name="mdi:external-link"
-                size="16"
-                class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-              />
-            </ULink>
+                  <Icon
+                    v-if="resource.identifierType"
+                    name="mdi:external-link"
+                    size="16"
+                    class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                  />
+                </ULink>
+              </div>
+            </div>
           </div>
+
+          <UBadge
+            v-if="resource.versionLabel"
+            color="info"
+            size="sm"
+            variant="soft"
+          >
+            {{ resource.versionLabel }}
+          </UBadge>
         </div>
       </NuxtLink>
     </div>
