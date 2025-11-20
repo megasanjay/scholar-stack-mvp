@@ -191,6 +191,7 @@ export default defineEventHandler(async (event) => {
       source: updatedRelation!.sourceId,
       sourceName: updatedRelation.source?.title || "",
       sourceOriginalId: updatedRelation.source?.originalResourceId || "",
+      sourceVersionLabel: updatedRelation.source?.versionLabel || "",
       target: updatedRelation!.targetId,
       target_type: null,
       type: updatedRelation!.type,

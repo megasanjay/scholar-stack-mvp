@@ -181,7 +181,7 @@ const disableEditing = computed(() => {
       class="flex flex-col gap-4"
       @submit="onSubmit"
     >
-      <UFormField label="Title" name="title">
+      <UFormField label="Title" name="title" required>
         <UInput
           v-model="state.title"
           size="lg"
@@ -189,7 +189,7 @@ const disableEditing = computed(() => {
         />
       </UFormField>
 
-      <UFormField label="Description" name="description">
+      <UFormField label="Description" name="description" required>
         <UTextarea
           v-model="state.description"
           :maxrows="4"
@@ -198,7 +198,7 @@ const disableEditing = computed(() => {
         />
       </UFormField>
 
-      <UFormField label="Identifier Type" name="identifierType">
+      <UFormField label="Identifier Type" name="identifierType" required>
         <USelectMenu
           v-model="state.identifierType"
           value-key="value"
@@ -209,7 +209,7 @@ const disableEditing = computed(() => {
         />
       </UFormField>
 
-      <UFormField label="Identifier" name="identifier">
+      <UFormField label="Identifier" name="identifier" required>
         <UInput
           v-model="state.identifier"
           :placeholder="
@@ -221,7 +221,7 @@ const disableEditing = computed(() => {
         />
       </UFormField>
 
-      <UFormField label="Resource Type" name="resourceType">
+      <UFormField label="Resource Type" name="resourceType" required>
         <USelect
           v-model="state.resourceType"
           :items="resourceTypeOptions"
@@ -245,18 +245,17 @@ const disableEditing = computed(() => {
         />
       </UFormField>
 
-      <UFormField label="Version" name="version">
+      <UFormField
+        label="Version"
+        name="version"
+        help="Adding a version label is recommended to keep track of changes to your resource across versions."
+      >
         <UInput
           v-model="state.versionLabel"
           placeholder="v1.0.0"
           clearable
           size="lg"
         />
-
-        <p class="mt-2 text-sm text-slate-500">
-          Adding a version label will allow you to keep track of changes to your
-          resource.
-        </p>
       </UFormField>
     </UForm>
   </AppPageLayout>

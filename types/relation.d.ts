@@ -103,5 +103,6 @@ type GGR = {
   [key: string]: {
     name: string;
     relations: GR;
+    versionLabel: string;
   };
 };

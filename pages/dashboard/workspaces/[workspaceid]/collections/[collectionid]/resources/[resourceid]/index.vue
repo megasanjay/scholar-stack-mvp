@@ -209,6 +209,13 @@ const validateForm = (_state: any): FormError[] => {
     }
   }
 
+  if (!state.versionLabel) {
+    errors.push({
+      name: "versionLabel",
+      message: "Version label is required",
+    });
+  }
+
   return errors;
 };
 
@@ -384,6 +391,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
                                 label="Identifier Type"
                                 name="identifierType"
                                 size="sm"
+                                required
                               >
                                 <USelect
                                   v-model="state.identifierType"
@@ -402,6 +410,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
                                 label="Identifier"
                                 name="identifier"
                                 size="sm"
+                                required
                               >
                                 <UInput
                                   v-model="state.identifier"
@@ -415,19 +424,16 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 
                               <UFormField
                                 label="Version"
-                                name="version"
+                                name="versionLabel"
                                 size="sm"
+                                help="Adding a version label will allow you to keep track of changes to your resource."
+                                required
                               >
                                 <UInput
                                   v-model="state.versionLabel"
                                   placeholder="v1.0.0"
                                   clearable
                                 />
-
-                                <p class="mt-1 text-xs">
-                                  Adding a version label will allow you to keep
-                                  track of changes to your resource.
-                                </p>
                               </UFormField>
 
                               <UFormField name="cloneRelations" size="sm">
@@ -526,9 +532,8 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     />
 
     <DataDisplay
-      v-if="resource?.versionLabel"
       title="Version"
-      :content="resource?.versionLabel"
+      :content="resource?.versionLabel || 'No version provided'"
     />
 
     <DataDisplay

@@ -212,7 +212,7 @@ const publishCollection = async () => {
 
       <div class="flex items-center justify-between gap-4 pt-10 pb-5">
         <h2 class="text-2xl font-bold">
-          Let's see if all details are provided
+          Let's validate everything before publishing
         </h2>
       </div>
 
@@ -227,12 +227,12 @@ const publishCollection = async () => {
           </client-only>
         </div>
 
-        <div v-else class="flex flex-col gap-4">
+        <div v-else class="flex w-full gap-4">
           <div
             v-if="
               validationResults?.errors && validationResults.errors.length > 0
             "
-            class="flex flex-col gap-4"
+            class="flex w-full flex-col gap-4"
           >
             <UAlert
               color="error"
@@ -249,8 +249,9 @@ const publishCollection = async () => {
                 <div>
                   <NuxtLink
                     :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${error.id}`"
-                    class="mb-1 text-lg font-semibold transition-all hover:text-slate-500"
+                    class="mb-1 flex items-center gap-2 text-lg font-semibold transition-all hover:text-slate-500"
                   >
+                    <Icon name="material-symbols:open-in-new" size="20" />
                     {{ error.title || error.id }}
                   </NuxtLink>
 
@@ -258,11 +259,15 @@ const publishCollection = async () => {
                     <li
                       v-for="(issue, index) of 'issues' in error
                         ? error.issues
-                        : []"
+                        : [{ path: [''], message: error.message }]"
                       :key="index"
-                      class="py-1 pl-2 text-base"
+                      class="flex py-1 pl-6 text-base"
                     >
-                      <Icon name="codicon:error" size="16" color="red" />
+                      <Icon
+                        name="codicon:error"
+                        size="20"
+                        class="mt-1 text-red-500"
+                      />
 
                       <span class="pl-1 font-medium">
                         {{ issue.path[0].toString() }}
@@ -276,10 +281,18 @@ const publishCollection = async () => {
             </ul>
           </div>
 
-          <div v-else class="flex gap-2">
-            <Icon name="mdi:check-circle" class="text-green-500" size="24" />
+          <div v-else class="flex items-center gap-2">
+            <client-only>
+              <Vue3Lottie
+                animation-link="https://lottie.host/e10cc5b7-fa4b-4fc8-bcb3-7c93a9d144e6/XFLFmY7XTO.json"
+                :height="75"
+                :width="75"
+              />
+            </client-only>
 
-            <p>All details are provided. You can now publish the collection.</p>
+            <p class="text-center text-lg font-medium">
+              All details are provided. You can now publish the collection.
+            </p>
           </div>
         </div>
       </TransitionFade>

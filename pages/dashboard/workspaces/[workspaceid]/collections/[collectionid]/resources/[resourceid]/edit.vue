@@ -73,6 +73,14 @@ const validateForm = (_state: any): FormError[] => {
     });
   }
 
+  if (!state.versionLabel && resource.value?.versionLabelIsRequired) {
+    errrors.push({
+      name: "versionLabel",
+      message:
+        "Version label is required to keep track of changes to your resource across versions.",
+    });
+  }
+
   return errrors;
 };
 
@@ -229,7 +237,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       class="flex flex-col gap-4"
       @submit="onSubmit"
     >
-      <UFormField label="Title" name="title">
+      <UFormField label="Title" name="title" required>
         <UInput
           v-model="state.title"
           size="lg"
@@ -237,7 +245,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         />
       </UFormField>
 
-      <UFormField label="Description" name="description">
+      <UFormField label="Description" name="description" required>
         <UTextarea
           v-model="state.description"
           :maxrows="4"
@@ -246,7 +254,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         />
       </UFormField>
 
-      <UFormField label="Identifier Type" name="identifierType">
+      <UFormField label="Identifier Type" name="identifierType" required>
         <USelect
           v-model="state.identifierType"
           :items="identifierTypeOptions"
@@ -259,7 +267,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         />
       </UFormField>
 
-      <UFormField label="Identifier" name="identifier">
+      <UFormField label="Identifier" name="identifier" required>
         <UInput
           v-model="state.identifier"
           :placeholder="
@@ -274,7 +282,12 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         />
       </UFormField>
 
-      <UFormField label="Resource Type" name="resourceType">
+      <UFormField
+        label="Resource Type"
+        name="resourceType"
+        required
+        help="Select the type of resource you are linking to."
+      >
         <USelect
           v-model="state.resourceType"
           :items="resourceTypeOptions"
@@ -282,10 +295,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
           class="w-full"
           size="lg"
         />
-
-        <p class="mt-2 text-sm text-slate-500">
-          Select the type of resource you are linking to.
-        </p>
       </UFormField>
 
       <UFormField
@@ -302,18 +311,22 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         />
       </UFormField>
 
-      <UFormField label="Version" name="version">
+      <UFormField
+        label="Version"
+        name="versionLabel"
+        :required="resource?.versionLabelIsRequired"
+        :help="
+          resource?.versionLabelIsRequired
+            ? 'Adding a version label is required to keep track of changes to your resource across versions.'
+            : 'Adding a version label is recommended to keep track of changes to your resource across versions.'
+        "
+      >
         <UInput
           v-model="state.versionLabel"
           placeholder="v1.0.0"
           clearable
           size="lg"
         />
-
-        <p class="mt-2 text-sm text-slate-500">
-          Adding a version label will allow you to keep track of changes to your
-          resource.
-        </p>
       </UFormField>
     </UForm>
   </AppPageLayout>

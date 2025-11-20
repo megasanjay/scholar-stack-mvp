@@ -26,6 +26,10 @@ export default defineEventHandler(async (event) => {
 
   // get the latest version of the collection
   const version = await prisma.version.findFirst({
+    include: {
+      ExternalRelation: true,
+      InternalRelation: true,
+    },
     where: {
       collectionId,
       published: false,
@@ -53,5 +57,32 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return resource;
+  const internalRelations = version.InternalRelation.filter(
+    (relation) =>
+      relation.sourceId === resourceid || relation.targetId === resourceid,
+  );
+
+  const externalRelations = version.ExternalRelation.filter(
+    (relation) => relation.sourceId === resourceid,
+  );
+
+  // check if the resource has any relations with the `IsNewVersionOf`, `IsPreviousVersionOf` or `IsVersionOf` type
+  const versionLabelIsRequired =
+    internalRelations.some(
+      (relation) =>
+        relation.type === "IsNewVersionOf" ||
+        relation.type === "IsPreviousVersionOf" ||
+        relation.type === "IsVersionOf",
+    ) ||
+    externalRelations.some(
+      (relation) =>
+        relation.type === "IsVersionOf" ||
+        relation.type === "IsNewVersionOf" ||
+        relation.type === "IsPreviousVersionOf",
+    );
+
+  return {
+    ...resource,
+    versionLabelIsRequired,
+  };
 });

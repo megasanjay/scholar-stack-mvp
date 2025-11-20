@@ -72,7 +72,7 @@
     "description": "indicates A is a version of B"
   },
   {
-    "label": "Is NewVersion Of",
+    "label": "Is New Version Of",
     "value": "IsNewVersionOf",
     "mirror": "IsPreviousVersionOf",
     "description": "indicates A is a new edition of B, where the new edition has been modified or updated"
