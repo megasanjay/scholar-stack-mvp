@@ -1,5 +1,4 @@
 import { z } from "zod";
-import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);

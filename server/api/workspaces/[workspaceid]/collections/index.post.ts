@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import collectionNewVersion from "~/server/utils/collection/collectionNewVersion";
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);

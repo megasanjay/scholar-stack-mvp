@@ -1,5 +1,4 @@
 import { z } from "zod";
-import workspaceMinOwnerPermission from "~/server/utils/workspace/workspaceMinOwnerPermission";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);

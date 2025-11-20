@@ -1,7 +1,4 @@
 import calver from "calver";
-import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
-import validateCollectionDraftVersion from "~/server/utils/collection/validateCollectionDraftVersion";
-import collectionNewVersion from "~/server/utils/collection/collectionNewVersion";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);

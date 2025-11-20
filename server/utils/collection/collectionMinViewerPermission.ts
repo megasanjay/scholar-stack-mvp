@@ -1,5 +1,3 @@
-import collectionExists from "~/server/utils/collection/collectionExists";
-
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 

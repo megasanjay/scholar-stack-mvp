@@ -1,7 +1,5 @@
 import { z } from "zod";
 import { createId } from "@paralleldrive/cuid2";
-import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
-import touchCollection from "~/server/utils/collection/touchCollection";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);
