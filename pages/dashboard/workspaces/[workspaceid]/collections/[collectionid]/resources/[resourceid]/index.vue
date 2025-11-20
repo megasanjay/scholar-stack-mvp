@@ -191,6 +191,10 @@ const validateForm = (_state: any): FormError[] => {
     });
   }
 
+  if (!state.versionLabel) {
+    errors.push({ name: "version", message: "Version is required" });
+  }
+
   if (state.identifierType && state.identifier) {
     // run the identifier regex against the identifier
     const identifierRegex = new RegExp(
@@ -220,7 +224,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     cloneRelations: event.data.cloneRelations || false,
     identifier: event.data.identifier || "",
     identifierType: event.data.identifierType || "",
-    versionLabel: event.data.versionLabel || "",
+    versionLabel: event.data.versionLabel,
   };
 
   newResourceVersionLoadingIndicator.value = true;
