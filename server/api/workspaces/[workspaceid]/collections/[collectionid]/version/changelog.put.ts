@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  await requireUserSession;
+  await protectRoute(event);
+  await collectionMinEditorPermission(event);
 
   const bodySchema = z
     .object({

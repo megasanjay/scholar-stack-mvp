@@ -79,7 +79,7 @@ const groupedResources = computed(() => {
   for (const resource of resources) {
     if (resource.resourceType) {
       if (resource.resourceType in grouped) {
-        grouped[resource.resourceType].push(resource);
+        grouped[resource.resourceType]?.push(resource);
       } else {
         grouped[resource.resourceType] = [resource];
       }
@@ -120,7 +120,7 @@ const groupedResources = computed(() => {
   const sortedGrouped: { [key: string]: any[] } = {};
 
   for (const key of sortedKeys) {
-    sortedGrouped[key] = grouped[key];
+    sortedGrouped[key] = grouped[key] || [];
   }
 
   return sortedGrouped;
@@ -170,7 +170,7 @@ const selectResourceType = (type: string) => {
         ]"
       />
 
-      <UButtonGroup>
+      <div class="flex items-center">
         <UButton
           color="neutral"
           :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
@@ -184,7 +184,7 @@ const selectResourceType = (type: string) => {
           icon="fa-solid:list"
           @click="selectedView = 'list'"
         />
-      </UButtonGroup>
+      </div>
 
       <UButton
         color="primary"
