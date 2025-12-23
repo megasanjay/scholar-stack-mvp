@@ -85,7 +85,7 @@
     "eslint-plugin-unused-imports": "^4.2.0",
     "eslint-plugin-vue": "^10.5.0",
     "nuxt": "4.2.2",
-    "nuxt-auth-utils": "0.5.7",
+    "nuxt-auth-utils": "0.5.26",
     "nuxt-headlessui": "1.2.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
