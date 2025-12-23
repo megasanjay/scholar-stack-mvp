@@ -4,9 +4,9 @@
   <div>
     <AppPublicHeader />
 
-    <main class="mb-10">
+    <UMain>
       <slot />
-    </main>
+    </UMain>
 
     <AppPublicFooter />
   </div>

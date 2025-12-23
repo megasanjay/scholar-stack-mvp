@@ -120,7 +120,7 @@ const copyToClipboard = (input: string) => {
                 size="xs"
                 @click="
                   copyToClipboard(
-                    `https://scholarstack.io/view/${collectionIdentifier}`,
+                    `https://sciconnect.io/view/${collectionIdentifier}`,
                   )
                 "
               />

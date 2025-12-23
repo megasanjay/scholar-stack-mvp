@@ -24,8 +24,8 @@ const devMode = process.env.NODE_ENV === "development";
       </nav>
     </header>
 
-    <main>
+    <UMain>
       <slot />
-    </main>
+    </UMain>
   </div>
 </template>

@@ -8,6 +8,10 @@ const { loggedIn } = useUserSession();
 
 definePageMeta({ layout: "public" });
 
+useSeoMeta({
+  title: "Item Title",
+});
+
 const toast = useToast();
 const route = useRoute();
 
@@ -29,7 +33,7 @@ const tabItems = [
   { icon: "tabler:circles-relation", label: "Relations", slot: "relations" },
   { icon: "fluent:history-24-filled", label: "Changelog", slot: "changelog" },
   { icon: "mingcute:version-fill", label: "Versions", slot: "versions" },
-
+  { icon: "ph:link-bold", label: "Links", slot: "links" },
   { icon: "ph:list-heart", label: "Impact", slot: "impact" },
 ];
 
@@ -509,7 +513,7 @@ const recordClick = (resourceId: string) => {
       </div>
 
       <div class="gap-10 px-2 pt-2 md:grid md:grid-cols-12 md:px-5 md:pt-3">
-        <div class="col-span-9">
+        <div class="col-span-10">
           <div class="flex flex-col gap-3">
             <h1 class="text-4xl font-black">
               {{ data?.collection.title || "Collection Title Unavailable" }}
@@ -548,126 +552,10 @@ const recordClick = (resourceId: string) => {
             />
 
             <p v-else class="text-lg">No description provided.</p>
-
-            <USeparator class="" />
-
-            <div class="flex flex-col gap-2">
-              <p
-                class="mb-2 w-max border-b border-gray-200 pr-3 text-lg font-medium"
-              >
-                Links to this collection
-              </p>
-
-              <div v-if="data?.isLatestVersion" class="flex items-center gap-2">
-                <div class="flex items-center gap-2">
-                  <Icon name="simple-icons:doi" size="20" />
-
-                  <ULink
-                    :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}`"
-                    target="_blank"
-                  >
-                    10.5281/sciconnect.{{ data?.collection.id }}
-                  </ULink>
-                </div>
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="solar:copy-bold"
-                  @click="
-                    copyToClipboard(
-                      `https://doi.org/sciconnect.${data?.collection.id}`,
-                    )
-                  "
-                />
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="fluent:qr-code-20-regular"
-                />
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center gap-2">
-                  <Icon name="simple-icons:doi" size="20" />
-
-                  <ULink
-                    :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}.${data?.id}`"
-                    target="_blank"
-                  >
-                    10.5281/sciconnect.{{ data?.collection.id }}.{{ data?.id }}
-                  </ULink>
-                </div>
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="solar:copy-bold"
-                  @click="
-                    copyToClipboard(
-                      `https://doi.org/sciconnect.${data?.collection.id}.${data?.id}`,
-                    )
-                  "
-                />
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="fluent:qr-code-20-regular"
-                />
-              </div>
-
-              <div v-if="data?.isLatestVersion" class="flex items-center gap-2">
-                <div class="flex items-center gap-2">
-                  <Icon name="ph:link-bold" size="20" />
-
-                  <ULink :to="`/view/c${data?.collection.id}`" target="_blank">
-                    https://sciconnect.io/view/c{{ data?.collection.id }}
-                  </ULink>
-                </div>
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="solar:copy-bold"
-                  @click="
-                    copyToClipboard(
-                      `https://sciconnect.io/view/c${data?.collection.id}`,
-                    )
-                  "
-                />
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center gap-2">
-                  <Icon name="ph:link-bold" size="20" />
-
-                  <ULink :to="`/view/v${data?.id}`" target="_blank">
-                    https://sciconnect.io/view/v{{ data?.id }}
-                  </ULink>
-                </div>
-
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  icon="solar:copy-bold"
-                  @click="
-                    copyToClipboard(`https://sciconnect.io/view/v${data?.id}`)
-                  "
-                />
-              </div>
-            </div>
           </div>
         </div>
 
-        <div class="relative col-span-3 pt-4">
+        <div class="relative col-span-2 pt-4">
           <NuxtImg
             :src="`${data?.collection.imageUrl}?t=${data?.collection.updated}`"
             :alt="data?.collection.title"
@@ -820,6 +708,192 @@ const recordClick = (resourceId: string) => {
             :versions="(data?.Versions as Version[]) || []"
             :collection-identifier="data?.collection.id || 0"
           />
+        </template>
+
+        <template #links>
+          <div class="flex w-full flex-col gap-6 px-2 py-5">
+            <!-- Collection Links -->
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-2">
+                <Icon name="ph:stack-bold" size="20" class="text-gray-600" />
+                <h3 class="text-lg font-semibold">Collection Links</h3>
+              </div>
+
+              <div
+                class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50"
+              >
+                <!-- Collection DOI -->
+                <div
+                  v-if="data?.isLatestVersion"
+                  class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <div class="flex flex-1 items-center gap-3">
+                    <Icon
+                      name="simple-icons:doi"
+                      size="24"
+                      class="text-blue-600 dark:text-blue-400"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-medium text-gray-500">DOI</span>
+                      <ULink
+                        :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}`"
+                        target="_blank"
+                        class="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                      >
+                        10.5281/sciconnect.{{ data?.collection.id }}
+                      </ULink>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      size="xs"
+                      icon="solar:copy-bold"
+                      @click="
+                        copyToClipboard(
+                          `https://doi.org/10.5281/sciconnect.${data?.collection.id}`,
+                        )
+                      "
+                    />
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      size="xs"
+                      icon="fluent:qr-code-20-regular"
+                    />
+                  </div>
+                </div>
+
+                <!-- Collection URL -->
+                <div
+                  v-if="data?.isLatestVersion"
+                  class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <div class="flex flex-1 items-center gap-3">
+                    <Icon
+                      name="ph:link-bold"
+                      size="24"
+                      class="text-blue-600 dark:text-blue-400"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-medium text-gray-500">URL</span>
+                      <ULink
+                        :to="`/view/c${data?.collection.id}`"
+                        target="_blank"
+                        class="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                      >
+                        https://sciconnect.io/view/c{{ data?.collection.id }}
+                      </ULink>
+                    </div>
+                  </div>
+                  <UButton
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    icon="solar:copy-bold"
+                    @click="
+                      copyToClipboard(
+                        `https://sciconnect.io/view/c${data?.collection.id}`,
+                      )
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Version Links -->
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-2">
+                <Icon
+                  name="mingcute:version-fill"
+                  size="20"
+                  class="text-gray-600"
+                />
+                <h3 class="text-lg font-semibold">Version Links</h3>
+              </div>
+
+              <div
+                class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50"
+              >
+                <!-- Version DOI -->
+                <div
+                  class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <div class="flex flex-1 items-center gap-3">
+                    <Icon
+                      name="simple-icons:doi"
+                      size="24"
+                      class="text-blue-600 dark:text-blue-400"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-medium text-gray-500">DOI</span>
+                      <ULink
+                        :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}.${data?.id}`"
+                        target="_blank"
+                        class="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                      >
+                        10.5281/sciconnect.{{ data?.collection.id }}.{{
+                          data?.id
+                        }}
+                      </ULink>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      size="xs"
+                      icon="solar:copy-bold"
+                      @click="
+                        copyToClipboard(
+                          `https://doi.org/10.5281/sciconnect.${data?.collection.id}.${data?.id}`,
+                        )
+                      "
+                    />
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      size="xs"
+                      icon="fluent:qr-code-20-regular"
+                    />
+                  </div>
+                </div>
+
+                <!-- Version URL -->
+                <div
+                  class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <div class="flex flex-1 items-center gap-3">
+                    <Icon
+                      name="ph:link-bold"
+                      size="24"
+                      class="text-blue-600 dark:text-blue-400"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs font-medium text-gray-500">URL</span>
+                      <ULink
+                        :to="`/view/v${data?.id}`"
+                        target="_blank"
+                        class="text-sm font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                      >
+                        https://sciconnect.io/view/v{{ data?.id }}
+                      </ULink>
+                    </div>
+                  </div>
+                  <UButton
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    icon="solar:copy-bold"
+                    @click="
+                      copyToClipboard(`https://sciconnect.io/view/v${data?.id}`)
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
 
         <template #impact> <DiscoverImpactCloud /> </template>

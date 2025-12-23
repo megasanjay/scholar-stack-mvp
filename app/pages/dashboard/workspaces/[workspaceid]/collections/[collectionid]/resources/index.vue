@@ -11,7 +11,7 @@ const route = useRoute();
 
 const resourceTypeOptions = RESOURCE_TYPE_JSON;
 
-const selectedView = ref("grouped");
+const selectedView = ref("list");
 const selectedSort = ref("activity");
 
 const { collectionid, workspaceid } = route.params as {
@@ -173,16 +173,15 @@ const selectResourceType = (type: string) => {
       <div class="flex items-center">
         <UButton
           color="neutral"
-          :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
-          icon="fluent:group-list-24-filled"
-          @click="selectedView = 'grouped'"
-        />
-
-        <UButton
-          color="neutral"
           :variant="selectedView === 'list' ? 'subtle' : 'outline'"
           icon="fa-solid:list"
           @click="selectedView = 'list'"
+        />
+        <UButton
+          color="neutral"
+          :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
+          icon="fluent:group-list-24-filled"
+          @click="selectedView = 'grouped'"
         />
       </div>
 

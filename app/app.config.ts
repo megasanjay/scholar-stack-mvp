@@ -5,7 +5,7 @@ export default defineAppConfig({
         size: "lg",
       },
       slots: {
-        base: "cursor-pointer w-max",
+        base: "cursor-pointer",
       },
     },
     colors: {
@@ -16,6 +16,11 @@ export default defineAppConfig({
       stone: "stone",
       white: "white",
       zinc: "zinc",
+    },
+    header: {
+      slots: {
+        root: "bg-default/75 backdrop-blur border-b border-default h-(--ui-header-height) static",
+      },
     },
     input: {
       slots: {

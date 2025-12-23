@@ -32,7 +32,7 @@ const currentLayout = computed(() => {
         <div>
           <HeaderWorkspacesSubMenu
             v-if="currentLayout === 'workspace-layout'"
-            :key="$route.fullPath"
+            :key="route.fullPath"
             class="px-4 lg:px-6"
           />
 
@@ -41,7 +41,7 @@ const currentLayout = computed(() => {
               currentLayout === 'collections-layout' ||
               currentLayout === 'resource-layout'
             "
-            :key="$route.fullPath"
+            :key="route.fullPath"
             class="px-4 lg:px-6"
           />
         </div>

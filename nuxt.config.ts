@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      title: "Scholar Stack",
+      title: "SciConnect",
       meta: [
         {
           name: "viewport",
@@ -36,6 +36,13 @@ export default defineNuxtConfig({
       ENABLE_RESOURCES_SUBTYPE: process.env.FLAGS_ENABLE_RESOURCE_SUBTYPE
         ? process.env.FLAGS_ENABLE_RESOURCE_SUBTYPE === "true"
         : false,
+    },
+  },
+  vite: {
+    server: {
+      hmr: {
+        overlay: false,
+      },
     },
   },
 });
