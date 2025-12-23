@@ -22,6 +22,8 @@ const devMode = process.env.NODE_ENV === "development";
           <HeaderRightBar />
         </div>
       </nav>
+
+      dashboard root layout header
     </header>
 
     <UMain>

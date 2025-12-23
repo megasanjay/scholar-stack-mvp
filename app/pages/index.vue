@@ -6,6 +6,25 @@ definePageMeta({
 useSeoMeta({
   title: "Home",
 });
+
+const logos = [
+  {
+    src: "https://raw.githubusercontent.com/fairdataihub/logo/refs/heads/main/SVG/05_Main_Logo_W_Stacked_Text/Main-Logo-Black-Stroke-Transparent.svg",
+    alt: "FAIR Data Innovations Hub",
+  },
+  {
+    src: "https://lirp.cdn-website.com/5209b07d/dms3rep/multi/opt/logo-356w.png",
+    alt: "California Medical Innovations Institute",
+  },
+  {
+    src: "https://3dtholdings.com/wp-content/uploads/2018/03/acculab-logo.png",
+    alt: "AccuLab",
+  },
+  {
+    src: "https://3dtholdings.com/wp-content/themes/3dt-holdings/assets/images/logo.png",
+    alt: "3DT Holdings",
+  },
+];
 </script>
 
 <template>
@@ -202,35 +221,11 @@ useSeoMeta({
 
     <div>
       <Vue3Marquee clone gradient>
-        <NuxtLink to="/#">
+        <NuxtLink to="/#" v-for="logo in logos" :key="logo.alt">
           <img
             class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://irp.cdn-website.com/5209b07d/dms3rep/multi/logo.svg"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://lirp.cdn-website.com/5209b07d/dms3rep/multi/opt/logo-356w.png"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://3dtholdings.com/wp-content/uploads/2018/03/acculab-logo.png"
-            alt=""
-          />
-        </NuxtLink>
-
-        <NuxtLink to="/#">
-          <img
-            class="mx-6 h-auto w-[130px] grayscale transition-all hover:grayscale-0"
-            src="https://3dtholdings.com/wp-content/themes/3dt-holdings/assets/images/logo.png"
-            alt=""
+            :src="logo.src"
+            :alt="logo.alt"
           />
         </NuxtLink>
       </Vue3Marquee>

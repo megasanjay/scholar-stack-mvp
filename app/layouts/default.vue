@@ -108,6 +108,8 @@ const emailVerified = computed(
           </div>
         </div>
       </nav>
+
+      default layout header
     </header>
 
     <slot />
