@@ -3,8 +3,6 @@
  * TODO: DELETE THIS ENDPOINT
  */
 
-import workspaceMinOwnerPermission from "~/server/utils/workspace/workspaceMinOwnerPermission";
-
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await workspaceMinOwnerPermission(event);

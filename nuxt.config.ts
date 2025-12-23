@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     "dayjs-nuxt",
     "@pinia/nuxt",
     "@nuxt/image",
+    "@nuxt/eslint",
   ],
 
   runtimeConfig: {

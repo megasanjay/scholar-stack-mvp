@@ -1,6 +1,4 @@
 import { z } from "zod";
-import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
-import touchCollection from "~/server/utils/collection/touchCollection";
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);

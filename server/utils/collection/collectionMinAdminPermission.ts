@@ -1,7 +1,3 @@
-import prisma from "~/server/utils/prisma";
-import collectionExists from "~/server/utils/collection/collectionExists";
-import workspacePermission from "~/server/utils/workspace/workspacePermission";
-
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
 

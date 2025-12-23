@@ -1,6 +1,3 @@
-import collectionExists from "~/server/utils/collection/collectionExists";
-import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
-
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);
 

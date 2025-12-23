@@ -79,7 +79,7 @@ const groupedResources = computed(() => {
   for (const resource of resources) {
     if (resource.resourceType) {
       if (resource.resourceType in grouped) {
-        grouped[resource.resourceType].push(resource);
+        grouped[resource.resourceType]?.push(resource);
       } else {
         grouped[resource.resourceType] = [resource];
       }
@@ -120,7 +120,7 @@ const groupedResources = computed(() => {
   const sortedGrouped: { [key: string]: any[] } = {};
 
   for (const key of sortedKeys) {
-    sortedGrouped[key] = grouped[key];
+    sortedGrouped[key] = grouped[key] || [];
   }
 
   return sortedGrouped;
@@ -170,7 +170,7 @@ const selectResourceType = (type: string) => {
         ]"
       />
 
-      <UButtonGroup>
+      <div class="flex items-center">
         <UButton
           color="neutral"
           :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
@@ -184,7 +184,7 @@ const selectResourceType = (type: string) => {
           icon="fa-solid:list"
           @click="selectedView = 'list'"
         />
-      </UButtonGroup>
+      </div>
 
       <UButton
         color="primary"
@@ -229,93 +229,6 @@ const selectResourceType = (type: string) => {
         :collectionid="collectionid"
         :collection="collection"
       />
-    </div>
-
-    <div
-      v-if="
-        collection?.version &&
-        collection?.resources &&
-        selectedView === 'grouped'
-      "
-      class="flex flex-col gap-4"
-    >
-      <div
-        v-for="(group, name, index) in groupedResources"
-        :key="index"
-        class="w-full py-5"
-      >
-        <div class="flex flex-col items-start justify-between gap-5">
-          <div class="flex items-center gap-2">
-            <Icon :name="selectIcon(name as string)" size="30" />
-
-            <h2 class="text-xl font-semibold">
-              {{ selectResourceType(name as string).label }}
-            </h2>
-          </div>
-
-        <p class="border-t border-dashed border-slate-300 py-3">
-          {{ resource.description || "No description provided" }}
-        </p>
-
-        <div
-          class="flex w-full items-center gap-2 border-t border-slate-400 pt-3 pb-4"
-        >
-          <div class="flex w-full items-center justify-between gap-2">
-            <div class="flex w-full items-center gap-2">
-              <UBadge
-                :color="resource.identifierType ? 'info' : 'error'"
-                size="sm"
-                variant="outline"
-              >
-                {{ resource.identifierType || "No identifier provided" }}
-              </UBadge>
-
-              <USeparator orientation="vertical" class="h-5" />
-
-              <div class="group w-max">
-                <ULink
-                  :to="
-                    resource.identifierType !== 'url'
-                      ? `https://identifiers.org/${resource.identifierType}/${resource.identifier}`
-                      : resource.identifier
-                  "
-                  class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                  target="_blank"
-                  @click.stop=""
-                >
-                  {{ resource.identifier }}
-
-                  <Icon
-                    v-if="resource.identifierType"
-                    name="mdi:external-link"
-                    size="16"
-                    class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                  />
-                </ULink>
-              </div>
-            </div>
-          </div>
-
-          <UBadge
-            v-if="resource.versionLabel"
-            color="info"
-            size="sm"
-            variant="soft"
-          >
-            {{ resource.versionLabel }}
-          </UBadge>
-          <div class="flex w-full flex-col gap-3">
-            <ResourceCard
-              v-for="resource in group"
-              :key="resource.id"
-              :resource="resource"
-              :workspaceid="workspaceid"
-              :collectionid="collectionid"
-              :collection="collection"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   </AppPageLayout>
 </template>

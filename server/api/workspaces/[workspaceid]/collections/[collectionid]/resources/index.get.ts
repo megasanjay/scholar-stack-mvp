@@ -1,5 +1,3 @@
-import collectionMinViewerPermission from "~/server/utils/collection/collectionMinEditorPermission";
-
 export default defineEventHandler(async (event) => {
   await requireUserSession(event);
   await collectionMinViewerPermission(event);

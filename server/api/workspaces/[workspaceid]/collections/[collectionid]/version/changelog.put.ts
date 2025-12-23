@@ -1,8 +1,8 @@
 import { z } from "zod";
-import collectionMinEditorPermission from "~/server/utils/collection/collectionMinEditorPermission";
 
 export default defineEventHandler(async (event) => {
-  await requireUserSession;
+  await protectRoute(event);
+  await collectionMinEditorPermission(event);
 
   const bodySchema = z
     .object({

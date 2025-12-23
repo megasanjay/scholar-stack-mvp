@@ -1,6 +1,3 @@
-import collectionMinAdminPermission from "~/server/utils/collection/collectionMinAdminPermission";
-import collectionNewVersion from "~/server/utils/collection/collectionNewVersion";
-
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinAdminPermission(event);

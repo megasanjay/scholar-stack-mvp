@@ -78,7 +78,7 @@ const fetchAllWorkspaces = async (workspaceid: string) => {
 
   if (workspaces.value) {
     workspaceStore.setWorkspaces(
-      workspaces.value?.length > 0 ? workspaces.value : [],
+      workspaces.value?.length > 0 ? (workspaces.value as Workspace[]) : [],
     );
 
     workspaceStore.sortWorkspaces();

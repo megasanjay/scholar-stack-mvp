@@ -1,6 +1,3 @@
-import collectionMinViewerPermission from "~/server/utils/collection/collectionMinViewerPermission";
-import validateCollectionDraftVersion from "~/server/utils/collection/validateCollectionDraftVersion";
-
 export default defineEventHandler(async (event) => {
   await protectRoute(event);
   await collectionMinViewerPermission(event);
