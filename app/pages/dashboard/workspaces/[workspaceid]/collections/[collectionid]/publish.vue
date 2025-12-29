@@ -109,212 +109,216 @@ const publishCollection = async () => {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <h1 class="text-4xl font-black">Publish</h1>
-
-        <UModal
-          v-model="publishCollectionModalIsOpen"
-          :prevent-close="publishCollectionLoading"
-        >
-          <UButton
-            v-if="!collection?.version?.published"
-            size="lg"
-            color="primary"
-            icon="entypo:publish"
-            :loading="validationPending || publishCollectionLoading"
-            :disabled="
-              validationPending ||
-              !validationResults?.valid ||
-              collectionPermissionGetLoading ||
-              !collectionPermissionAbility.includes('publish')
-            "
-            @click="openPublishCollectionModal"
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Publish">
+        <template #links>
+          <UModal
+            v-model="publishCollectionModalIsOpen"
+            :prevent-close="publishCollectionLoading"
           >
-            Publish
-          </UButton>
+            <UButton
+              v-if="!collection?.version?.published"
+              size="lg"
+              color="primary"
+              icon="entypo:publish"
+              :loading="validationPending || publishCollectionLoading"
+              :disabled="
+                validationPending ||
+                !validationResults?.valid ||
+                collectionPermissionGetLoading ||
+                !collectionPermissionAbility.includes('publish')
+              "
+              @click="openPublishCollectionModal"
+            >
+              Publish
+            </UButton>
 
-          <template #content>
-            <UCard>
-              <div class="sm:flex sm:items-start">
-                <div class="size-[50px]">
-                  <ClientOnly>
-                    <Vue3Lottie
-                      animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                      :height="50"
-                      :width="50"
-                      :loop="1"
-                    />
-                  </ClientOnly>
-                </div>
+            <template #content>
+              <UCard>
+                <div class="sm:flex sm:items-start">
+                  <div class="size-[50px]">
+                    <ClientOnly>
+                      <Vue3Lottie
+                        animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                        :height="50"
+                        :width="50"
+                        :loop="1"
+                      />
+                    </ClientOnly>
+                  </div>
 
-                <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                  <h3 class="text-base leading-6 font-semibold text-gray-900">
-                    Are you sure you want to publish this collection?
-                  </h3>
+                  <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                    <h3 class="text-base leading-6 font-semibold text-gray-900">
+                      Are you sure you want to publish this collection?
+                    </h3>
 
-                  <div class="mt-2">
-                    <p class="text-sm text-gray-500">
-                      This action is not reversible and will make the collection
-                      public. If needed, you can always publish a newer version
-                      but this version will always still be available to the
-                      public.
-                    </p>
+                    <div class="mt-2">
+                      <p class="text-sm text-gray-500">
+                        This action is not reversible and will make the
+                        collection public. If needed, you can always publish a
+                        newer version but this version will always still be
+                        available to the public.
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                <template #footer>
+                  <div class="flex items-center justify-end gap-2">
+                    <UButton
+                      color="error"
+                      variant="soft"
+                      icon="material-symbols:cancel-outline"
+                      @click="publishCollectionModalIsOpen = false"
+                    >
+                      Cancel
+                    </UButton>
+
+                    <UButton
+                      color="primary"
+                      :loading="publishCollectionLoading"
+                      icon="entypo:publish"
+                      @click="publishCollection"
+                    >
+                      Publish collection
+                    </UButton>
+                  </div>
+                </template>
+              </UCard>
+            </template>
+          </UModal>
+        </template>
+      </UPageHeader>
+
+      <UPageBody>
+        <div>
+          <UAlert
+            color="warning"
+            title="Warning!"
+            icon="material-symbols:warning"
+            variant="subtle"
+          >
+            <template #description>
+              You are about to publish the collection
+              <strong>{{ collection?.title }}</strong
+              >. This will make the collection available to the public under the
+              version
+              <UBadge color="success" size="sm">
+                {{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
+              </UBadge>
+            </template>
+          </UAlert>
+
+          <div class="flex items-center justify-between gap-4 pt-10 pb-5">
+            <h2 class="text-2xl font-bold">
+              Let's validate everything before publishing
+            </h2>
+          </div>
+
+          <TransitionFade>
+            <div v-if="validationPending">
+              <client-only>
+                <Vue3Lottie
+                  animation-link="https://assets10.lottiefiles.com/packages/lf20_AQEOul.json"
+                  :height="100"
+                  :width="100"
+                />
+              </client-only>
+            </div>
+
+            <div v-else class="flex w-full gap-4">
+              <div
+                v-if="
+                  validationResults?.errors &&
+                  validationResults.errors.length > 0
+                "
+                class="flex w-full flex-col gap-4"
+              >
+                <UAlert
+                  color="error"
+                  title="This collection has some issues that need to be resolved before
+                publishing"
+                  icon="material-symbols:error"
+                  variant="subtle"
+                >
+                  Please fix the following issues before publishing the
+                  collection.
+                </UAlert>
+
+                <ul>
+                  <li v-for="error of validationResults.errors" :key="error.id">
+                    <div>
+                      <NuxtLink
+                        :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${error.id}`"
+                        class="mb-1 flex items-center gap-2 text-lg font-semibold transition-all hover:text-slate-500"
+                      >
+                        <Icon name="material-symbols:open-in-new" size="20" />
+                        {{ error.title || error.id }}
+                      </NuxtLink>
+
+                      <ul>
+                        <li
+                          v-for="(issue, index) of 'issues' in error
+                            ? error.issues
+                            : [{ path: [''], message: error.message }]"
+                          :key="index"
+                          class="flex py-1 pl-6 text-base"
+                        >
+                          <Icon
+                            name="codicon:error"
+                            size="20"
+                            class="mt-1 text-red-500"
+                          />
+
+                          <span class="pl-1 font-medium">
+                            {{ issue.path[0]?.toString() || "Unknown" }}
+                          </span>
+                          -
+                          {{ issue.message }}
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
               </div>
 
-              <template #footer>
-                <div class="flex items-center justify-end gap-2">
-                  <UButton
-                    color="error"
-                    variant="soft"
-                    icon="material-symbols:cancel-outline"
-                    @click="publishCollectionModalIsOpen = false"
-                  >
-                    Cancel
-                  </UButton>
+              <div v-else class="flex items-center gap-2">
+                <client-only>
+                  <Vue3Lottie
+                    animation-link="https://lottie.host/e10cc5b7-fa4b-4fc8-bcb3-7c93a9d144e6/XFLFmY7XTO.json"
+                    :height="75"
+                    :width="75"
+                  />
+                </client-only>
 
-                  <UButton
-                    color="primary"
-                    :loading="publishCollectionLoading"
-                    icon="entypo:publish"
-                    @click="publishCollection"
-                  >
-                    Publish collection
-                  </UButton>
-                </div>
-              </template>
-            </UCard>
-          </template>
-        </UModal>
-      </div>
-    </template>
+                <p class="text-center text-lg font-medium">
+                  All details are provided. You can now publish the collection.
+                </p>
+              </div>
+            </div>
+          </TransitionFade>
 
-    <div>
-      <UAlert
-        color="warning"
-        title="Warning!"
-        icon="material-symbols:warning"
-        variant="subtle"
-      >
-        <template #description>
-          You are about to publish the collection
-          <strong>{{ collection?.title }}</strong
-          >. This will make the collection available to the public under the
-          version
-          <UBadge color="success" size="sm">
-            {{ calver.inc("yyyy.ww.minor", "", "calendar.minor") }}
-          </UBadge>
-        </template>
-      </UAlert>
+          <USeparator class="my-5" />
 
-      <div class="flex items-center justify-between gap-4 pt-10 pb-5">
-        <h2 class="text-2xl font-bold">
-          Let's validate everything before publishing
-        </h2>
-      </div>
+          <div class="flex items-center justify-between gap-4 py-5">
+            <h2 class="text-2xl font-bold">Changelog</h2>
 
-      <TransitionFade>
-        <div v-if="validationPending">
-          <client-only>
-            <Vue3Lottie
-              animation-link="https://assets10.lottiefiles.com/packages/lf20_AQEOul.json"
-              :height="100"
-              :width="100"
-            />
-          </client-only>
-        </div>
-
-        <div v-else class="flex w-full gap-4">
-          <div
-            v-if="
-              validationResults?.errors && validationResults.errors.length > 0
-            "
-            class="flex w-full flex-col gap-4"
-          >
-            <UAlert
-              color="error"
-              title="This collection has some issues that need to be resolved before
-                publishing"
-              icon="material-symbols:error"
-              variant="subtle"
+            <NuxtLink
+              :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/changelog`"
             >
-              Please fix the following issues before publishing the collection.
-            </UAlert>
-
-            <ul>
-              <li v-for="error of validationResults.errors" :key="error.id">
-                <div>
-                  <NuxtLink
-                    :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${error.id}`"
-                    class="mb-1 flex items-center gap-2 text-lg font-semibold transition-all hover:text-slate-500"
-                  >
-                    <Icon name="material-symbols:open-in-new" size="20" />
-                    {{ error.title || error.id }}
-                  </NuxtLink>
-
-                  <ul>
-                    <li
-                      v-for="(issue, index) of 'issues' in error
-                        ? error.issues
-                        : [{ path: [''], message: error.message }]"
-                      :key="index"
-                      class="flex py-1 pl-6 text-base"
-                    >
-                      <Icon
-                        name="codicon:error"
-                        size="20"
-                        class="mt-1 text-red-500"
-                      />
-
-                      <span class="pl-1 font-medium">
-                        {{ issue.path[0].toString() }}
-                      </span>
-                      -
-                      {{ issue.message }}
-                    </li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
+              <UButton color="primary" icon="mdi:text-box-edit">
+                Update changelog
+              </UButton>
+            </NuxtLink>
           </div>
 
-          <div v-else class="flex items-center gap-2">
-            <client-only>
-              <Vue3Lottie
-                animation-link="https://lottie.host/e10cc5b7-fa4b-4fc8-bcb3-7c93a9d144e6/XFLFmY7XTO.json"
-                :height="75"
-                :width="75"
-              />
-            </client-only>
-
-            <p class="text-center text-lg font-medium">
-              All details are provided. You can now publish the collection.
-            </p>
-          </div>
+          <MarkdownRender
+            :content="collection?.version?.changelog || 'No changelog provided'"
+            class="pb-10"
+          />
         </div>
-      </TransitionFade>
-
-      <USeparator class="my-5" />
-
-      <div class="flex items-center justify-between gap-4 py-5">
-        <h2 class="text-2xl font-bold">Changelog</h2>
-
-        <NuxtLink
-          :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/changelog`"
-        >
-          <UButton color="primary" icon="mdi:text-box-edit">
-            Update changelog
-          </UButton>
-        </NuxtLink>
-      </div>
-
-      <MarkdownRender
-        :content="collection?.version?.changelog || 'No changelog provided'"
-        class="pb-10"
-      />
-    </div>
-  </AppPageLayout>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

@@ -57,91 +57,95 @@ workspaceStore.setWorkspaces(workspaces.value || []);
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <h1 class="text-4xl font-black">Dashboard</h1>
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Dashboard">
+        <template #links>
+          <UButton
+            color="primary"
+            icon="mdi:plus"
+            @click="workspaceStore.showNewWorkspaceModal"
+          >
+            <span class="w-max"> Create a new workspace </span>
+          </UButton>
+        </template>
+      </UPageHeader>
 
-        <UButton
-          color="primary"
-          icon="mdi:plus"
-          @click="workspaceStore.showNewWorkspaceModal"
-        >
-          <span class="w-max"> Create a new workspace </span>
-        </UButton>
-      </div>
-    </template>
+      <UPageBody>
+        <div>
+          <div>
+            <h2 class="text-2xl font-bold">Your personal workspace</h2>
 
-    <div>
-      <h2 class="text-2xl font-bold">Your personal workspace</h2>
+            <NuxtLink
+              :to="`/dashboard/workspaces/${personalWorkspace?.id}`"
+              class="mt-4 flex w-full items-center justify-between gap-4 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+            >
+              <div class="flex items-center gap-3">
+                <UAvatar
+                  size="sm"
+                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${personalWorkspace?.id}`"
+                  class="mt-1"
+                />
 
-      <NuxtLink
-        :to="`/dashboard/workspaces/${personalWorkspace?.id}`"
-        class="mt-4 flex w-full items-center justify-between gap-4 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
-      >
-        <div class="flex items-center gap-3">
-          <UAvatar
-            size="sm"
-            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${personalWorkspace?.id}`"
-            class="mt-1"
-          />
+                <span class="font-medium">
+                  {{ personalWorkspace?.title }}
+                </span>
+              </div>
 
-          <span class="font-medium">
-            {{ personalWorkspace?.title }}
-          </span>
-        </div>
+              <UBadge
+                v-if="personalWorkspace?.personal"
+                color="warning"
+                variant="outline"
+              >
+                Personal
+              </UBadge>
+            </NuxtLink>
+          </div>
 
-        <UBadge
-          v-if="personalWorkspace?.personal"
-          color="warning"
-          variant="outline"
-        >
-          Personal
-        </UBadge>
-      </NuxtLink>
-    </div>
+          <USeparator class="pt-10" />
 
-    <USeparator class="pt-10" />
+          <div class="flex flex-col gap-5 py-5">
+            <h2 class="text-2xl font-bold">Your other workspaces</h2>
 
-    <div class="flex flex-col gap-5 py-5">
-      <h2 class="text-2xl font-bold">Your other workspaces</h2>
-
-      <UInput
-        v-model="filterText"
-        placeholder="Filter..."
-        icon="iconamoon:search-duotone"
-        size="lg"
-        type="search"
-      />
-
-      <div class="grid grid-cols-1 gap-5">
-        <NuxtLink
-          v-for="workspace in filteredWorkspaces"
-          :key="workspace.id"
-          :to="`/dashboard/workspaces/${workspace.id}`"
-          class="flex w-full flex-col gap-3 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
-        >
-          <div class="flex w-full items-start justify-start gap-2">
-            <UAvatar
-              size="md"
-              :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
-              class="mt-1"
+            <UInput
+              v-model="filterText"
+              placeholder="Filter..."
+              icon="iconamoon:search-duotone"
+              size="lg"
+              type="search"
             />
 
-            <div class="flex w-full flex-col gap-1">
-              <span class="font-medium">
-                {{ workspace.title }}
-              </span>
+            <div class="grid grid-cols-1 gap-5">
+              <NuxtLink
+                v-for="workspace in filteredWorkspaces"
+                :key="workspace.id"
+                :to="`/dashboard/workspaces/${workspace.id}`"
+                class="flex w-full flex-col gap-3 rounded-md border border-slate-300 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-zinc-800"
+              >
+                <div class="flex w-full items-start justify-start gap-2">
+                  <UAvatar
+                    size="md"
+                    :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
+                    class="mt-1"
+                  />
 
-              <span class="text-sm">
-                {{ workspace.description }}
-              </span>
+                  <div class="flex w-full flex-col gap-1">
+                    <span class="font-medium">
+                      {{ workspace.title }}
+                    </span>
+
+                    <span class="text-sm">
+                      {{ workspace.description }}
+                    </span>
+                  </div>
+                </div>
+              </NuxtLink>
             </div>
           </div>
-        </NuxtLink>
-      </div>
-    </div>
 
-    <ModalNewWorkspace />
-  </AppPageLayout>
+          <ModalNewWorkspace />
+        </div>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

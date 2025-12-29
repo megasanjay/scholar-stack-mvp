@@ -135,7 +135,7 @@ const groupedResources = computed(() => {
       const formattedRelation = { ...relation };
 
       // Create a nested list under the source resource but for relation type
-      if (relation.type in grouped[relation.source].relations) {
+      if (relation.type in grouped[relation.source]?.relations) {
         grouped[relation.source].relations[relation.type].push(
           formattedRelation,
         );
@@ -731,11 +731,11 @@ const mirrorRelationExists = computed(() => {
     }
 
     if (targetResource in groupedResources.value) {
-      const relations = groupedResources.value[targetResource].relations;
+      const relations = groupedResources.value[targetResource]?.relations;
 
-      if (mirrorRelation in relations) {
+      if (relations && mirrorRelation in relations) {
         if (
-          relations[mirrorRelation].find((r) => r.source === targetResource)
+          relations[mirrorRelation]?.find((r) => r.source === targetResource)
         ) {
           return true;
         }
@@ -761,12 +761,12 @@ const duplicationRelationExists = computed(() => {
     }
 
     if (sourceResource in groupedResources.value) {
-      const relations = groupedResources.value[sourceResource].relations;
+      const relations = groupedResources.value[sourceResource]?.relations;
 
       if (selectedRelation.value.external) {
-        if (relation in relations) {
+        if (relations && relation in relations) {
           if (
-            relations[relation].find(
+            relations[relation]?.find(
               (r) =>
                 r.target === targetResource &&
                 r.targetType === selectedRelation.value.targetType,
@@ -776,8 +776,9 @@ const duplicationRelationExists = computed(() => {
           }
         }
       } else if (
+        relations &&
         relation in relations &&
-        relations[relation].find((r) => {
+        relations[relation]?.find((r) => {
           console.log(r);
           console.log(targetResource);
 
@@ -798,477 +799,491 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <div class="flex items-center gap-3">
-          <h1 class="text-4xl font-black">Relations</h1>
-
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Relations">
+        <template #headline>
           <UBadge color="warning" size="lg" variant="soft" icon="mdi:alert">
             Beta
           </UBadge>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <UButton
-            color="primary"
-            icon="material-symbols-light:rebase-edit-rounded"
-            size="lg"
-            @click="openAddRelationDrawer('external')"
-          >
-            Add an external relation
-          </UButton>
-
-          <UButton
-            color="primary"
-            icon="icon-park-outline:internal-expansion"
-            size="lg"
-            @click="openAddRelationDrawer('internal')"
-          >
-            Add an internal relation
-          </UButton>
-        </div>
-      </div>
-    </template>
-
-    <div v-if="Object.keys(groupedResources).length === 0" class="py-10">
-      No relations were found in this collection
-    </div>
-
-    <div
-      v-else
-      size="large"
-      class="divide flex w-full flex-col gap-3 divide-y divide-solid divide-stone-200"
-    >
-      <!-- <pre>{{ groupedResources }}</pre> -->
-      <!-- <pre>{{ allRelations }}</pre> -->
-
-      <!-- <pre class="text-xs">{{ targetResourceList }}</pre> -->
-
-      <div
-        v-for="(gr1, resourceID, idx) in groupedResources"
-        :key="idx"
-        class="py-10"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex items-start gap-2">
-            <h2
-              class="border-b border-dashed border-slate-300 pb-1 font-semibold"
-            >
-              {{ gr1.name }}
-            </h2>
-
-            <UBadge
-              v-if="gr1.versionLabel"
-              color="info"
-              size="sm"
-              variant="subtle"
-              class="mt-1"
-            >
-              {{ gr1.versionLabel }}
-            </UBadge>
-          </div>
-
-          <UDropdownMenu
-            :items="
-              generateAddRelationFromDropdownOptions(resourceID as string)
-            "
-            :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
-            :ui="{ content: 'w-max' }"
-          >
+        </template>
+        <template #links>
+          <div class="flex items-center gap-2">
             <UButton
-              icon="mdi:plus"
               color="primary"
-              label="Add a relation to this resource"
-            />
-          </UDropdownMenu>
-        </div>
+              icon="material-symbols-light:rebase-edit-rounded"
+              size="lg"
+              @click="openAddRelationDrawer('external')"
+            >
+              Add an external relation
+            </UButton>
 
-        <div v-for="(gr, name, index) in gr1.relations" :key="index">
-          <div class="flex items-center justify-between pt-5 pb-1">
-            <h3>{{ getRelationName(name as string) }}</h3>
+            <UButton
+              color="primary"
+              icon="icon-park-outline:internal-expansion"
+              size="lg"
+              @click="openAddRelationDrawer('internal')"
+            >
+              Add an internal relation
+            </UButton>
+          </div>
+        </template>
+      </UPageHeader>
+
+      <UPageBody>
+        <div>
+          <div v-if="Object.keys(groupedResources).length === 0" class="py-10">
+            No relations were found in this collection
           </div>
 
-          <div class="flex w-full flex-col gap-3">
+          <div
+            v-else
+            size="large"
+            class="divide flex w-full flex-col gap-3 divide-y divide-solid divide-stone-200"
+          >
+            <!-- <pre>{{ groupedResources }}</pre> -->
+            <!-- <pre>{{ allRelations }}</pre> -->
+
+            <!-- <pre class="text-xs">{{ targetResourceList }}</pre> -->
+
             <div
-              v-for="(relation, id) of gr || []"
-              :key="id"
-              class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
-              :class="{
-                'border-slate-300 bg-white':
-                  !relation.action || relation.action === 'clone',
-                'cursor-not-allowed border-red-300 bg-red-50':
-                  relation.action === 'delete',
-                'border-emerald-400 bg-emerald-50/20':
-                  relation.action === 'update',
-                'border-blue-300 bg-cyan-50/20': relation.action === 'create',
-              }"
+              v-for="(gr1, resourceID, idx) in groupedResources"
+              :key="idx"
+              class="py-10"
             >
-              <div class="flex w-full flex-col gap-3">
-                <div class="group w-max">
-                  <NuxtLink
-                    v-if="relation.external && relation.target"
-                    :to="
-                      relation.targetType !== 'url'
-                        ? `https://identifiers.org/${relation.targetType}:${relation.target}`
-                        : relation.target
-                    "
-                    class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                    target="_blank"
-                    @click.stop=""
+              <div class="flex items-center justify-between">
+                <div class="flex items-start gap-2">
+                  <h2
+                    class="border-b border-dashed border-slate-300 pb-1 font-semibold"
                   >
-                    {{ relation.target }}
+                    {{ gr1.name }}
+                  </h2>
 
-                    <Icon
-                      name="mdi:external-link"
-                      size="16"
-                      class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
-                    />
-                  </NuxtLink>
-
-                  <div v-else class="flex items-center gap-2 font-medium">
-                    {{ relation.targetName }}
-
-                    <UBadge
-                      v-if="relation.targetVersionLabel"
-                      color="info"
-                      size="sm"
-                      variant="subtle"
-                      class="mt-1"
-                    >
-                      {{ relation.targetVersionLabel }}
-                    </UBadge>
-                  </div>
+                  <UBadge
+                    v-if="gr1.versionLabel"
+                    color="info"
+                    size="sm"
+                    variant="subtle"
+                    class="mt-1"
+                  >
+                    {{ gr1.versionLabel }}
+                  </UBadge>
                 </div>
 
-                <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center justify-start gap-2">
-                    <UBadge color="info">
-                      {{ getResourceTypeName(relation?.resourceType || "") }}
-                    </UBadge>
+                <UDropdownMenu
+                  :items="
+                    generateAddRelationFromDropdownOptions(resourceID as string)
+                  "
+                  :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+                  :ui="{ content: 'w-max' }"
+                >
+                  <UButton
+                    icon="mdi:plus"
+                    color="primary"
+                    label="Add a relation to this resource"
+                  />
+                </UDropdownMenu>
+              </div>
 
-                    <UBadge v-if="relation.targetType" color="success">
-                      {{ getResourceIdentifierTypeName(relation.targetType) }}
-                    </UBadge>
-                  </div>
+              <div v-for="(gr, name, index) in gr1.relations" :key="index">
+                <div class="flex items-center justify-between pt-5 pb-1">
+                  <h3>{{ getRelationName(name as string) }}</h3>
+                </div>
 
+                <div class="flex w-full flex-col gap-3">
                   <div
-                    v-if="!currentCollection?.version?.published"
-                    class="flex items-center gap-4"
+                    v-for="(relation, id) of gr || []"
+                    :key="id"
+                    class="w-full space-x-8 rounded-xl border px-5 py-4 transition-all"
+                    :class="{
+                      'border-slate-300 bg-white':
+                        !relation.action || relation.action === 'clone',
+                      'cursor-not-allowed border-red-300 bg-red-50':
+                        relation.action === 'delete',
+                      'border-emerald-400 bg-emerald-50/20':
+                        relation.action === 'update',
+                      'border-blue-300 bg-cyan-50/20':
+                        relation.action === 'create',
+                    }"
                   >
-                    <div class="flex">
+                    <div class="flex w-full flex-col gap-3">
+                      <div class="group w-max">
+                        <NuxtLink
+                          v-if="relation.external && relation.target"
+                          :to="
+                            relation.targetType !== 'url'
+                              ? `https://identifiers.org/${relation.targetType}:${relation.target}`
+                              : relation.target
+                          "
+                          class="flex items-center font-medium text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                          target="_blank"
+                          @click.stop=""
+                        >
+                          {{ relation.target }}
+
+                          <Icon
+                            name="mdi:external-link"
+                            size="16"
+                            class="ml-1 text-blue-600 transition-all group-hover:text-blue-700 group-hover:underline"
+                          />
+                        </NuxtLink>
+
+                        <div v-else class="flex items-center gap-2 font-medium">
+                          {{ relation.targetName }}
+
+                          <UBadge
+                            v-if="relation.targetVersionLabel"
+                            color="info"
+                            size="sm"
+                            variant="subtle"
+                            class="mt-1"
+                          >
+                            {{ relation.targetVersionLabel }}
+                          </UBadge>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center justify-start gap-2">
+                          <UBadge color="info">
+                            {{
+                              getResourceTypeName(relation?.resourceType || "")
+                            }}
+                          </UBadge>
+
+                          <UBadge v-if="relation.targetType" color="success">
+                            {{
+                              getResourceIdentifierTypeName(relation.targetType)
+                            }}
+                          </UBadge>
+                        </div>
+
+                        <div
+                          v-if="!currentCollection?.version?.published"
+                          class="flex items-center gap-4"
+                        >
+                          <div class="flex">
+                            <UBadge
+                              v-if="relation.action === 'create'"
+                              color="info"
+                              icon="mdi:new-box"
+                            >
+                              New Relation
+                            </UBadge>
+
+                            <UBadge
+                              v-if="relation.action === 'update'"
+                              color="success"
+                              icon="mdi:file-document-edit-outline"
+                            >
+                              Updated
+                            </UBadge>
+
+                            <UBadge
+                              v-if="relation.action === 'delete'"
+                              color="error"
+                              icon="mdi:delete-outline"
+                            >
+                              Marked for deletion
+                            </UBadge>
+                          </div>
+
+                          <USeparator
+                            v-if="
+                              relation.action && relation.action !== 'clone'
+                            "
+                            orientation="vertical"
+                            class="h-5"
+                          />
+
+                          <UButton
+                            v-if="relation.action !== 'delete'"
+                            color="info"
+                            icon="mdi:file-document-edit-outline"
+                            :disabled="relation.action === 'delete'"
+                            label="Edit"
+                            @click="openEditRelationDrawer(relation.id)"
+                          />
+
+                          <UButton
+                            v-if="relation.action !== 'delete'"
+                            color="error"
+                            icon="mdi:delete-outline"
+                            :loading="relationBeingDeleted === relation.id"
+                            label="Delete"
+                            @click="deleteRelation(relation.id)"
+                          />
+
+                          <UButton
+                            v-if="relation.action === 'delete'"
+                            color="warning"
+                            icon="mdi:undo"
+                            :loading="relationBeingRestored === relation.id"
+                            label="Undo delete"
+                            @click="restoreRelation(relation.id)"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <USlideover
+            v-model:open="showRelationDrawer"
+            :title="drawerAction === 'Add' ? 'Add a Relation' : 'Edit Relation'"
+            :description="
+              selectedRelation.external
+                ? 'External relations are created between a resouce in this collection and an outside resource.'
+                : 'Internal relations are created between two resources in this collection.'
+            "
+            class="gap-4"
+            :ui="{ footer: 'justify-end' }"
+          >
+            <template #body>
+              <UForm
+                ref="createForm"
+                :validate="validateForm"
+                :state="selectedRelation"
+                class="flex flex-col gap-4"
+                @submit="onSubmit"
+                @error="onError"
+              >
+                <UFormField label="Source" name="source">
+                  <USelect
+                    v-model="selectedRelation.source"
+                    :disabled="
+                      !!selectedRelation.originalRelationId ||
+                      sourceResourceListLoadingIndicator ||
+                      drawerAction === 'Edit'
+                    "
+                    :loading="sourceResourceListLoadingIndicator"
+                    :items="sourceResourceList || []"
+                    class="w-full"
+                  >
+                    <div class="flex items-center gap-2">
                       <UBadge
-                        v-if="relation.action === 'create'"
+                        v-if="selectedRelation.source"
                         color="info"
-                        icon="mdi:new-box"
+                        size="xs"
+                        variant="subtle"
                       >
-                        New Relation
+                        {{
+                          sourceResourceList.find(
+                            (item: any) =>
+                              item.value === selectedRelation.source,
+                          )?.versionLabel
+                        }}
                       </UBadge>
 
-                      <UBadge
-                        v-if="relation.action === 'update'"
-                        color="success"
-                        icon="mdi:file-document-edit-outline"
-                      >
-                        Updated
-                      </UBadge>
+                      <span v-else class="text-sm text-gray-500">
+                        Please select a source resource
+                      </span>
 
-                      <UBadge
-                        v-if="relation.action === 'delete'"
-                        color="error"
-                        icon="mdi:delete-outline"
+                      <span>
+                        {{
+                          sourceResourceList.find(
+                            (item: any) =>
+                              item.value === selectedRelation.source,
+                          )?.label
+                        }}</span
                       >
-                        Marked for deletion
-                      </UBadge>
                     </div>
 
-                    <USeparator
-                      v-if="relation.action && relation.action !== 'clone'"
-                      orientation="vertical"
-                      class="h-5"
+                    <template #item="{ item }">
+                      <div class="flex items-center gap-2">
+                        <UBadge
+                          v-if="item.versionLabel"
+                          color="info"
+                          size="xs"
+                          variant="subtle"
+                        >
+                          {{ item.versionLabel }}
+                        </UBadge>
+
+                        <span>{{ item.label }}</span>
+                      </div>
+                    </template>
+                  </USelect>
+                </UFormField>
+
+                <USeparator class="my-5" />
+
+                <UFormField
+                  v-if="selectedRelation.external"
+                  label="Target"
+                  name="target"
+                >
+                  <UInput
+                    v-model="selectedRelation.target as string"
+                    type="text"
+                    :disabled="!!selectedRelation.originalRelationId"
+                    placeholder="10.1234/abc"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  v-if="!selectedRelation.external"
+                  label="Target"
+                  name="target"
+                >
+                  <USelect
+                    v-model="selectedRelation.target"
+                    :disabled="
+                      !!selectedRelation.originalRelationId ||
+                      targetResourceListLoadingIndicator ||
+                      !selectedRelation.source
+                    "
+                    :loading="targetResourceListLoadingIndicator"
+                    :items="generateTargetResourceListOptions()"
+                    class="w-full"
+                    @update:model-value="
+                      selectRelationResourceType(selectedRelation.target || '')
+                    "
+                  >
+                    <div class="flex items-center gap-2">
+                      <UBadge
+                        v-if="selectedRelation.target"
+                        color="info"
+                        size="xs"
+                        variant="subtle"
+                      >
+                        {{
+                          targetResourceList.find(
+                            (item: any) =>
+                              item.value === selectedRelation.target,
+                          )?.versionLabel
+                        }}
+                      </UBadge>
+
+                      <span v-else class="text-sm text-gray-500">
+                        Please select a target resource
+                      </span>
+
+                      <span>
+                        {{
+                          targetResourceList.find(
+                            (item: any) =>
+                              item.value === selectedRelation.target,
+                          )?.label
+                        }}
+                      </span>
+                    </div>
+
+                    <template #item="{ item }">
+                      <div class="flex items-center gap-2">
+                        <UBadge
+                          v-if="item.versionLabel"
+                          color="info"
+                          size="xs"
+                          variant="subtle"
+                        >
+                          {{ item.versionLabel }}
+                        </UBadge>
+
+                        <span>{{ item.label }}</span>
+                      </div>
+                    </template>
+                  </USelect>
+                </UFormField>
+
+                <UFormField
+                  v-if="selectedRelation.external"
+                  label="Target Type"
+                  name="targetType"
+                >
+                  <USelect
+                    v-model="selectedRelation.targetType as string"
+                    :items="typeOptions"
+                    :disabled="!!selectedRelation.originalRelationId"
+                    placeholder="DOI"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField label="Relation Type" name="type">
+                  <USelect
+                    v-model="selectedRelation.type as string"
+                    :items="relationTypeOptions"
+                    placeholder="isPartOf"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField label="Resource Type" name="resourceType">
+                  <div class="flex items-center gap-2">
+                    <USelect
+                      v-if="selectedRelation.external"
+                      v-model="selectedRelation.resourceType as string"
+                      :items="resourceTypeOptions"
+                      placeholder="Dataset"
+                      class="w-full"
                     />
 
-                    <UButton
-                      v-if="relation.action !== 'delete'"
-                      color="info"
-                      icon="mdi:file-document-edit-outline"
-                      :disabled="relation.action === 'delete'"
-                      label="Edit"
-                      @click="openEditRelationDrawer(relation.id)"
-                    />
+                    <UPopover v-if="!selectedRelation.external" mode="hover">
+                      <USelect
+                        v-model="selectedRelation.resourceType as string"
+                        :items="resourceTypeOptions"
+                        placeholder="Dataset"
+                        disabled
+                        class="w-full"
+                      />
+
+                      <template #content>
+                        <p class="p-1 text-sm">
+                          The resource type for internal relations are
+                          automatically pulled from your resource.
+                        </p>
+                      </template>
+                    </UPopover>
 
                     <UButton
-                      v-if="relation.action !== 'delete'"
-                      color="error"
-                      icon="mdi:delete-outline"
-                      :loading="relationBeingDeleted === relation.id"
-                      label="Delete"
-                      @click="deleteRelation(relation.id)"
-                    />
-
-                    <UButton
-                      v-if="relation.action === 'delete'"
-                      color="warning"
-                      icon="mdi:undo"
-                      :loading="relationBeingRestored === relation.id"
-                      label="Undo delete"
-                      @click="restoreRelation(relation.id)"
+                      v-if="!selectedRelation.external"
+                      icon="mdi:refresh"
+                      size="sm"
+                      variant="outline"
                     />
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+                </UFormField>
 
-    <USlideover
-      v-model:open="showRelationDrawer"
-      :title="drawerAction === 'Add' ? 'Add a Relation' : 'Edit Relation'"
-      :description="
-        selectedRelation.external
-          ? 'External relations are created between a resouce in this collection and an outside resource.'
-          : 'Internal relations are created between two resources in this collection.'
-      "
-      class="gap-4"
-      :ui="{ footer: 'justify-end' }"
-    >
-      <template #body>
-        <UForm
-          ref="createForm"
-          :validate="validateForm"
-          :state="selectedRelation"
-          class="flex flex-col gap-4"
-          @submit="onSubmit"
-          @error="onError"
-        >
-          <UFormField label="Source" name="source">
-            <USelect
-              v-model="selectedRelation.source"
-              :disabled="
-                !!selectedRelation.originalRelationId ||
-                sourceResourceListLoadingIndicator ||
-                drawerAction === 'Edit'
-              "
-              :loading="sourceResourceListLoadingIndicator"
-              :items="sourceResourceList || []"
-              class="w-full"
-            >
-              <div class="flex items-center gap-2">
-                <UBadge
-                  v-if="selectedRelation.source"
-                  color="info"
-                  size="xs"
-                  variant="subtle"
-                >
-                  {{
-                    sourceResourceList.find(
-                      (item: any) => item.value === selectedRelation.source,
-                    )?.versionLabel
-                  }}
-                </UBadge>
-
-                <span v-else class="text-sm text-gray-500">
-                  Please select a source resource
-                </span>
-
-                <span>
-                  {{
-                    sourceResourceList.find(
-                      (item: any) => item.value === selectedRelation.source,
-                    )?.label
-                  }}</span
-                >
-              </div>
-
-              <template #item="{ item }">
-                <div class="flex items-center gap-2">
-                  <UBadge
-                    v-if="item.versionLabel"
-                    color="info"
-                    size="xs"
-                    variant="subtle"
-                  >
-                    {{ item.versionLabel }}
-                  </UBadge>
-
-                  <span>{{ item.label }}</span>
-                </div>
-              </template>
-            </USelect>
-          </UFormField>
-
-          <USeparator class="my-5" />
-
-          <UFormField
-            v-if="selectedRelation.external"
-            label="Target"
-            name="target"
-          >
-            <UInput
-              v-model="selectedRelation.target as string"
-              type="text"
-              :disabled="!!selectedRelation.originalRelationId"
-              placeholder="10.1234/abc"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField
-            v-if="!selectedRelation.external"
-            label="Target"
-            name="target"
-          >
-            <USelect
-              v-model="selectedRelation.target"
-              :disabled="
-                !!selectedRelation.originalRelationId ||
-                targetResourceListLoadingIndicator ||
-                !selectedRelation.source
-              "
-              :loading="targetResourceListLoadingIndicator"
-              :items="generateTargetResourceListOptions()"
-              class="w-full"
-              @update:model-value="
-                selectRelationResourceType(selectedRelation.target || '')
-              "
-            >
-              <div class="flex items-center gap-2">
-                <UBadge
-                  v-if="selectedRelation.target"
-                  color="info"
-                  size="xs"
-                  variant="subtle"
-                >
-                  {{
-                    targetResourceList.find(
-                      (item: any) => item.value === selectedRelation.target,
-                    )?.versionLabel
-                  }}
-                </UBadge>
-
-                <span v-else class="text-sm text-gray-500">
-                  Please select a target resource
-                </span>
-
-                <span>
-                  {{
-                    targetResourceList.find(
-                      (item: any) => item.value === selectedRelation.target,
-                    )?.label
-                  }}
-                </span>
-              </div>
-
-              <template #item="{ item }">
-                <div class="flex items-center gap-2">
-                  <UBadge
-                    v-if="item.versionLabel"
-                    color="info"
-                    size="xs"
-                    variant="subtle"
-                  >
-                    {{ item.versionLabel }}
-                  </UBadge>
-
-                  <span>{{ item.label }}</span>
-                </div>
-              </template>
-            </USelect>
-          </UFormField>
-
-          <UFormField
-            v-if="selectedRelation.external"
-            label="Target Type"
-            name="targetType"
-          >
-            <USelect
-              v-model="selectedRelation.targetType as string"
-              :items="typeOptions"
-              :disabled="!!selectedRelation.originalRelationId"
-              placeholder="DOI"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Relation Type" name="type">
-            <USelect
-              v-model="selectedRelation.type as string"
-              :items="relationTypeOptions"
-              placeholder="isPartOf"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Resource Type" name="resourceType">
-            <div class="flex items-center gap-2">
-              <USelect
-                v-if="selectedRelation.external"
-                v-model="selectedRelation.resourceType as string"
-                :items="resourceTypeOptions"
-                placeholder="Dataset"
-                class="w-full"
-              />
-
-              <UPopover v-if="!selectedRelation.external" mode="hover">
-                <USelect
-                  v-model="selectedRelation.resourceType as string"
-                  :items="resourceTypeOptions"
-                  placeholder="Dataset"
-                  disabled
-                  class="w-full"
+                <UAlert
+                  v-if="mirrorRelationExists"
+                  color="warning"
+                  title="Warning"
+                  description="This relation might already exist. We found an inverse relation for this source and target resource. Please check if you want to create a new relation in this instance."
                 />
 
-                <template #content>
-                  <p class="p-1 text-sm">
-                    The resource type for internal relations are automatically
-                    pulled from your resource.
-                  </p>
-                </template>
-              </UPopover>
+                <UAlert
+                  v-if="duplicationRelationExists"
+                  color="warning"
+                  title="Warning"
+                  description="This relation might already exist. We found a relation for this source and target resource. Please check if you want to create a new relation in this instance."
+                />
+              </UForm>
 
+              <pre>{{ selectedRelation }}</pre>
+            </template>
+
+            <template #footer>
               <UButton
-                v-if="!selectedRelation.external"
-                icon="mdi:refresh"
-                size="sm"
-                variant="outline"
-              />
-            </div>
-          </UFormField>
-
-          <UAlert
-            v-if="mirrorRelationExists"
-            color="warning"
-            title="Warning"
-            description="This relation might already exist. We found an inverse relation for this source and target resource. Please check if you want to create a new relation in this instance."
-          />
-
-          <UAlert
-            v-if="duplicationRelationExists"
-            color="warning"
-            title="Warning"
-            description="This relation might already exist. We found a relation for this source and target resource. Please check if you want to create a new relation in this instance."
-          />
-        </UForm>
-
-        <pre>{{ selectedRelation }}</pre>
-      </template>
-
-      <template #footer>
-        <UButton
-          color="primary"
-          icon="material-symbols:save-sharp"
-          size="lg"
-          :loading="addNewRelationLoading || editRelationLoading"
-          :disabled="duplicationRelationExists"
-          type="submit"
-          label="Save relation"
-          @click="createForm?.submit()"
-        >
-          Save relation
-        </UButton>
-      </template>
-    </USlideover>
-  </AppPageLayout>
+                color="primary"
+                icon="material-symbols:save-sharp"
+                size="lg"
+                :loading="addNewRelationLoading || editRelationLoading"
+                :disabled="duplicationRelationExists"
+                type="submit"
+                label="Save relation"
+                @click="createForm?.submit()"
+              >
+                Save relation
+              </UButton>
+            </template>
+          </USlideover>
+        </div>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

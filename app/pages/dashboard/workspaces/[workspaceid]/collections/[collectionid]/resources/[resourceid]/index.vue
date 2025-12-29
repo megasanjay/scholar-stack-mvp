@@ -262,302 +262,304 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <div class="flex w-full flex-col">
-          <div class="flex items-center justify-between">
-            <h1 class="text-4xl font-black">Overview</h1>
-
-            <div class="flex items-center gap-2">
-              <UModal v-model:open="removeResourceModalIsOpen">
-                <UButton
-                  size="lg"
-                  color="error"
-                  :loading="removeResourceLoadingIndicator"
-                  :disabled="disableEditing"
-                  icon="iconoir:trash"
-                >
-                  Delete resource
-                </UButton>
-
-                <template #content>
-                  <UCard>
-                    <div class="sm:flex sm:items-start">
-                      <div class="size-[50px]">
-                        <ClientOnly>
-                          <Vue3Lottie
-                            animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                            :height="50"
-                            :width="50"
-                            :loop="1"
-                          />
-                        </ClientOnly>
-                      </div>
-
-                      <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                        <h3
-                          class="text-base leading-6 font-semibold text-gray-900"
-                        >
-                          Are you sure you want to remove this resource?
-                        </h3>
-
-                        <div class="mt-2">
-                          <p class="text-sm text-gray-500">
-                            If this resouce is new, it will be removed
-                            permanently. If it's a pre-existing resource, it
-                            will be marked for deletion and you will need to
-                            undelete it before you can view it.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <template #footer>
-                      <div class="flex items-center justify-end gap-2">
-                        <UButton
-                          icon="material-symbols:cancel-outline"
-                          color="error"
-                          variant="soft"
-                          @click="removeResourceModalIsOpen = false"
-                        >
-                          Cancel
-                        </UButton>
-
-                        <UButton
-                          color="warning"
-                          :loading="removeResourceLoadingIndicator"
-                          icon="iconoir:trash"
-                          @click="removeResource"
-                        >
-                          Remove resource
-                        </UButton>
-                      </div>
-                    </template>
-                  </UCard>
-                </template>
-              </UModal>
-
-              <UModal
-                v-model:open="newResourceVersionModalIsOpen"
-                :prevent-close="newResourceVersionLoadingIndicator"
-              >
-                <UButton
-                  v-if="resource?.action === 'clone'"
-                  variant="outline"
-                  size="lg"
-                  :disabled="disableEditing"
-                  :loading="newResourceVersionLoadingIndicator"
-                  icon="material-symbols:conversion-path"
-                >
-                  Create new version
-                </UButton>
-
-                <template #content>
-                  <UCard>
-                    <div class="sm:flex sm:items-start">
-                      <div class="size-[50px]">
-                        <ClientOnly>
-                          <Vue3Lottie
-                            animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
-                            :height="50"
-                            :width="50"
-                            :loop="1"
-                          />
-                        </ClientOnly>
-                      </div>
-
-                      <div class="mt-2 text-center sm:ml-4 sm:text-left">
-                        <h3
-                          class="text-base leading-6 font-semibold text-gray-900"
-                        >
-                          Are you sure you want to create a new version of this
-                          resource?
-                        </h3>
-
-                        <div class="mt-2">
-                          <p class="text-sm text-gray-500">
-                            You will need to provide a new unique identifier
-                            and/or version number. <br />
-
-                            <UForm
-                              ref="createNewVersionForm"
-                              :state="state"
-                              :validate="validateForm"
-                              class="mt-3 flex flex-col gap-2"
-                              @submit="onSubmit"
-                            >
-                              <UFormField
-                                label="Identifier Type"
-                                name="identifierType"
-                                size="sm"
-                                required
-                              >
-                                <USelect
-                                  v-model="state.identifierType"
-                                  :items="
-                                    PREFIX_JSON.map((i) => ({
-                                      ...i,
-                                      type: 'item' as const,
-                                    }))
-                                  "
-                                  placeholder="DOI"
-                                  class="w-full"
-                                />
-                              </UFormField>
-
-                              <UFormField
-                                label="Identifier"
-                                name="identifier"
-                                size="sm"
-                                required
-                              >
-                                <UInput
-                                  v-model="state.identifier"
-                                  :placeholder="
-                                    PREFIX_JSON.find(
-                                      (i) => i.value === state.identifierType,
-                                    )?.placeholder || ''
-                                  "
-                                />
-                              </UFormField>
-
-                              <UFormField
-                                label="Version"
-                                name="versionLabel"
-                                size="sm"
-                                help="Adding a version label will allow you to keep track of changes to your resource."
-                                required
-                              >
-                                <UInput
-                                  v-model="state.versionLabel"
-                                  placeholder="v1.0.0"
-                                  clearable
-                                />
-                              </UFormField>
-
-                              <UFormField name="cloneRelations" size="sm">
-                                <UCheckbox
-                                  v-model="state.cloneRelations"
-                                  size="sm"
-                                  label="Clone existing relations"
-                                  description="We will automatically create any required
-                              relations for you."
-                                />
-                              </UFormField>
-                            </UForm>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <template #footer>
-                      <div class="flex items-center justify-end gap-2">
-                        <UButton
-                          icon="material-symbols:cancel-outline"
-                          color="error"
-                          variant="soft"
-                          @click="newResourceVersionModalIsOpen = false"
-                        >
-                          Cancel
-                        </UButton>
-
-                        <UButton
-                          color="primary"
-                          :loading="newResourceVersionLoadingIndicator"
-                          icon="material-symbols:conversion-path"
-                          @click="createNewVersionForm?.submit()"
-                        >
-                          Create new version
-                        </UButton>
-                      </div>
-                    </template>
-                  </UCard>
-                </template>
-              </UModal>
-
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Overview">
+        <template #links>
+          <div class="flex items-center gap-2">
+            <UModal v-model:open="removeResourceModalIsOpen">
               <UButton
-                color="primary"
+                size="lg"
+                color="error"
+                :loading="removeResourceLoadingIndicator"
+                :disabled="disableEditing"
+                icon="iconoir:trash"
+              >
+                Delete resource
+              </UButton>
+
+              <template #content>
+                <UCard>
+                  <div class="sm:flex sm:items-start">
+                    <div class="size-[50px]">
+                      <ClientOnly>
+                        <Vue3Lottie
+                          animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                          :height="50"
+                          :width="50"
+                          :loop="1"
+                        />
+                      </ClientOnly>
+                    </div>
+
+                    <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                      <h3
+                        class="text-base leading-6 font-semibold text-gray-900"
+                      >
+                        Are you sure you want to remove this resource?
+                      </h3>
+
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500">
+                          If this resouce is new, it will be removed
+                          permanently. If it's a pre-existing resource, it will
+                          be marked for deletion and you will need to undelete
+                          it before you can view it.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <template #footer>
+                    <div class="flex items-center justify-end gap-2">
+                      <UButton
+                        icon="material-symbols:cancel-outline"
+                        color="error"
+                        variant="soft"
+                        @click="removeResourceModalIsOpen = false"
+                      >
+                        Cancel
+                      </UButton>
+
+                      <UButton
+                        color="warning"
+                        :loading="removeResourceLoadingIndicator"
+                        icon="iconoir:trash"
+                        @click="removeResource"
+                      >
+                        Remove resource
+                      </UButton>
+                    </div>
+                  </template>
+                </UCard>
+              </template>
+            </UModal>
+
+            <UModal
+              v-model:open="newResourceVersionModalIsOpen"
+              :prevent-close="newResourceVersionLoadingIndicator"
+            >
+              <UButton
+                v-if="resource?.action === 'clone'"
+                variant="outline"
                 size="lg"
                 :disabled="disableEditing"
-                :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/edit`"
-                icon="akar-icons:edit"
+                :loading="newResourceVersionLoadingIndicator"
+                icon="material-symbols:conversion-path"
               >
-                Edit resource
+                Create new version
               </UButton>
-            </div>
+
+              <template #content>
+                <UCard>
+                  <div class="sm:flex sm:items-start">
+                    <div class="size-[50px]">
+                      <ClientOnly>
+                        <Vue3Lottie
+                          animation-link="https://cdn.lottiel.ink/assets/l7OR00APs2klZnMWu8G4t.json"
+                          :height="50"
+                          :width="50"
+                          :loop="1"
+                        />
+                      </ClientOnly>
+                    </div>
+
+                    <div class="mt-2 text-center sm:ml-4 sm:text-left">
+                      <h3
+                        class="text-base leading-6 font-semibold text-gray-900"
+                      >
+                        Are you sure you want to create a new version of this
+                        resource?
+                      </h3>
+
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500">
+                          You will need to provide a new unique identifier
+                          and/or version number. <br />
+
+                          <UForm
+                            ref="createNewVersionForm"
+                            :state="state"
+                            :validate="validateForm"
+                            class="mt-3 flex flex-col gap-2"
+                            @submit="onSubmit"
+                          >
+                            <UFormField
+                              label="Identifier Type"
+                              name="identifierType"
+                              size="sm"
+                              required
+                            >
+                              <USelect
+                                v-model="state.identifierType"
+                                :items="
+                                  PREFIX_JSON.map((i) => ({
+                                    ...i,
+                                    type: 'item' as const,
+                                  }))
+                                "
+                                placeholder="DOI"
+                                class="w-full"
+                              />
+                            </UFormField>
+
+                            <UFormField
+                              label="Identifier"
+                              name="identifier"
+                              size="sm"
+                              required
+                            >
+                              <UInput
+                                v-model="state.identifier"
+                                :placeholder="
+                                  PREFIX_JSON.find(
+                                    (i) => i.value === state.identifierType,
+                                  )?.placeholder || ''
+                                "
+                              />
+                            </UFormField>
+
+                            <UFormField
+                              label="Version"
+                              name="versionLabel"
+                              size="sm"
+                              help="Adding a version label will allow you to keep track of changes to your resource."
+                              required
+                            >
+                              <UInput
+                                v-model="state.versionLabel"
+                                placeholder="v1.0.0"
+                                clearable
+                              />
+                            </UFormField>
+
+                            <UFormField name="cloneRelations" size="sm">
+                              <UCheckbox
+                                v-model="state.cloneRelations"
+                                size="sm"
+                                label="Clone existing relations"
+                                description="We will automatically create any required
+                              relations for you."
+                              />
+                            </UFormField>
+                          </UForm>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <template #footer>
+                    <div class="flex items-center justify-end gap-2">
+                      <UButton
+                        icon="material-symbols:cancel-outline"
+                        color="error"
+                        variant="soft"
+                        @click="newResourceVersionModalIsOpen = false"
+                      >
+                        Cancel
+                      </UButton>
+
+                      <UButton
+                        color="primary"
+                        :loading="newResourceVersionLoadingIndicator"
+                        icon="material-symbols:conversion-path"
+                        @click="createNewVersionForm?.submit()"
+                      >
+                        Create new version
+                      </UButton>
+                    </div>
+                  </template>
+                </UCard>
+              </template>
+            </UModal>
+
+            <UButton
+              color="primary"
+              size="lg"
+              :disabled="disableEditing"
+              :to="`/dashboard/workspaces/${workspaceid}/collections/${collectionid}/resources/${resourceid}/edit`"
+              icon="akar-icons:edit"
+            >
+              Edit resource
+            </UButton>
           </div>
+        </template>
+      </UPageHeader>
+
+      <UPageBody>
+        <div>
+          <div class="flex items-center justify-between gap-4 pt-10 pb-5">
+            <h2 class="text-2xl font-bold">About</h2>
+
+            <ULink
+              :to="
+                resource?.identifierType !== 'url'
+                  ? `https://identifiers.org/${resource?.identifierType}/${resource?.identifier}`
+                  : resource.identifier
+              "
+              target="_blank"
+            >
+              <UButton size="lg" icon="iconoir:internet">
+                Visit resource
+              </UButton>
+            </ULink>
+          </div>
+
+          <DataDisplay
+            title="Title"
+            :content="resource?.title || 'No title provided'"
+          />
+
+          <DataDisplay
+            title="Description"
+            :content="resource?.description || 'No description available'"
+          />
+
+          <DataDisplay title="Identifier Type" :content="identifierType" />
+
+          <DataDisplay
+            title="Identifier"
+            :content="resource?.identifier || 'No identifier provided'"
+          />
+
+          <DataDisplay title="Type" :content="resourceType" />
+
+          <DataDisplay
+            v-if="config.public.ENABLE_RESOURCES_SUBTYPE"
+            title="Sub Type"
+            :content="resourceSubType"
+          />
+
+          <DataDisplay
+            title="Version"
+            :content="resource?.versionLabel || 'No version provided'"
+          />
+
+          <DataDisplay
+            title="Created on"
+            :content="displayLongDate(resource?.created as string)"
+          />
+
+          <DataDisplay
+            title="Last updated on"
+            :content="displayLongDate(resource?.updated as string)"
+          />
+
+          <DataDisplay title="Internal ID" :content="resource?.id" secondary />
+
+          <DataDisplay
+            title="Canonical ID"
+            :content="resource?.canonicalId"
+            secondary
+          />
+
+          <DataDisplay
+            title="Lineage ID"
+            :content="resource?.lineageId || 'No lineage ID provided'"
+            secondary
+          />
         </div>
-      </div>
-    </template>
-
-    <div class="flex items-center justify-between gap-4 pt-10 pb-5">
-      <h2 class="text-2xl font-bold">About</h2>
-
-      <ULink
-        :to="
-          resource?.identifierType !== 'url'
-            ? `https://identifiers.org/${resource?.identifierType}/${resource?.identifier}`
-            : resource.identifier
-        "
-        target="_blank"
-      >
-        <UButton size="lg" icon="iconoir:internet"> Visit resource </UButton>
-      </ULink>
-    </div>
-
-    <DataDisplay
-      title="Title"
-      :content="resource?.title || 'No title provided'"
-    />
-
-    <DataDisplay
-      title="Description"
-      :content="resource?.description || 'No description available'"
-    />
-
-    <DataDisplay title="Identifier Type" :content="identifierType" />
-
-    <DataDisplay
-      title="Identifier"
-      :content="resource?.identifier || 'No identifier provided'"
-    />
-
-    <DataDisplay title="Type" :content="resourceType" />
-
-    <DataDisplay
-      v-if="config.public.ENABLE_RESOURCES_SUBTYPE"
-      title="Sub Type"
-      :content="resourceSubType"
-    />
-
-    <DataDisplay
-      title="Version"
-      :content="resource?.versionLabel || 'No version provided'"
-    />
-
-    <DataDisplay
-      title="Created on"
-      :content="displayLongDate(resource?.created as string)"
-    />
-
-    <DataDisplay
-      title="Last updated on"
-      :content="displayLongDate(resource?.updated as string)"
-    />
-
-    <DataDisplay title="Internal ID" :content="resource?.id" secondary />
-
-    <DataDisplay
-      title="Canonical ID"
-      :content="resource?.canonicalId"
-      secondary
-    />
-
-    <DataDisplay
-      title="Lineage ID"
-      :content="resource?.lineageId || 'No lineage ID provided'"
-      secondary
-    />
-  </AppPageLayout>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

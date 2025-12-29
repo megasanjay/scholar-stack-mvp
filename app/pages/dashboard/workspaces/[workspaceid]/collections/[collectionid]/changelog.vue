@@ -112,12 +112,10 @@ const saveChangelog = async () => {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <h1 class="text-4xl font-black">Changelog</h1>
-
-        <div class="flex items-center gap-2">
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Changelog">
+        <template #links>
           <UButton
             v-if="!data?.version?.published"
             size="lg"
@@ -129,20 +127,22 @@ const saveChangelog = async () => {
           >
             Save changelog
           </UButton>
-        </div>
-      </div>
-    </template>
+        </template>
+      </UPageHeader>
 
-    <div class="flex items-center justify-between gap-4 pt-10 pb-5">
-      <MdEditor
-        v-model="changelog"
-        class="mt-0"
-        language="en-US"
-        preview-theme="github"
-        :show-code-row-number="true"
-        :disabled="disableChangelogFeature"
-        :sanitize="sanitize"
-      />
-    </div>
-  </AppPageLayout>
+      <UPageBody>
+        <div>
+          <MdEditor
+            v-model="changelog"
+            class="mt-0"
+            language="en-US"
+            preview-theme="github"
+            :show-code-row-number="true"
+            :disabled="disableChangelogFeature"
+            :sanitize="sanitize"
+          />
+        </div>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

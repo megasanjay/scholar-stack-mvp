@@ -145,89 +145,102 @@ const selectResourceType = (type: string) => {
 </script>
 
 <template>
-  <AppPageLayout title="Resources">
-    <div class="flex items-center justify-between gap-4 pb-10">
-      <UInput
-        placeholder="Search..."
-        icon="iconamoon:search-duotone"
-        size="lg"
-        type="search"
-      />
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Resources"> </UPageHeader>
 
-      <USelect
-        v-if="selectedView === 'list'"
-        v-model="selectedSort"
-        size="lg"
-        :items="[
-          {
-            label: 'Sort by activity',
-            value: 'activity',
-          },
-          {
-            label: 'Sort by name',
-            value: 'name',
-          },
-        ]"
-      />
+      <UPageBody>
+        <div>
+          <div class="flex items-center justify-between gap-4 pb-10">
+            <UInput
+              placeholder="Search..."
+              icon="iconamoon:search-duotone"
+              size="lg"
+              type="search"
+            />
 
-      <div class="flex items-center">
-        <UButton
-          color="neutral"
-          :variant="selectedView === 'list' ? 'subtle' : 'outline'"
-          icon="fa-solid:list"
-          @click="selectedView = 'list'"
-        />
-        <UButton
-          color="neutral"
-          :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
-          icon="fluent:group-list-24-filled"
-          @click="selectedView = 'grouped'"
-        />
-      </div>
+            <USelect
+              v-if="selectedView === 'list'"
+              v-model="selectedSort"
+              size="lg"
+              :items="[
+                {
+                  label: 'Sort by activity',
+                  value: 'activity',
+                },
+                {
+                  label: 'Sort by name',
+                  value: 'name',
+                },
+              ]"
+            />
 
-      <UButton
-        color="primary"
-        icon="mdi:plus"
-        size="lg"
-        :disabled="
-          !collection?.version ||
-          collection?.version?.published ||
-          !collectionPermissionAbility.includes('edit') ||
-          collectionPermissionGetLoading
-        "
-        :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/new`"
-      >
-        <span class="w-max"> Add a new resource </span>
-      </UButton>
-    </div>
+            <div class="flex items-center">
+              <UButton
+                color="neutral"
+                :variant="selectedView === 'list' ? 'subtle' : 'outline'"
+                icon="fa-solid:list"
+                @click="selectedView = 'list'"
+              />
+              <UButton
+                color="neutral"
+                :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"
+                icon="fluent:group-list-24-filled"
+                @click="selectedView = 'grouped'"
+              />
+            </div>
 
-    <div
-      v-if="collection?.version === null || collection?.resources?.length === 0"
-      class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8"
-    >
-      <UIcon name="mingcute:empty-box-line" size="48" />
+            <UButton
+              color="primary"
+              icon="mdi:plus"
+              size="lg"
+              :disabled="
+                !collection?.version ||
+                collection?.version?.published ||
+                !collectionPermissionAbility.includes('edit') ||
+                collectionPermissionGetLoading
+              "
+              :to="`/dashboard/workspaces/${workspaceid}/collections/${collection?.id}/resources/new`"
+            >
+              <span class="w-max"> Add a new resource </span>
+            </UButton>
+          </div>
 
-      <p class="text-center text-lg font-medium">No resources found</p>
+          <div
+            v-if="
+              collection?.version === null ||
+              collection?.resources?.length === 0
+            "
+            class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8"
+          >
+            <UIcon name="mingcute:empty-box-line" size="48" />
 
-      <p class="text-center text-sm text-slate-500">
-        You can add a new resource by clicking the button above.
-      </p>
-    </div>
+            <p class="text-center text-lg font-medium">No resources found</p>
 
-    <div
-      v-if="
-        collection?.version && collection?.resources && selectedView === 'list'
-      "
-      class="flex flex-col gap-4"
-    >
-      <ResourceCard
-        v-for="resource in sortedResources"
-        :key="resource.id"
-        :resource="resource"
-        :workspaceid="workspaceid"
-        :collectionid="collectionid"
-        :collection="collection"
-      />
-    </div>
-  </AppPageLayout>
+            <p class="text-center text-sm text-slate-500">
+              You can add a new resource by clicking the button above.
+            </p>
+          </div>
+
+          <div
+            v-if="
+              collection?.version &&
+              collection?.resources &&
+              selectedView === 'list'
+            "
+            class="flex flex-col gap-4"
+          >
+            <ResourceCard
+              v-for="resource in sortedResources"
+              :key="resource.id"
+              :resource="resource"
+              :workspaceid="workspaceid"
+              :collectionid="collectionid"
+              :collection="collection"
+            />
+          </div>
+        </div>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

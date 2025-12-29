@@ -210,12 +210,10 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <h1 class="text-4xl font-black">Edit resource</h1>
-
-        <div class="flex items-center gap-2">
+  <UContainer>
+    <UPage>
+      <UPageHeader title="Edit resource">
+        <template #links>
           <UButton
             color="primary"
             icon="humbleicons:save"
@@ -226,108 +224,121 @@ async function onSubmit(event: FormSubmitEvent<any>) {
           >
             Save changes
           </UButton>
+        </template>
+      </UPageHeader>
+
+      <UPageBody>
+        <div>
+          <UForm
+            ref="createForm"
+            :validate="validateForm"
+            :state="state"
+            class="flex flex-col gap-4"
+            @submit="onSubmit"
+          >
+            <UFormField label="Title" name="title" required>
+              <UInput
+                v-model="state.title"
+                size="lg"
+                placeholder="My random resource"
+              />
+            </UFormField>
+
+            <UFormField label="Description" name="description" required>
+              <UTextarea
+                v-model="state.description"
+                :maxrows="4"
+                size="lg"
+                placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
+              />
+            </UFormField>
+
+            <UFormField label="Identifier Type" name="identifierType" required>
+              <USelect
+                v-model="state.identifierType"
+                :items="identifierTypeOptions"
+                placeholder="DOI"
+                :disabled="
+                  !!(
+                    resource &&
+                    'action' in resource &&
+                    resource?.action === 'clone'
+                  )
+                "
+                class="w-full"
+                size="lg"
+              />
+            </UFormField>
+
+            <UFormField label="Identifier" name="identifier" required>
+              <UInput
+                v-model="state.identifier"
+                :placeholder="
+                  identifierTypeOptions.find(
+                    (i) => i.value === state.identifierType,
+                  )?.placeholder || ''
+                "
+                clearable
+                :disabled="
+                  !!(
+                    resource &&
+                    'action' in resource &&
+                    resource?.action === 'clone'
+                  )
+                "
+                size="lg"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Resource Type"
+              name="resourceType"
+              required
+              help="Select the type of resource you are linking to."
+            >
+              <USelect
+                v-model="state.resourceType"
+                :items="resourceTypeOptions"
+                placeholder="Please select a resource type"
+                class="w-full"
+                size="lg"
+              />
+            </UFormField>
+
+            <UFormField
+              v-show="config.public.ENABLE_RESOURCES_SUBTYPE"
+              label="Resource Sub Type"
+              name="resourceSubType"
+            >
+              <USelect
+                v-model="state.resourceSubType"
+                :items="resourceSubTypeOptions"
+                placeholder="Please select a resource sub type"
+                class="w-full"
+                size="lg"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Version"
+              name="versionLabel"
+              :required="resource?.versionLabelIsRequired"
+              :help="
+                resource?.versionLabelIsRequired
+                  ? 'Adding a version label is required to keep track of changes to your resource across versions.'
+                  : 'Adding a version label is recommended to keep track of changes to your resource across versions.'
+              "
+            >
+              <UInput
+                v-model="state.versionLabel"
+                placeholder="v1.0.0"
+                clearable
+                size="lg"
+              />
+            </UFormField>
+          </UForm>
         </div>
-      </div>
-    </template>
-
-    <UForm
-      ref="createForm"
-      :validate="validateForm"
-      :state="state"
-      class="flex flex-col gap-4"
-      @submit="onSubmit"
-    >
-      <UFormField label="Title" name="title" required>
-        <UInput
-          v-model="state.title"
-          size="lg"
-          placeholder="My random resource"
-        />
-      </UFormField>
-
-      <UFormField label="Description" name="description" required>
-        <UTextarea
-          v-model="state.description"
-          :maxrows="4"
-          size="lg"
-          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisi eget nunc ultricies aliquet. Sed vitae nisi eget nunc ultricies aliquet."
-        />
-      </UFormField>
-
-      <UFormField label="Identifier Type" name="identifierType" required>
-        <USelect
-          v-model="state.identifierType"
-          :items="identifierTypeOptions"
-          placeholder="DOI"
-          :disabled="
-            !!(resource && 'action' in resource && resource?.action === 'clone')
-          "
-          class="w-full"
-          size="lg"
-        />
-      </UFormField>
-
-      <UFormField label="Identifier" name="identifier" required>
-        <UInput
-          v-model="state.identifier"
-          :placeholder="
-            identifierTypeOptions.find((i) => i.value === state.identifierType)
-              ?.placeholder || ''
-          "
-          clearable
-          :disabled="
-            !!(resource && 'action' in resource && resource?.action === 'clone')
-          "
-          size="lg"
-        />
-      </UFormField>
-
-      <UFormField
-        label="Resource Type"
-        name="resourceType"
-        required
-        help="Select the type of resource you are linking to."
-      >
-        <USelect
-          v-model="state.resourceType"
-          :items="resourceTypeOptions"
-          placeholder="Please select a resource type"
-          class="w-full"
-          size="lg"
-        />
-      </UFormField>
-
-      <UFormField
-        v-show="config.public.ENABLE_RESOURCES_SUBTYPE"
-        label="Resource Sub Type"
-        name="resourceSubType"
-      >
-        <USelect
-          v-model="state.resourceSubType"
-          :items="resourceSubTypeOptions"
-          placeholder="Please select a resource sub type"
-          class="w-full"
-          size="lg"
-        />
-      </UFormField>
-
-      <UFormField
-        label="Version"
-        name="versionLabel"
-        :required="resource?.versionLabelIsRequired"
-        :help="
-          resource?.versionLabelIsRequired
-            ? 'Adding a version label is required to keep track of changes to your resource across versions.'
-            : 'Adding a version label is recommended to keep track of changes to your resource across versions.'
-        "
-      >
-        <UInput
-          v-model="state.versionLabel"
-          placeholder="v1.0.0"
-          clearable
-          size="lg"
-        />
-      </UFormField>
-    </UForm>
-  </AppPageLayout>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>
