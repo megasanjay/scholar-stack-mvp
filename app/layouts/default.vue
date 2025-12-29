@@ -27,7 +27,7 @@ const emailVerified = computed(
           </NuxtLink>
 
           <div class="flex items-center gap-3 lg:order-2">
-            <AppColorModeButton />
+            <UColorModeButton />
 
             <NuxtLink v-if="!loggedIn" to="/login">
               <UButton label="Log in" size="lg" />

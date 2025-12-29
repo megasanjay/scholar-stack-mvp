@@ -73,6 +73,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 <template>
   <UCard class="w-full max-w-sm bg-white/75 backdrop-blur dark:bg-white/5">
+    <UAlert
+      color="warning"
+      variant="outline"
+      title="This platform is currently invite only"
+      description="As we are still in development, we are only allowing invited users to access the platform."
+      icon="i-lucide-lock"
+    />
+
     <div class="w-full max-w-sm px-4 py-5 sm:p-6">
       <div class="flex flex-col items-center justify-center">
         <Icon name="iconoir:lock" :size="40" />

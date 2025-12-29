@@ -77,6 +77,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 <template>
   <UCard class="w-full max-w-sm bg-white/75 backdrop-blur dark:bg-white/5">
+    <UAlert
+      color="warning"
+      variant="outline"
+      title="This platform is currently invite only"
+      description="If you have an invite, please use it to sign up. If you don't have an invite, please contact us at support@sciconnect.io."
+      icon="i-lucide-lock"
+    />
+
     <div class="w-full max-w-sm px-4 py-5 sm:p-6">
       <div class="flex flex-col items-center justify-center">
         <h2 class="my-1 text-2xl font-bold">Create an account</h2>

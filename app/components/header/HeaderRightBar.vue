@@ -14,7 +14,7 @@
       <Icon name="mdi:bell-outline" />
     </UButton>
 
-    <AppColorModeButton />
+    <UColorModeButton />
 
     <AppProfileDropdown />
   </div>

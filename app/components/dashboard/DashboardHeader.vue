@@ -49,7 +49,7 @@ const toggleSidebar = () => {
       </div>
 
       <div class="flex items-center justify-center gap-3">
-        <AppColorModeButton />
+        <UColorModeButton />
 
         <AuthState>
           <UButton
