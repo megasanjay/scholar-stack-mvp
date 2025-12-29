@@ -84,7 +84,7 @@ const groupedResources = computed(() => {
   for (const resource of resources) {
     if (resource.resourceType) {
       if (resource.resourceType in grouped) {
-        grouped[resource.resourceType].push(resource);
+        grouped[resource.resourceType]?.push(resource);
       } else {
         grouped[resource.resourceType] = [resource];
       }
@@ -125,7 +125,7 @@ const groupedResources = computed(() => {
   const sortedGrouped: { [key: string]: any[] } = {};
 
   for (const key of sortedKeys) {
-    sortedGrouped[key] = grouped[key];
+    sortedGrouped[key] = grouped[key] || [];
   }
 
   return sortedGrouped;
@@ -137,7 +137,7 @@ const selectedVersionIdentifier = computed(() => {
 
   if (type === "c") {
     // Select the latest version of the collection
-    return data.value?.Versions[0].id;
+    return data.value?.Versions[0]?.id;
   } else {
     return parseInt(identifier.substring(1));
   }
@@ -404,7 +404,6 @@ const recordClick = (resourceId: string) => {
             {
               label: 'Go to latest version',
               to: `/view/c${data?.collection.id}`,
-              target: '_blank',
               color: 'info',
               icon: 'ic:baseline-open-in-new',
               variant: 'outline',
@@ -724,7 +723,7 @@ const recordClick = (resourceId: string) => {
               >
                 <!-- Collection DOI -->
                 <div
-                  v-if="data?.isLatestVersion"
+                  v-if="data?.collection.id"
                   class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
                 >
                   <div class="flex flex-1 items-center gap-3">
@@ -767,7 +766,7 @@ const recordClick = (resourceId: string) => {
 
                 <!-- Collection URL -->
                 <div
-                  v-if="data?.isLatestVersion"
+                  v-if="data?.collection.id"
                   class="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
                 >
                   <div class="flex flex-1 items-center gap-3">

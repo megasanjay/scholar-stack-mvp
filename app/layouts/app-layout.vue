@@ -21,41 +21,34 @@ const currentLayout = computed(() => {
 </script>
 
 <template>
-  <div
-    class="relative mx-auto flex h-full min-h-screen w-full flex-col bg-zinc-50 dark:bg-zinc-900"
-    :class="{ 'debug-screens': devMode }"
-  >
-    <header class="z-10">
-      <nav
-        class="flex w-full flex-col-reverse border-b border-gray-200 bg-white pt-2.5"
-      >
-        <div>
-          <HeaderWorkspacesSubMenu
-            v-if="currentLayout === 'workspace-layout'"
-            :key="route.fullPath"
-            class="px-4 lg:px-6"
-          />
+  <div>
+    <UHeader title="" to="/">
+      <template #left>
+        <HeaderLeftBar />
+      </template>
+      <template #right>
+        <HeaderRightBar />
+      </template>
+    </UHeader>
 
-          <HeaderCollectionsSubMenu
-            v-if="
-              currentLayout === 'collections-layout' ||
-              currentLayout === 'resource-layout'
-            "
-            :key="route.fullPath"
-            class="px-4 lg:px-6"
-          />
-        </div>
+    <UContainer>
+      <HeaderWorkspacesSubMenu
+        v-if="currentLayout === 'workspace-layout'"
+        :key="route.fullPath"
+      />
 
-        <div class="flex w-full items-center justify-between px-4 lg:px-6">
-          <HeaderLeftBar />
+      <HeaderCollectionsSubMenu
+        v-if="
+          currentLayout === 'collections-layout' ||
+          currentLayout === 'resource-layout'
+        "
+        :key="route.fullPath"
+      />
+    </UContainer>
+    <USeparator />
 
-          <HeaderRightBar />
-        </div>
-      </nav>
-    </header>
-
-    <main>
+    <UMain>
       <slot />
-    </main>
+    </UMain>
   </div>
 </template>
