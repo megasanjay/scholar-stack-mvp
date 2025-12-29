@@ -36,60 +36,68 @@ if (error.value) {
 </script>
 
 <template>
-  <AppPageLayout>
-    <template #header>
-      <div class="flex w-full items-center justify-between gap-2">
-        <h1 class="text-4xl font-black">
-          {{ collection?.title || "Untitled Collection" }}
-        </h1>
+  <UContainer>
+    <UPage>
+      <UPageHeader
+        :title="collection?.title || 'Untitled Collection'"
+        :links="[
+          {
+            label: 'View in Catalog',
+            icon: 'mdi:open-in-new',
+            variant: 'solid',
+            to: `/view/c${collection?.id}`,
+            target: '__blank',
+          },
+        ]"
+      >
+      </UPageHeader>
 
-        <ULink :to="`/view/c${collection?.id}`" target="__blank">
-          <UButton size="lg" color="primary" icon="mdi:open-in-new">
-            View in Catalog
-          </UButton>
-        </ULink>
-      </div>
-    </template>
+      <UPageBody>
+        <div>
+          <div class="flex items-center justify-between pb-5">
+            <h2 class="text-2xl font-bold">About</h2>
+          </div>
 
-    <div class="flex items-center justify-between pt-10 pb-5">
-      <h2 class="text-2xl font-bold">About</h2>
-    </div>
+          <DataDisplay title="Overview">
+            <MarkdownRender
+              v-if="collection?.description"
+              :content="collection?.description || ''"
+            />
 
-    <DataDisplay title="Overview">
-      <MarkdownRender
-        v-if="collection?.description"
-        :content="collection?.description || ''"
-      />
+            <p v-else class="text-lg">No description provided</p>
+          </DataDisplay>
 
-      <p v-else class="text-lg">No description provided</p>
-    </DataDisplay>
+          <DataDisplay title="Collection Type">
+            <UBadge color="info">{{ collection?.type }}</UBadge>
+          </DataDisplay>
 
-    <DataDisplay title="Collection Type">
-      <UBadge color="info">{{ collection?.type }}</UBadge>
-    </DataDisplay>
+          <DataDisplay title="Visibility">
+            <UBadge v-if="collection?.private" color="warning">
+              Private
+            </UBadge>
 
-    <DataDisplay title="Visibility">
-      <UBadge v-if="collection?.private" color="warning"> Private </UBadge>
+            <UBadge v-else color="success"> Public </UBadge>
+          </DataDisplay>
 
-      <UBadge v-else color="success"> Public </UBadge>
-    </DataDisplay>
+          <DataDisplay
+            title="Created on"
+            :content="displayLongDate(collection?.created as string)"
+          />
 
-    <DataDisplay
-      title="Created on"
-      :content="displayLongDate(collection?.created as string)"
-    />
+          <DataDisplay
+            title="Last updated"
+            :content="displayLongDate(collection?.updated as string)"
+          />
 
-    <DataDisplay
-      title="Last updated"
-      :content="displayLongDate(collection?.updated as string)"
-    />
-
-    <DataDisplay title="Image">
-      <NuxtImg
-        :src="`${collection?.imageUrl}?t=${collection?.updated}`"
-        :alt="collection?.title"
-        class="h-[200px] w-auto"
-      />
-    </DataDisplay>
-  </AppPageLayout>
+          <DataDisplay title="Image">
+            <NuxtImg
+              :src="`${collection?.imageUrl}?t=${collection?.updated}`"
+              :alt="collection?.title"
+              class="h-[200px] w-auto"
+            />
+          </DataDisplay>
+        </div>
+      </UPageBody>
+    </UPage>
+  </UContainer>
 </template>

@@ -1,18 +1,33 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { NavigationMenuItem } from "@nuxt/ui";
+
+const route = useRoute();
+
+const headerItems: NavigationMenuItem[] = [
+  {
+    label: "Catalog",
+    to: "/view",
+    active: route.path.startsWith("/view"),
+  },
+  {
+    label: "Documentation",
+    to: "/docs",
+    active: route.path.startsWith("/docs"),
+  },
+  {
+    label: "Feedback",
+    to: "/feedback",
+    active: route.path.startsWith("/feedback"),
+  },
+  {
+    icon: "mdi:bell-outline",
+  },
+];
+</script>
 
 <template>
   <div class="flex items-center gap-3">
-    <ULink to="/view">
-      <UButton size="sm" variant="outline"> Catalog </UButton>
-    </ULink>
-
-    <ULink to="/docs"> Docs </ULink>
-
-    <ULink to="/feedback"> Feedback </ULink>
-
-    <UButton variant="ghost" color="neutral">
-      <Icon name="mdi:bell-outline" />
-    </UButton>
+    <UNavigationMenu :items="headerItems" />
 
     <UColorModeButton />
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from "@nuxt/ui";
+
 const route = useRoute();
 
 const isResourcePage = computed(() => {
@@ -30,119 +32,75 @@ const isDraftVersion = computed(() => {
 
   return false;
 });
+
+const leftNavItems: NavigationMenuItem[] = [
+  {
+    label: "Overview",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}`,
+    icon: "material-symbols:overview-key-outline-rounded",
+    active:
+      route.path ===
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}`
+        ? true
+        : false,
+  },
+  {
+    label: "Resources",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources`,
+    icon: "cil:list",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources`,
+    ),
+  },
+  {
+    label: "Relations",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`,
+    icon: "icon-park-twotone:connection-point-two",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`,
+    ),
+  },
+  {
+    label: "Creators",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/creators`,
+    icon: "mdi:people",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/creators`,
+    ),
+  },
+  {
+    label: "Changelog",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/changelog`,
+    icon: "mdi:history",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/changelog`,
+    ),
+  },
+];
+
+const rightNavItems: NavigationMenuItem[] = [
+  {
+    label: "Publish",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/publish`,
+    icon: "entypo:publish",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/publish`,
+    ),
+  },
+  {
+    label: "Settings",
+    to: `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/settings`,
+    icon: "material-symbols:settings-outline",
+    active: route.path.startsWith(
+      `/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/settings`,
+    ),
+  },
+];
 </script>
 
 <template>
-  <div class="submenu flex items-center gap-5 pt-4">
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}`"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon name="material-symbols:overview-key-outline-rounded" />
-
-        <span class="text-sm"> Overview </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :class="{
-        'border-b-2 border-slate-800 text-slate-900': isResourcePage,
-      }"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/resources`"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon name="cil:list" />
-
-        <span class="text-sm"> Resources </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/relations`"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon name="icon-park-twotone:connection-point-two" />
-
-        <span class="text-sm"> Relations </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/creators`"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon name="mdi:people" />
-
-        <span class="text-sm"> Creators </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500 transition-all"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/changelog`"
-      :class="{
-        'cursor-not-allowed': !isDraftVersion || pending,
-        'opacity-50': !isDraftVersion || pending,
-        'pointer-events-none': !isDraftVersion || pending,
-      }"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon :name="pending ? 'svg-spinners:90-ring' : 'mdi:history'" />
-
-        <span class="text-sm"> Changelog </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500 transition-all"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/publish`"
-      :class="{
-        'cursor-not-allowed': !isDraftVersion || pending,
-        'opacity-50': !isDraftVersion || pending,
-        'pointer-events-none': !isDraftVersion || pending,
-      }"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon :name="pending ? 'svg-spinners:90-ring' : 'entypo:publish'" />
-
-        <span class="text-sm"> Publish </span>
-      </div>
-    </NuxtLink>
-
-    <NuxtLink
-      class="flex items-center gap-1 text-slate-500"
-      active-class="border-b-2 border-slate-800 text-slate-900"
-      :to="`/dashboard/workspaces/${route.params.workspaceid}/collections/${route.params.collectionid}/settings`"
-    >
-      <div
-        class="mb-1 flex items-center gap-2 rounded-md px-2 py-2 transition-all hover:bg-slate-100 hover:text-slate-800"
-      >
-        <Icon name="material-symbols:settings-outline" />
-
-        <span class="text-sm"> Settings </span>
-      </div>
-    </NuxtLink>
+  <div class="flex items-center justify-between">
+    <UNavigationMenu :items="leftNavItems" />
+    <UNavigationMenu :items="rightNavItems" />
   </div>
 </template>

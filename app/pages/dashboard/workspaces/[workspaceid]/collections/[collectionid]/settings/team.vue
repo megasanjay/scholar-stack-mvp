@@ -506,7 +506,7 @@ const inviteMember = async () => {
 
     <h2 class="mt-12 text-xl">Edit Access</h2>
 
-    <p class="mb-6 pt-1 text-slate-700">
+    <p class="mb-6 pt-1">
       The following members can only edit this collection.
     </p>
 
@@ -600,7 +600,8 @@ const inviteMember = async () => {
         class="flex items-center justify-between rounded-lg bg-slate-50 px-6 py-3"
       >
         <p class="text-sm">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+          Invite a user to edit this collection. They will be able to edit the
+          collection and manage its settings.
         </p>
 
         <UButton

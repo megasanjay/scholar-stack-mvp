@@ -20,7 +20,7 @@ const hasContent = computed(() => props.content.length > 0);
 <template>
   <div>
     <h3
-      class="pt-5 pb-2 text-lg font-semibold"
+      class="pt-5 pb-1 text-lg font-semibold"
       :class="{ '!pb-0 text-stone-400': secondary }"
     >
       {{ title }}
