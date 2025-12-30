@@ -100,7 +100,7 @@ const rightNavItems: NavigationMenuItem[] = [
 
 <template>
   <div class="flex items-center justify-between">
-    <UNavigationMenu :items="leftNavItems" />
+    <UNavigationMenu :items="leftNavItems" class="z-0" />
     <UNavigationMenu :items="rightNavItems" />
   </div>
 </template>

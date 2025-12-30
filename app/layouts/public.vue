@@ -41,12 +41,18 @@ const logout = async () => {
 
 <template>
   <div>
-    <UHeader title="SciConnect" to="/">
+    <UHeader>
+      <template #left>
+        <NuxtLink to="/">
+          <AppLogo class="h-6 w-auto" />
+        </NuxtLink>
+      </template>
+
       <UNavigationMenu :items="headerItems" />
 
       <template #right>
         <AuthState v-slot="{ loggedIn }">
-          <div class="flex items-center justify-center gap-3" v-if="loggedIn">
+          <div v-if="loggedIn" class="flex items-center justify-center gap-3">
             <UButton
               to="/dashboard"
               label="Dashboard"

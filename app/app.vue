@@ -11,7 +11,13 @@ useHead({
   htmlAttrs: {
     lang: "en",
   },
-  link: [{ href: "/favicon.ico", rel: "icon" }],
+  link: [
+    { href: "/favicon-96x96.png", rel: "icon" },
+    { href: "/favicon.svg", rel: "icon" },
+    { href: "/favicon.ico", rel: "shortcut icon" },
+    { href: "/apple-touch-icon.png", rel: "apple-touch-icon" },
+    { href: "/site.webmanifest", rel: "manifest" },
+  ],
   meta: [
     { charset: "utf-8" },
     { name: "viewport", content: "width=device-width, initial-scale=1" },
