@@ -1,12 +1,12 @@
-<script setup lang="ts">
-const devMode = process.env.NODE_ENV === "development";
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div>
-    <UHeader title="SciConnect" to="/" class="w-full">
-      <template #right>
-        <HeaderRightBar />
+    <UHeader>
+      <template #left>
+        <NuxtLink to="/">
+          <AppLogo class="h-6 w-auto" />
+        </NuxtLink>
       </template>
     </UHeader>
 

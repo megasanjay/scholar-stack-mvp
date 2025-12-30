@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
 
-const devMode = process.env.NODE_ENV === "development";
-
 const currentLayout = computed(() => {
   if (route.params.resourceid) {
     return "resource-layout";
@@ -26,6 +24,7 @@ const currentLayout = computed(() => {
       <template #left>
         <HeaderLeftBar />
       </template>
+
       <template #right>
         <HeaderRightBar />
       </template>
@@ -45,6 +44,7 @@ const currentLayout = computed(() => {
         :key="route.fullPath"
       />
     </UContainer>
+
     <USeparator />
 
     <UMain>
