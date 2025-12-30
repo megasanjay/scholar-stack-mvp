@@ -14,5 +14,6 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
-  "tailwindCSS.classAttributes": ["active-class", "inactive-class"]
+  "tailwindCSS.classAttributes": ["active-class", "inactive-class"],
+  "prisma.pinToPrisma6": true
 }
