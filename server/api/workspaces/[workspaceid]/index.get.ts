@@ -55,9 +55,11 @@ export default defineEventHandler(async (event) => {
     title: workspace.title,
     collections: visibleCollections.map((collection) => ({
       id: collection.id,
-      title: collection.title,
+      title: collection.Version[0] ? collection.Version[0].collectionTitle : "",
       created: collection.created.toISOString(),
-      description: collection.description,
+      description: collection.Version[0]
+        ? collection.Version[0].collectionDescription
+        : "",
       imageUrl: collection.imageUrl,
       updated: collection.updated.toISOString(),
       version: collection.Version[0]

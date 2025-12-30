@@ -13,7 +13,7 @@ interface LinkType {
   target: string;
 }
 
-interface LinksList extends Array<LinkType> {}
+type LinksList = Array<LinkType>;
 
 interface LocalLinkType extends LinkType {
   action?: LinkAction;

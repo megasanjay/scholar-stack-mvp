@@ -124,9 +124,6 @@ model CollectionAccess {
 model Collection {
     id Int @id @default(autoincrement())
 
-    title       String @default("")
-    description String @default("")
-
     type String @default("other") // project | person | ... | other
 
     imageUrl String  @default("https://api.dicebear.com/6.x/shapes/svg")
@@ -149,6 +146,9 @@ model Collection {
 
 model Version {
     id Int @id @default(autoincrement())
+
+    collectionTitle       String @default("")
+    collectionDescription String @default("")
 
     collectionId Int
     collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade) // Remove the cascading delete

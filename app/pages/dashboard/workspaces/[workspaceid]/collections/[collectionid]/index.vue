@@ -49,8 +49,7 @@ if (error.value) {
             target: '__blank',
           },
         ]"
-      >
-      </UPageHeader>
+      />
 
       <UPageBody>
         <div>

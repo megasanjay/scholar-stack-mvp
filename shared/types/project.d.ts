@@ -28,7 +28,7 @@ interface APIResponseProject {
 
   versions: AllVersionsType;
 
-  latestVersion: VersionWithLinks | {};
+  latestVersion: VersionWithLinks | object;
 }
 
 interface APIResponseProjectVersion {
@@ -47,5 +47,5 @@ interface APIResponseProjectVersion {
 
   versions: AllVersionsType;
 
-  versionDetails: VersionWithLinks | {};
+  versionDetails: VersionWithLinks | object;
 }

@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
 import dayjs from "dayjs";
@@ -266,10 +267,10 @@ const exportCollection = () => {
   const externalRelations = data.value.ExternalRelation || [];
 
   const exportData = {
-    title: collection.title,
+    title: data.value.collectionTitle,
     changelog: data.value.changelog,
     creators: data.value.creators,
-    description: collection.description,
+    description: data.value.collectionDescription,
     imageUrl: collection.imageUrl,
     relations: {
       external: externalRelations.map((relation) => {
@@ -315,7 +316,7 @@ const exportCollection = () => {
   const link = document.createElement("a");
 
   link.href = url;
-  link.download = `${collection.title}.json`;
+  link.download = `${data.value.collectionTitle}.json`;
   link.click();
 
   setTimeout(() => {
@@ -515,7 +516,7 @@ const recordClick = (resourceId: string) => {
         <div class="col-span-10">
           <div class="flex flex-col gap-3">
             <h1 class="text-4xl font-black">
-              {{ data?.collection.title || "Collection Title Unavailable" }}
+              {{ data?.collectionTitle || "Collection Title Unavailable" }}
             </h1>
 
             <ul
@@ -546,8 +547,8 @@ const recordClick = (resourceId: string) => {
             </ul>
 
             <MarkdownRender
-              v-if="data?.collection.description"
-              :content="data?.collection.description"
+              v-if="data?.collectionDescription"
+              :content="data?.collectionDescription"
             />
 
             <p v-else class="text-lg">No description provided.</p>
@@ -557,7 +558,7 @@ const recordClick = (resourceId: string) => {
         <div class="relative col-span-2 pt-4">
           <NuxtImg
             :src="`${data?.collection.imageUrl}?t=${data?.collection.updated}`"
-            :alt="data?.collection.title"
+            :alt="data?.collectionTitle"
             class="h-auto w-full rounded-lg"
           />
         </div>
@@ -715,6 +716,7 @@ const recordClick = (resourceId: string) => {
             <div class="flex flex-col gap-3">
               <div class="flex items-center gap-2">
                 <Icon name="ph:stack-bold" size="20" class="text-gray-600" />
+
                 <h3 class="text-lg font-semibold">Collection Links</h3>
               </div>
 
@@ -732,8 +734,10 @@ const recordClick = (resourceId: string) => {
                       size="24"
                       class="text-blue-600 dark:text-blue-400"
                     />
+
                     <div class="flex flex-col">
                       <span class="text-xs font-medium text-gray-500">DOI</span>
+
                       <ULink
                         :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}`"
                         target="_blank"
@@ -743,6 +747,7 @@ const recordClick = (resourceId: string) => {
                       </ULink>
                     </div>
                   </div>
+
                   <div class="flex items-center gap-2">
                     <UButton
                       color="neutral"
@@ -755,6 +760,7 @@ const recordClick = (resourceId: string) => {
                         )
                       "
                     />
+
                     <UButton
                       color="neutral"
                       variant="ghost"
@@ -775,8 +781,10 @@ const recordClick = (resourceId: string) => {
                       size="24"
                       class="text-blue-600 dark:text-blue-400"
                     />
+
                     <div class="flex flex-col">
                       <span class="text-xs font-medium text-gray-500">URL</span>
+
                       <ULink
                         :to="`/view/c${data?.collection.id}`"
                         target="_blank"
@@ -786,6 +794,7 @@ const recordClick = (resourceId: string) => {
                       </ULink>
                     </div>
                   </div>
+
                   <UButton
                     color="neutral"
                     variant="ghost"
@@ -809,6 +818,7 @@ const recordClick = (resourceId: string) => {
                   size="20"
                   class="text-gray-600"
                 />
+
                 <h3 class="text-lg font-semibold">Version Links</h3>
               </div>
 
@@ -825,8 +835,10 @@ const recordClick = (resourceId: string) => {
                       size="24"
                       class="text-blue-600 dark:text-blue-400"
                     />
+
                     <div class="flex flex-col">
                       <span class="text-xs font-medium text-gray-500">DOI</span>
+
                       <ULink
                         :to="`https://doi.org/10.5281/sciconnect.${data?.collection.id}.${data?.id}`"
                         target="_blank"
@@ -838,6 +850,7 @@ const recordClick = (resourceId: string) => {
                       </ULink>
                     </div>
                   </div>
+
                   <div class="flex items-center gap-2">
                     <UButton
                       color="neutral"
@@ -850,6 +863,7 @@ const recordClick = (resourceId: string) => {
                         )
                       "
                     />
+
                     <UButton
                       color="neutral"
                       variant="ghost"
@@ -869,8 +883,10 @@ const recordClick = (resourceId: string) => {
                       size="24"
                       class="text-blue-600 dark:text-blue-400"
                     />
+
                     <div class="flex flex-col">
                       <span class="text-xs font-medium text-gray-500">URL</span>
+
                       <ULink
                         :to="`/view/v${data?.id}`"
                         target="_blank"
@@ -880,6 +896,7 @@ const recordClick = (resourceId: string) => {
                       </ULink>
                     </div>
                   </div>
+
                   <UButton
                     color="neutral"
                     variant="ghost"
@@ -925,7 +942,7 @@ const recordClick = (resourceId: string) => {
             74.1% 44.1%
           );
         "
-      ></div>
+      />
     </div>
   </main>
 </template>

@@ -5,7 +5,7 @@ interface AllVersionsItem {
   identifier: string;
 }
 
-interface AllVersionsType extends Array<AllVersionsItem> {}
+type AllVersionsType = Array<AllVersionsItem>;
 
 interface Version {
   id: number;

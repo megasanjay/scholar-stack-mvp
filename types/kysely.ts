@@ -13,8 +13,6 @@ export type Analytics = {
 };
 export type Collection = {
     id: Generated<number>;
-    title: Generated<string>;
-    description: Generated<string>;
     type: Generated<string>;
     imageUrl: Generated<string>;
     private: Generated<boolean>;
@@ -116,6 +114,8 @@ export type User = {
 };
 export type Version = {
     id: Generated<number>;
+    collectionTitle: Generated<string>;
+    collectionDescription: Generated<string>;
     collectionId: number;
     name: Generated<string>;
     changelog: Generated<string>;

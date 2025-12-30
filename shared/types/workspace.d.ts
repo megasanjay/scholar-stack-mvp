@@ -32,4 +32,4 @@ interface Workspace {
   created: string;
 }
 
-interface Workspaces extends Array<Workspace> {}
+type Workspaces = Array<Workspace>;

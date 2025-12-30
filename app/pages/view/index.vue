@@ -9,7 +9,7 @@ const queryParams = computed(() => {
   return { page: page.value - 1 };
 });
 
-const { data, error } = await useFetch(`/api/discover/collections`, {
+const { data, error } = await useFetch("/api/discover/collections", {
   key: page.value.toString(),
   query: queryParams,
 });
@@ -51,7 +51,7 @@ const requestNewPage = (newPage: number) => {
                 :to="`/view/v${item.id}`"
                 class="font-inter text-xl font-medium text-sky-500 transition-all hover:text-sky-400"
               >
-                {{ item.collection.title }}
+                {{ item.collectionTitle }}
               </NuxtLink>
 
               <UBadge color="success" size="sm" variant="outline">
@@ -60,7 +60,7 @@ const requestNewPage = (newPage: number) => {
             </div>
 
             <p class="line-clamp-3 text-lg">
-              {{ item.collection.description }}
+              {{ item.collectionDescription }}
             </p>
 
             <div class="mt-2 flex items-center justify-between">
