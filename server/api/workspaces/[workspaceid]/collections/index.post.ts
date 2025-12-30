@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
         },
       },
 
-      imageUrl: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
+      imageUrl: `https://api.dicebear.com/9.x/shapes/svg?seed=${nanoid()}`,
       type,
       workspaceId: workspaceid,
     },

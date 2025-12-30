@@ -70,6 +70,8 @@ const sortedResources = computed(() => {
       return 0;
     });
   }
+
+  return resources;
 });
 
 const groupedResources = computed(() => {
@@ -147,7 +149,7 @@ const selectResourceType = (type: string) => {
 <template>
   <UContainer>
     <UPage>
-      <UPageHeader title="Resources"> </UPageHeader>
+      <UPageHeader title="Resources" />
 
       <UPageBody>
         <div>
@@ -182,6 +184,7 @@ const selectResourceType = (type: string) => {
                 icon="fa-solid:list"
                 @click="selectedView = 'list'"
               />
+
               <UButton
                 color="neutral"
                 :variant="selectedView === 'grouped' ? 'subtle' : 'outline'"

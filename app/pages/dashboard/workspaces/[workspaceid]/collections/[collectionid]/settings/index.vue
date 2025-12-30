@@ -301,7 +301,7 @@ const updateThumbnail = async (evt: any) => {
             <UAvatar
               :src="
                 collectionImage ||
-                'https://api.dicebear.com/6.x/shapes/svg?seed=collection'
+                'https://api.dicebear.com/9.x/shapes/svg/svg?seed=collection'
               "
               size="xl"
               alt="Collection Thumbnail"

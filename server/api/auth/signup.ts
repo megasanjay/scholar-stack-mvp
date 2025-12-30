@@ -54,8 +54,8 @@ export default defineEventHandler(async (event) => {
   // Create a personal workspace for the user
   const workspace = await prisma.workspace.create({
     data: {
-      title: body.data.givenName + "'s Personal Workspace",
-      description: "Personal workspace for " + body.data.givenName,
+      title: "My Personal Workspace",
+      description: `Personal workspace for ${body.data.givenName} ${body.data.familyName}`,
       personal: true,
       type: "personal",
       WorkspaceMember: {

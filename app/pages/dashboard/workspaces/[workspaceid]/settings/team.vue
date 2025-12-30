@@ -355,7 +355,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   <div class="flex flex-col">
     <h2 class="text-xl">Team</h2>
 
-    <p class="pb-6 pt-1 text-slate-700">
+    <p class="pt-1 pb-6 text-slate-700">
       Invite your team members to collaborate on your workspace and projects.
     </p>
 
@@ -430,7 +430,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       >
         <template #teamMembers>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between gap-4 pb-4 pt-2">
+            <div class="flex items-center justify-between gap-4 pt-2 pb-4">
               <UInput
                 placeholder="Filter..."
                 icon="iconamoon:search-duotone"
@@ -448,7 +448,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 <UAvatar
                   size="xl"
                   class="rounded-sm"
-                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+                  :src="`https://api.dicebear.com/9.x/shapes/svg?seed=${member.id}`"
                 />
 
                 <div class="flex flex-col">
@@ -516,7 +516,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         <template #pendingInvitations>
           <div class="flex flex-col">
-            <div class="flex items-center justify-between gap-4 pb-4 pt-2">
+            <div class="flex items-center justify-between gap-4 pt-2 pb-4">
               <UInput
                 placeholder="Filter..."
                 icon="iconamoon:search-duotone"
@@ -534,7 +534,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 <UAvatar
                   size="xl"
                   class="rounded-sm"
-                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+                  :src="`https://api.dicebear.com/9.x/shapes/svg?seed=${member.id}`"
                 />
 
                 <div class="flex flex-col">

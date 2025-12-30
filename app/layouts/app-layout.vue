@@ -47,8 +47,8 @@ const currentLayout = computed(() => {
 
     <USeparator />
 
-    <UMain>
+    <main>
       <slot />
-    </UMain>
+    </main>
   </div>
 </template>

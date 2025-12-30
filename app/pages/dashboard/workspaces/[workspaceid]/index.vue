@@ -60,7 +60,10 @@ if (error.value) {
             </UButton>
           </div>
 
-          <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          <div
+            v-if="workspace?.collections && workspace.collections.length > 0"
+            class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3"
+          >
             <ULink
               v-for="collection in workspace?.collections"
               :key="collection.id"
@@ -92,6 +95,19 @@ if (error.value) {
                 </p>
               </div>
             </ULink>
+          </div>
+
+          <div
+            v-if="workspace?.collections?.length === 0"
+            class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-8"
+          >
+            <UIcon name="mingcute:empty-box-line" size="48" />
+
+            <p class="text-center text-lg font-medium">No collections found</p>
+
+            <p class="text-center text-sm text-slate-500">
+              You can add a new collection by clicking the button above.
+            </p>
           </div>
 
           <USeparator
