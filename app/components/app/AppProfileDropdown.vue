@@ -59,7 +59,7 @@ const items = ref([
         <UButton
           v-if="loggedIn"
           :avatar="{
-            src: `https://api.dicebear.com/6.x/shapes/svg?seed=${user?.id}`,
+            src: `https://api.dicebear.com/9.x/shapes/svg?seed=${user?.id}`,
           }"
           size="xl"
           color="neutral"

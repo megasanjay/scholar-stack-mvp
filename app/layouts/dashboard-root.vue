@@ -8,6 +8,10 @@
           <AppLogo class="h-6 w-auto" />
         </NuxtLink>
       </template>
+
+      <template #right>
+        <HeaderRightBar />
+      </template>
     </UHeader>
 
     <UMain>

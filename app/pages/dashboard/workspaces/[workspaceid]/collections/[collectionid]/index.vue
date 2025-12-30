@@ -90,7 +90,11 @@ if (error.value) {
 
           <DataDisplay title="Image">
             <NuxtImg
-              :src="`${collection?.imageUrl}?t=${collection?.updated}`"
+              :src="
+                collection?.imageUrl.includes('dicebear')
+                  ? collection?.imageUrl
+                  : `${collection?.imageUrl}?t=${collection?.updated}`
+              "
               :alt="collection?.title"
               class="h-[200px] w-auto"
             />

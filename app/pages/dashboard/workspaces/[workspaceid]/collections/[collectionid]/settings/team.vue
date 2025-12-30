@@ -431,7 +431,7 @@ const inviteMember = async () => {
       >
         <div class="flex items-center gap-3">
           <UAvatar
-            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+            :src="`https://api.dicebear.com/9.x/shapes/svg/svg?seed=${member.id}`"
             size="xl"
           />
 
@@ -518,7 +518,7 @@ const inviteMember = async () => {
       >
         <div class="flex items-center gap-3">
           <UAvatar
-            :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${member.id}`"
+            :src="`https://api.dicebear.com/9.x/shapes/svg/svg?seed=${member.id}`"
             size="xl"
           />
 

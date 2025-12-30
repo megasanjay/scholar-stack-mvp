@@ -126,7 +126,7 @@ model Collection {
 
     type String @default("other") // project | person | ... | other
 
-    imageUrl String  @default("https://api.dicebear.com/6.x/shapes/svg")
+    imageUrl String  @default("https://api.dicebear.com/9.x/shapes/svg")
     private  Boolean @default(false) // used to hide the collection from public view
 
     randomInt Int @default(0) // used to maintain order of collections   

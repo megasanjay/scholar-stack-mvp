@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from "@nuxt/ui";
 import { useWorkspaceStore } from "@/stores/workspace";
 
 const toast = useToast();
@@ -215,475 +216,268 @@ const navigateToResource = (resourceid: string) => {
     `/dashboard/workspaces/${selectedWorkspace.value}/collections/${selectedCollection.value}/resources/${resourceid}`,
   );
 };
+
+const workspaceItems = ref<DropdownMenuItem[][]>([
+  [
+    {
+      label: "My Personal Workspace",
+      id: personalWorkspace.value?.id || "",
+      avatar: {
+        src: `https://api.dicebear.com/9.x/identicon/svg?seed=${personalWorkspace.value?.id}`,
+      },
+      // to: `/dashboard/workspaces/${personalWorkspace.value?.id || ""}`,
+      onSelect: () => {
+        navigateToWorkspace(personalWorkspace.value?.id || "");
+      },
+    },
+  ],
+  ...(allOtherWorkspaces.value.length
+    ? [
+        allOtherWorkspaces.value.map((workspace: Workspace) => ({
+          id: workspace.id,
+          label: workspace.title,
+          avatar: {
+            src: `https://api.dicebear.com/9.x/identicon/svg?seed=${workspace.id}`,
+          },
+          // to: `/dashboard/workspaces/${workspace.id}`,
+          onSelect: () => {
+            navigateToWorkspace(workspace.id);
+          },
+        })),
+      ]
+    : []),
+  [
+    {
+      label: "Create a new workspace",
+      // to: "/dashboard/workspaces/new",
+      onSelect: createNewWorkspace,
+      icon: "ph:plus-circle-bold",
+    },
+  ],
+]);
+
+const collectionItems = computed<DropdownMenuItem[][]>(() => [
+  ...(allCollections.value.length
+    ? [
+        allCollections.value.map((collection: Collection) => ({
+          label: collection.title,
+          avatar: {
+            src: `https://api.dicebear.com/9.x/shapes/svg?seed=${collection.id}`,
+          },
+          onSelect: () => {
+            navigateToCollection(collection.id);
+          },
+        })),
+      ]
+    : []),
+  [
+    {
+      label: "Create a new collection",
+      onSelect: createNewCollection,
+      icon: "ph:plus-circle-bold",
+    },
+  ],
+]);
+
+const resourceItems = computed<DropdownMenuItem[][]>(() => [
+  ...(allResources.value.length
+    ? [
+        allResources.value.map((resource: ResourceType) => ({
+          label: resource.title,
+          onSelect: () => {
+            navigateToResource(resource.id);
+          },
+        })),
+      ]
+    : []),
+]);
 </script>
 
 <template>
   <div class="flex items-center justify-start">
-    <div class="w-max">
-      <HeadlessListbox v-model="selectedWorkspace">
-        <div class="relative">
-          <ContainerFlex align="center">
-            <NuxtLink :to="`/dashboard/workspaces/${currentWorkspace?.id}`">
-              <TransitionFade>
-                <div
-                  v-if="workspaceStore.getLoading"
-                  class="flex items-center justify-start gap-2"
-                >
-                  <USkeleton class="h-[20px] w-[20px] rounded-full" />
-
-                  <USkeleton
-                    v-if="workspaceStore.getLoading"
-                    class="h-[25px] w-[100px]"
-                  />
-                </div>
-
-                <div
-                  v-else
-                  class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
-                >
-                  <UAvatar
-                    :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${currentWorkspace?.id}`"
-                    size="sm"
-                  />
-
-                  <span
-                    class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
-                  >
-                    {{ currentWorkspace?.title }}
-                  </span>
-
-                  <UBadge
-                    v-if="currentWorkspace?.personal"
-                    color="info"
-                    size="sm"
-                    class="pointer-events-none"
-                    variant="outline"
-                  >
-                    Personal
-                  </UBadge>
-                </div>
-              </TransitionFade>
-            </NuxtLink>
-
-            <HeadlessListboxButton
-              class="relative w-full cursor-pointer rounded-lg border border-slate-100 bg-white p-1 text-left transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm sm:text-sm"
-            >
-              <span
-                class="pointer-events-none inset-y-0 right-0 flex items-center"
-              >
-                <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
-              </span>
-            </HeadlessListboxButton>
-          </ContainerFlex>
-
-          <transition
-            leave-active-class="transition duration-100 ease-in"
-            enter-active-class="transition duration-75 ease-out"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-            enter-from-class="opacity-0 transition transform origin-top-right scale-95"
-            enter-to-class="opacity-100 transform origin-top-right scale-100"
-          >
-            <HeadlessListboxOptions
-              class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-slate-300 sm:text-sm"
-            >
-              <HeadlessListboxOption
-                v-slot="{ active, selected }"
-                :value="personalWorkspace?.id"
-                as="template"
-                @click="navigateToWorkspace(personalWorkspace?.id || '')"
-              >
-                <li
-                  :class="[
-                    active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                    'flex w-full cursor-pointer items-center justify-between px-4 py-2',
-                  ]"
-                >
-                  <div class="flex items-center justify-start gap-2 pr-4">
-                    <UAvatar
-                      :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${personalWorkspace?.id}`"
-                      size="sm"
-                    />
-
-                    <span
-                      :class="[
-                        selected ? 'font-medium' : 'font-normal',
-                        'block truncate',
-                      ]"
-                    >
-                      {{ personalWorkspace?.title }}
-                    </span>
-                  </div>
-
-                  <span
-                    v-if="selected"
-                    class="flex items-center text-amber-600"
-                  >
-                    <Icon name="ph:check-bold" class="h-5 w-5" />
-                  </span>
-                </li>
-              </HeadlessListboxOption>
-
-              <div
-                v-if="allOtherWorkspaces.length > 0"
-                class="mx-auto my-1 h-[1px] w-[90%] bg-slate-200"
-              ></div>
-
-              <HeadlessListboxOption
-                v-for="(workspace, index) in allOtherWorkspaces"
-                v-slot="{ active, selected }"
-                :key="index"
-                :value="workspace.id"
-                as="template"
-                @click="navigateToWorkspace(workspace.id)"
-              >
-                <li
-                  :class="[
-                    active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                    'flex w-full cursor-pointer items-center justify-between px-4 py-2',
-                  ]"
-                >
-                  <div class="flex items-center justify-start gap-2 pr-4">
-                    <UAvatar
-                      :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${workspace.id}`"
-                      size="sm"
-                    />
-
-                    <span
-                      :class="[
-                        selected ? 'font-medium' : 'font-normal',
-                        'block truncate',
-                      ]"
-                      >{{ workspace.title }}</span
-                    >
-                  </div>
-
-                  <span
-                    v-if="selected"
-                    class="flex items-center text-amber-600"
-                  >
-                    <Icon name="ph:check-bold" class="h-5 w-5" />
-                  </span>
-                </li>
-              </HeadlessListboxOption>
-
-              <div class="mx-auto my-1 h-[1px] w-[90%] bg-slate-200"></div>
-
-              <div @click="createNewWorkspace">
-                <li
-                  class="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-gray-900"
-                >
-                  <div class="flex items-center justify-start gap-2 pr-4">
-                    <Icon name="ph:plus-circle-bold" />
-
-                    <span class="block truncate font-medium">
-                      Create a new workspace
-                    </span>
-                  </div>
-                </li>
-              </div>
-            </HeadlessListboxOptions>
-          </transition>
-        </div>
-      </HeadlessListbox>
+    <!-- Logo -->
+    <div>
+      <NuxtLink to="/dashboard">
+        <AppLogoIcon class="h-5 w-5" />
+      </NuxtLink>
     </div>
 
+    <!-- First / -->
     <TransitionFade>
-      <svg
-        v-if="route.params.collectionid"
-        fill="none"
-        shape-rendering="geometricPrecision"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1"
-        viewBox="0 0 24 24"
-        width="14"
-        height="14"
-        class="h-8 w-8 text-gray-200"
-      >
-        <path d="M16.88 3.549L7.12 20.451"></path>
-      </svg>
+      <UIcon
+        v-if="route.params.workspaceid"
+        name="heroicons:slash-16-solid"
+        class="h-6 w-6 text-gray-200"
+      />
     </TransitionFade>
 
-    <TransitionFade>
-      <div v-if="route.params.collectionid" class="w-max">
-        <HeadlessListbox v-model="selectedCollection">
-          <div class="relative">
-            <ContainerFlex align="center">
-              <NuxtLink
-                :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}`"
+    <!-- Workspaces -->
+    <div class="flex items-center justify-start gap-2">
+      <ContainerFlex align="center">
+        <NuxtLink :to="`/dashboard/workspaces/${currentWorkspace?.id}`">
+          <TransitionFade>
+            <div
+              v-if="workspaceStore.getLoading"
+              class="flex items-center justify-start gap-2"
+            >
+              <USkeleton
+                v-if="workspaceStore.getLoading"
+                class="h-[25px] w-[100px]"
+              />
+            </div>
+
+            <div
+              v-else
+              class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
+            >
+              <span
+                class="max-w-40 truncate text-sm font-medium transition-all hover:text-gray-600"
               >
-                <TransitionFade>
-                  <div
-                    v-if="collectionStore.getLoading"
-                    class="flex items-center justify-start gap-2"
-                  >
-                    <USkeleton class="h-[20px] w-[20px] rounded-full" />
+                {{ currentWorkspace?.title }}
+              </span>
+            </div>
+          </TransitionFade>
+        </NuxtLink>
 
-                    <USkeleton class="h-[25px] w-[100px]" />
-                  </div>
+        <UDropdownMenu
+          :items="workspaceItems"
+          :ui="{
+            content: 'w-max',
+          }"
+        >
+          <UButton icon="mingcute:down-fill" color="neutral" variant="ghost" />
 
-                  <div
-                    v-else
-                    class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
-                  >
-                    <UAvatar
-                      :src="`${currentCollection?.imageUrl}?t=${currentCollection?.updated}`"
-                      size="sm"
-                    />
+          <template #item-trailing="{ item }">
+            <UIcon
+              v-if="item.id === currentWorkspace?.id"
+              name="streamline:check-solid"
+              class="mt-1 ml-1 size-3"
+            />
+          </template>
+        </UDropdownMenu>
+      </ContainerFlex>
+    </div>
 
-                    <span
-                      class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
-                    >
-                      {{ currentCollection?.title }}
-                    </span>
-                  </div>
-                </TransitionFade>
-              </NuxtLink>
+    <!-- Second / -->
+    <TransitionFade>
+      <UIcon
+        v-if="route.params.collectionid"
+        name="heroicons:slash-16-solid"
+        class="h-6 w-6 text-gray-200"
+      />
+    </TransitionFade>
 
-              <HeadlessListboxButton
-                class="relative w-full cursor-pointer rounded-lg border border-slate-100 bg-white p-1 text-left transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm sm:text-sm"
+    <!-- Collections -->
+    <TransitionFade>
+      <div
+        v-if="route.params.collectionid"
+        class="flex items-center justify-start gap-2"
+      >
+        <ContainerFlex align="center">
+          <NuxtLink
+            :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}`"
+          >
+            <TransitionFade>
+              <div
+                v-if="collectionStore.getLoading"
+                class="flex items-center justify-start gap-2"
+              >
+                <USkeleton class="h-[25px] w-[100px]" />
+              </div>
+
+              <div
+                v-else
+                class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
               >
                 <span
-                  class="pointer-events-none inset-y-0 right-0 flex items-center"
+                  class="max-w-40 truncate text-sm font-medium transition-all hover:text-gray-600"
                 >
-                  <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
+                  {{ currentCollection?.title }}
                 </span>
-              </HeadlessListboxButton>
-            </ContainerFlex>
+              </div>
+            </TransitionFade>
+          </NuxtLink>
 
-            <transition
-              leave-active-class="transition duration-100 ease-in"
-              enter-active-class="transition duration-75 ease-out"
-              leave-from-class="opacity-100"
-              leave-to-class="opacity-0"
-              enter-from-class="opacity-0 transition transform origin-top-right scale-95"
-              enter-to-class="opacity-100 transform origin-top-right scale-100"
-            >
-              <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
-              >
-                <HeadlessListboxOption
-                  v-for="collection in allCollections"
-                  v-slot="{ active, selected }"
-                  :key="collection.id"
-                  :value="collection.id"
-                  as="template"
-                  @click="navigateToCollection(collection.id)"
-                >
-                  <li
-                    :class="[
-                      active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                      'flex w-full cursor-pointer items-center justify-between px-4 py-1',
-                    ]"
-                  >
-                    <div class="flex items-center justify-start gap-2 pr-4">
-                      <UAvatar
-                        :src="`${collection?.imageUrl}?t=${collection?.updated}`"
-                        size="sm"
-                      />
-
-                      <UTooltip
-                        v-if="collection.title.length > 19"
-                        :text="collection.title"
-                      >
-                        <span
-                          :class="[
-                            selected ? 'font-medium' : 'font-normal',
-                            'block max-w-40 truncate',
-                          ]"
-                        >
-                          {{ collection.title }}
-                        </span>
-                      </UTooltip>
-
-                      <span
-                        v-else
-                        :class="[
-                          selected ? 'font-medium' : 'font-normal',
-                          'block max-w-40 truncate',
-                        ]"
-                      >
-                        {{ collection.title }}
-                      </span>
-                    </div>
-
-                    <span
-                      v-if="selected"
-                      class="flex items-center text-amber-600"
-                    >
-                      <Icon name="ph:check-bold" class="h-5 w-5" />
-                    </span>
-                  </li>
-                </HeadlessListboxOption>
-
-                <div class="mx-auto my-1 h-[1px] w-[90%] bg-slate-200"></div>
-
-                <div @click="createNewCollection">
-                  <li
-                    class="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-gray-900"
-                  >
-                    <div class="flex items-center justify-start gap-2 pr-4">
-                      <Icon name="ph:plus-circle-bold" />
-
-                      <span class="block truncate font-medium">
-                        Create a new collection
-                      </span>
-                    </div>
-                  </li>
-                </div>
-              </HeadlessListboxOptions>
-            </transition>
-          </div>
-        </HeadlessListbox>
+          <UDropdownMenu
+            :items="collectionItems"
+            :ui="{
+              content: 'w-max',
+            }"
+          >
+            <UButton
+              icon="mingcute:down-fill"
+              color="neutral"
+              variant="ghost"
+            />
+          </UDropdownMenu>
+        </ContainerFlex>
       </div>
     </TransitionFade>
 
+    <!-- Third / -->
     <TransitionFade>
-      <svg
+      <UIcon
         v-if="route.params.resourceid"
-        fill="none"
-        shape-rendering="geometricPrecision"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1"
-        viewBox="0 0 24 24"
-        width="14"
-        height="14"
-        class="h-8 w-8 text-gray-200"
-      >
-        <path d="M16.88 3.549L7.12 20.451"></path>
-      </svg>
+        name="heroicons:slash-16-solid"
+        class="h-6 w-6 text-gray-200"
+      />
     </TransitionFade>
 
+    <!-- Resources -->
     <TransitionFade>
-      <div v-if="route.params.resourceid" class="w-max">
-        <HeadlessListbox v-model="selectedResource">
-          <div class="relative">
-            <ContainerFlex align="center">
-              <NuxtLink
-                :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}/resources/${selectedResource}`"
+      <div
+        v-if="route.params.resourceid"
+        class="flex items-center justify-start gap-2"
+      >
+        <ContainerFlex align="center">
+          <NuxtLink
+            :to="`/dashboard/workspaces/${currentWorkspace?.id}/collections/${selectedCollection}/resources/${selectedResource}`"
+          >
+            <TransitionFade>
+              <div
+                v-if="resourceStore.getLoading"
+                class="flex items-center justify-start gap-2"
               >
-                <TransitionFade>
-                  <div
-                    v-if="resourceStore.getLoading"
-                    class="flex items-center justify-start gap-2"
-                  >
-                    <USkeleton class="h-[20px] w-[20px] rounded-full" />
+                <USkeleton class="h-[25px] w-[100px]" />
+              </div>
 
-                    <USkeleton class="h-[25px] w-[100px]" />
-                  </div>
-
-                  <div
-                    v-else
-                    class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
-                  >
-                    <UAvatar
-                      :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${selectedResource}`"
-                      size="sm"
-                    />
-
-                    <span
-                      v-if="currentResource?.title"
-                      class="max-w-40 truncate text-base font-medium transition-all hover:text-gray-600"
-                    >
-                      {{ currentResource?.title }}
-                    </span>
-
-                    <UBadge
-                      v-else
-                      color="success"
-                      size="sm"
-                      class="pointer-events-none"
-                      variant="outline"
-                    >
-                      New
-                    </UBadge>
-                  </div>
-                </TransitionFade>
-              </NuxtLink>
-
-              <HeadlessListboxButton
-                class="relative w-full cursor-pointer rounded-lg border border-slate-100 bg-white p-1 text-left transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm sm:text-sm"
+              <div
+                v-else
+                class="flex items-center justify-start gap-2 rounded-md p-1 transition-all hover:bg-gray-50"
               >
                 <span
-                  class="pointer-events-none inset-y-0 right-0 flex items-center"
+                  v-if="currentResource?.title"
+                  class="max-w-40 truncate text-sm font-medium transition-all hover:text-gray-600"
                 >
-                  <Icon name="ph:caret-up-down-bold" class="h-5 w-5" />
+                  {{ currentResource?.title }}
                 </span>
-              </HeadlessListboxButton>
-            </ContainerFlex>
 
-            <transition
-              leave-active-class="transition duration-100 ease-in"
-              enter-active-class="transition duration-75 ease-out"
-              leave-from-class="opacity-100"
-              leave-to-class="opacity-0"
-              enter-from-class="opacity-0 transition transform origin-top-right scale-95"
-              enter-to-class="opacity-100 transform origin-top-right scale-100"
-            >
-              <HeadlessListboxOptions
-                class="absolute mt-1 max-h-60 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 sm:text-sm"
-              >
-                <HeadlessListboxOption
-                  v-for="resource in allResources"
-                  v-slot="{ active, selected }"
-                  :key="resource.id"
-                  :value="resource.id"
-                  as="template"
-                  @click="navigateToResource(resource.id)"
+                <UBadge
+                  v-else
+                  color="success"
+                  size="sm"
+                  class="pointer-events-none"
+                  variant="outline"
                 >
-                  <li
-                    :class="[
-                      active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                      'flex w-full cursor-pointer items-center justify-between px-4 py-1',
-                    ]"
-                  >
-                    <div class="flex items-center justify-start gap-2 pr-4">
-                      <UAvatar
-                        :src="`https://api.dicebear.com/6.x/shapes/svg?seed=${resource.id}`"
-                        size="sm"
-                      />
+                  New
+                </UBadge>
+              </div>
+            </TransitionFade>
+          </NuxtLink>
 
-                      <UTooltip
-                        v-if="resource.title.length > 19"
-                        :text="resource.title"
-                      >
-                        <span
-                          :class="[
-                            selected ? 'font-medium' : 'font-normal',
-                            'block max-w-40 truncate',
-                          ]"
-                        >
-                          {{ resource.title }}
-                        </span>
-                      </UTooltip>
-
-                      <span
-                        v-else
-                        :class="[
-                          selected ? 'font-medium' : 'font-normal',
-                          'block max-w-40 truncate',
-                        ]"
-                      >
-                        {{ resource.title }}
-                      </span>
-                    </div>
-
-                    <span
-                      v-if="selected"
-                      class="flex items-center text-amber-600"
-                    >
-                      <Icon name="ph:check-bold" class="h-5 w-5" />
-                    </span>
-                  </li>
-                </HeadlessListboxOption>
-              </HeadlessListboxOptions>
-            </transition>
-          </div>
-        </HeadlessListbox>
+          <UDropdownMenu
+            :items="resourceItems"
+            :ui="{
+              content: 'w-max',
+            }"
+          >
+            <UButton
+              icon="mingcute:down-fill"
+              color="neutral"
+              variant="ghost"
+            />
+          </UDropdownMenu>
+        </ContainerFlex>
       </div>
     </TransitionFade>
 

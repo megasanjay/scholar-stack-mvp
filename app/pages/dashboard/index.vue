@@ -83,7 +83,7 @@ workspaceStore.setWorkspaces(workspaces.value || []);
               <div class="flex items-center gap-3">
                 <UAvatar
                   size="sm"
-                  :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${personalWorkspace?.id}`"
+                  :src="`https://api.dicebear.com/9.x/shapes/svg?seed=${personalWorkspace?.id}`"
                   class="mt-1"
                 />
 
@@ -125,7 +125,7 @@ workspaceStore.setWorkspaces(workspaces.value || []);
                 <div class="flex w-full items-start justify-start gap-2">
                   <UAvatar
                     size="md"
-                    :src="`https://api.dicebear.com/7.x/shapes/svg?seed=${workspace.id}`"
+                    :src="`https://api.dicebear.com/9.x/shapes/svg?seed=${workspace.id}`"
                     class="mt-1"
                   />
 
