@@ -341,6 +341,10 @@ const resourceItems = computed<DropdownMenuItem[][]>(() => [
 
         <UDropdownMenu
           :items="workspaceItems"
+          arrow
+          :content="{
+            align: 'start',
+          }"
           :ui="{
             content: 'w-max',
           }"
@@ -400,6 +404,10 @@ const resourceItems = computed<DropdownMenuItem[][]>(() => [
 
           <UDropdownMenu
             :items="collectionItems"
+            arrow
+            :content="{
+              align: 'center',
+            }"
             :ui="{
               content: 'w-max',
             }"
@@ -467,6 +475,10 @@ const resourceItems = computed<DropdownMenuItem[][]>(() => [
 
           <UDropdownMenu
             :items="resourceItems"
+            arrow
+            :content="{
+              align: 'end',
+            }"
             :ui="{
               content: 'w-max',
             }"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { clear } = useUserSession();
+const { clear, user } = useUserSession();
+const route = useRoute();
 
 const logout = async () => {
   clear();
@@ -9,27 +10,48 @@ const logout = async () => {
 const items = ref([
   [
     {
-      icon: "uil:dashboard",
-      label: "Dashboard",
+      label: `${user?.value?.givenName} ${user?.value?.familyName}`,
+      avatar: {
+        src: `https://api.dicebear.com/9.x/shapes/svg?seed=${user?.value?.id}`,
+      },
+      type: "label",
     },
     {
-      icon: "bx:bxs-book-open",
-      label: "Catalog",
-    },
-    {
-      icon: "ic:baseline-settings",
-      label: "Settings",
-    },
-    {
-      icon: "heroicons-solid:star",
-      label: "Starred",
+      icon: "material-symbols:account-circle",
+      label: "Account settings",
+      to: "/account/settings",
     },
   ],
   [
     {
-      icon: "solar:home-bold",
-      label: "Home",
+      icon: "material-symbols:dashboard",
+      label: "Dashboard",
+      to: "/dashboard",
     },
+    {
+      icon: "material-symbols:home",
+      label: "Home page",
+      to: "/",
+    },
+  ],
+  [
+    {
+      icon: "material-symbols:add-circle",
+      label: "Create a new workspace",
+    },
+    {
+      icon: "material-symbols:star",
+      label: "Starred collections",
+      to: "/collections/starred",
+    },
+    {
+      icon: "material-symbols:visibility-off",
+      label: "Hidden collections",
+      to: `/dashboard/workspaces/${route.params.workspaceid}/settings/hidden-collections`,
+      disabled: !route.params.workspaceid,
+    },
+  ],
+  [
     {
       icon: "majesticons:logout",
       label: "Logout",
@@ -41,7 +63,7 @@ const items = ref([
 
 <template>
   <AuthState>
-    <template #default="{ loggedIn, user }">
+    <template #default="{ loggedIn }">
       <NuxtLink v-if="!loggedIn" to="/login">
         <UButton size="lg" label="Log in" />
       </NuxtLink>
@@ -52,6 +74,10 @@ const items = ref([
 
       <UDropdownMenu
         :items="items"
+        arrow
+        :content="{
+          align: 'end',
+        }"
         :ui="{
           content: 'w-48',
         }"
