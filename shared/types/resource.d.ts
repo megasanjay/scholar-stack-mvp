@@ -17,7 +17,7 @@ interface ResourcesListItemChild {
   value: string;
 }
 
-interface ResourcesListItemChildren extends Array<ResourcesListItemChild> {}
+type ResourcesListItemChildren = Array<ResourcesListItemChild>;
 
 interface ResourcesListItem {
   label: string;
@@ -26,4 +26,4 @@ interface ResourcesListItem {
   action: string | null;
 }
 
-interface ResourcesList extends Array<ResourcesListItem> {}
+type ResourcesList = Array<ResourcesListItem>;

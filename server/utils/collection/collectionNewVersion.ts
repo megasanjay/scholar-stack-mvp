@@ -6,7 +6,11 @@ import { faker } from "@faker-js/faker";
 
 // TODO: Probably look into using a transaction here
 
-export default async function (collectionId: number) {
+export default async function (
+  collectionId: number,
+  title: string,
+  description: string,
+) {
   // get the latest version of the collection
 
   const latestVersion = await prisma.version.findFirst({
@@ -25,6 +29,8 @@ export default async function (collectionId: number) {
         name: "Draft",
         changelog: faker.lorem.paragraphs(3, "\n\n"),
         collectionId,
+        collectionTitle: title,
+        collectionDescription: description,
       },
     });
 
@@ -58,6 +64,8 @@ export default async function (collectionId: number) {
         changelog: faker.lorem.paragraphs(3, "\n\n"),
         collectionId,
         creators: latestVersion.creators || "[]",
+        collectionTitle: title,
+        collectionDescription: description,
       },
     });
 

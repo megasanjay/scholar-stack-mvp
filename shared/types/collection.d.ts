@@ -21,7 +21,7 @@ interface Collection {
   version: Version | null;
 }
 
-interface Collections extends Array<Collection> {}
+type Collections = Array<Collection>;
 
 interface CollectionAccessUser {
   id: string;
@@ -31,7 +31,7 @@ interface CollectionAccessUser {
   role: string;
 }
 
-interface CollectionAccessTeam extends Array<CollectionAccessUser> {}
+type CollectionAccessTeam = Array<CollectionAccessUser>;
 
 interface CollectionCreator {
   affiliation: string;
@@ -44,4 +44,4 @@ interface CollectionCreator {
   nameType: string;
 }
 
-interface CollectionCreators extends Array<CollectionCreator> {}
+type CollectionCreators = Array<CollectionCreator>;

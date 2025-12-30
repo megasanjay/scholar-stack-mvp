@@ -150,7 +150,11 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const { statusCode } = await collectionNewVersion(collectionId);
+  const { statusCode } = await collectionNewVersion(
+    collectionId,
+    draftVersion.collectionTitle,
+    draftVersion.collectionDescription,
+  );
 
   if (statusCode !== 201) {
     throw createError({

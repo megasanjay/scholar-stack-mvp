@@ -43,14 +43,13 @@ export default defineEventHandler(async (event) => {
 
   const collection = await prisma.collection.create({
     data: {
-      title,
       CollectionAccess: {
         create: {
           role: "admin",
           userId,
         },
       },
-      description,
+
       imageUrl: `https://api.dicebear.com/6.x/shapes/svg?seed=${nanoid()}`,
       type,
       workspaceId: workspaceid,
@@ -95,7 +94,11 @@ export default defineEventHandler(async (event) => {
 
   const collectionid = collection.id;
 
-  const { statusCode } = await collectionNewVersion(collectionid);
+  const { statusCode } = await collectionNewVersion(
+    collectionid,
+    title,
+    description,
+  );
 
   if (statusCode !== 201) {
     throw createError({

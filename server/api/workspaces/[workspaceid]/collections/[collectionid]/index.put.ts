@@ -52,18 +52,45 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Get the latest version of the collection
+  const latestVersion = await prisma.version.findFirst({
+    orderBy: { created: "desc" },
+    where: { collectionId },
+  });
+
+  if (!latestVersion) {
+    throw createError({
+      message: "No version found",
+      statusCode: 404,
+    });
+  }
+
   const { title, description, type } = parsedBody.data;
 
   const updatedCollection = await prisma.collection.update({
     data: {
-      title,
-      description,
       type,
     },
     where: { id: collectionId },
   });
 
   if (!updatedCollection) {
+    throw createError({
+      message: "Something went wrong",
+      statusCode: 404,
+    });
+  }
+
+  // Update the version
+  const updatedVersion = await prisma.version.update({
+    data: {
+      collectionTitle: title,
+      collectionDescription: description,
+    },
+    where: { id: latestVersion.id },
+  });
+
+  if (!updatedVersion) {
     throw createError({
       message: "Something went wrong",
       statusCode: 404,
