@@ -10,7 +10,7 @@ const route = useRoute();
 <template>
   <UContainer>
     <UPage>
-      <UPageHeader title="Workspace Settings"> </UPageHeader>
+      <UPageHeader title="Workspace Settings" />
 
       <UPageBody>
         <div>

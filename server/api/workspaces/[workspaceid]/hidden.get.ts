@@ -15,6 +15,17 @@ export default defineEventHandler(async (event) => {
   }
 
   const collections = await prisma.collection.findMany({
+    include: {
+      // get the latest version of the collection
+      Version: {
+        select: {
+          collectionTitle: true,
+          collectionDescription: true,
+        },
+        orderBy: { created: "desc" },
+        take: 1,
+      },
+    },
     orderBy: {
       updated: "desc",
     },

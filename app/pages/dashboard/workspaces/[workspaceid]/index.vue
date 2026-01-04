@@ -115,6 +115,7 @@ if (error.value) {
               workspace?.hiddenCollectionsCount &&
               workspace?.hiddenCollectionsCount > 0
             "
+            class="py-5"
             dashed
           >
             <NuxtLink

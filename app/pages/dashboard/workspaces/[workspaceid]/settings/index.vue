@@ -8,6 +8,10 @@ const workspaceDescription = ref("");
 const deleteWorkspaceModalIsOpen = ref(false);
 
 const saveLoading = ref(false);
+const importLoading = ref(false);
+const importFileInput = ref<HTMLInputElement | null>(null);
+const selectedFileName = ref("");
+const selectedFile = ref<File | null>(null);
 
 const { workspaceid } = useRoute().params as { workspaceid: string };
 
@@ -84,6 +88,113 @@ const deleteWorkspace = () => {
 
   deleteWorkspaceModalIsOpen.value = false;
 };
+
+const handleFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (file) {
+    selectedFileName.value = file.name;
+    selectedFile.value = file;
+  } else {
+    selectedFileName.value = "";
+    selectedFile.value = null;
+  }
+};
+
+const importCollection = async () => {
+  const file = selectedFile.value;
+
+  if (!file) {
+    toast.add({
+      title: "No file selected",
+      color: "error",
+      description: "Please select a JSON file to import",
+      icon: "material-symbols:error",
+    });
+
+    return;
+  }
+
+  if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+    toast.add({
+      title: "Invalid file type",
+      color: "error",
+      description: "Please select a valid JSON file",
+      icon: "material-symbols:error",
+    });
+
+    return;
+  }
+
+  importLoading.value = true;
+
+  try {
+    // Read the file as text
+    const fileContent = await file.text();
+
+    // Parse JSON
+    let importData: Record<string, unknown>;
+    try {
+      importData = JSON.parse(fileContent) as Record<string, unknown>;
+    } catch {
+      toast.add({
+        title: "Invalid JSON file",
+        color: "error",
+        description: "The file does not contain valid JSON",
+        icon: "material-symbols:error",
+      });
+      importLoading.value = false;
+
+      return;
+    }
+
+    // Send JSON object to API
+    const response = await $fetch<{
+      collectionId: number;
+      statusCode: number;
+      message: string;
+    }>(`/api/workspaces/${workspaceid}/collection-import`, {
+      method: "POST",
+      body: importData,
+    });
+
+    toast.add({
+      title: "Collection imported",
+      color: "success",
+      description: "Your collection has been imported successfully",
+      icon: "material-symbols:check-circle-outline",
+    });
+
+    // Reset file input
+    if (importFileInput.value) {
+      importFileInput.value.value = "";
+    }
+    selectedFileName.value = "";
+    selectedFile.value = null;
+
+    // Navigate to the imported collection
+    navigateTo(
+      `/dashboard/workspaces/${workspaceid}/collections/${response.collectionId}`,
+    );
+  } catch (err: unknown) {
+    console.error(err);
+
+    const errorMessage =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      (err as { message?: string })?.message ||
+      "We couldn't import your collection";
+
+    toast.add({
+      title: "Import failed",
+      color: "error",
+      description: errorMessage,
+      icon: "material-symbols:error",
+    });
+  } finally {
+    importLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -143,6 +254,42 @@ const deleteWorkspace = () => {
             @click="updateWorkspaceDetails"
           >
             Save
+          </UButton>
+        </div>
+      </template>
+    </CardWithAction>
+
+    <CardWithAction title="Import collection" class="border-red-200">
+      <p class="my-3 text-sm text-yellow-500">
+        This feature will allow you to import a collection from a file. Only a
+        JSON file exported from the platform will be supported. You can export a
+        collection by clicking the `Export` button on the collection page.
+      </p>
+
+      <UInput
+        ref="importFileInput"
+        type="file"
+        accept="application/json,.json"
+        class="w-full"
+        size="lg"
+        @change="handleFileSelect"
+      />
+
+      <p v-if="selectedFileName" class="mt-2 text-sm text-gray-600">
+        Selected: {{ selectedFileName }}
+      </p>
+
+      <template #action>
+        <div class="flex items-center justify-end">
+          <UButton
+            color="primary"
+            icon="humbleicons:upload"
+            size="lg"
+            :loading="importLoading"
+            :disabled="importLoading || !selectedFileName"
+            @click="importCollection"
+          >
+            Import
           </UButton>
         </div>
       </template>

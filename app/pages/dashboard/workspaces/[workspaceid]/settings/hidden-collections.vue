@@ -90,7 +90,7 @@ const unhideCollection = async (collectionId: number) => {
 
             <div class="flex flex-col">
               <p class="text-lg leading-tight font-medium">
-                {{ collection.title }}
+                {{ collection.Version[0]?.collectionTitle || "Untitled" }}
               </p>
 
               <span class="mt-1 text-sm text-slate-500">
@@ -112,7 +112,9 @@ const unhideCollection = async (collectionId: number) => {
 
         <div>
           <p class="line-clamp-4">
-            {{ collection.description }}
+            {{
+              collection.Version[0]?.collectionDescription || "No description"
+            }}
           </p>
         </div>
       </div>
